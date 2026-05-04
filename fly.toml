@@ -1,0 +1,20 @@
+# Fly.io example — run: fly launch / fly secrets set / fly deploy
+# Mount a volume at /data for durable file idempotency across restarts.
+
+app = "jira-feasibility-automation"
+primary_region = "iad"
+
+[build]
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1

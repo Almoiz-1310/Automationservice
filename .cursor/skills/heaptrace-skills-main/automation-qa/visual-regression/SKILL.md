@@ -1,0 +1,652 @@
+<!--
+┌──────────────────────────────────────────────────────────────┐
+│  HEAPTRACE DEVELOPER SKILLS                                  │
+│  Copyright © 2026 Heaptrace Technology Private Limited        │
+│                                                              │
+│  CONFIDENTIAL — FOR AUTHORIZED CLIENTS ONLY                  │
+│                                                              │
+│  This skill file is the intellectual property of Heaptrace.  │
+│  It is provided exclusively to licensed clients and their    │
+│  development teams for internal use only.                    │
+│                                                              │
+│  You MAY:                                                    │
+│  ✅ Use within your development team                         │
+│  ✅ Customize and tune for your project                      │
+│  ✅ Use with Claude Code, Cursor, or any AI coding tool      │
+│                                                              │
+│  You MAY NOT:                                                │
+│  ❌ Redistribute, share, or publish publicly                 │
+│  ❌ Sell, sublicense, or transfer to third parties            │
+│  ❌ Remove or modify this copyright notice                   │
+│  ❌ Commit to any public or shared repository                │
+│                                                              │
+│  Unauthorized use or distribution is prohibited.             │
+│  Contact: support@heaptrace.com                              │
+└──────────────────────────────────────────────────────────────┘
+-->
+
+---
+name: visual-regression
+description: "Set up visual regression testing with screenshot comparison, pixel threshold configuration, baseline management, CI integration, dynamic content handling, and responsive viewport testing. Catches unintended UI changes before they ship."
+---
+
+# Visual Regression Testing — Catch UI Bugs Your Eyes Miss
+
+Takes your UI pages and components and sets up automated screenshot comparison that catches unintended visual changes — layout shifts, color regressions, font changes, missing elements, and broken responsive designs. Produces a visual safety net that runs in CI and surfaces diffs before merge.
+
+---
+
+## ⛔ Common Rules — Read Before Every Task
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│              MANDATORY RULES FOR EVERY TASK                  │
+│                                                              │
+│  You are a senior software engineer working on a product.    │
+│  You are expert in database design, APIs, and building       │
+│  full-stack applications. Follow these rules strictly.       │
+│                                                              │
+│  ────────────────────────────────────────────────────────    │
+│                                                              │
+│  1. UNDERSTAND BEFORE YOU BUILD                              │
+│     → Study the existing architecture first                  │
+│     → Read how similar features are already built            │
+│     → Identify existing patterns, services, and utilities    │
+│     → Never assume — look at the actual codebase             │
+│                                                              │
+│  2. REUSE — NEVER DUPLICATE                                  │
+│     → Search for existing components, functions, utilities   │
+│     → If something similar exists, extend it — don't copy it │
+│     → Shared logic goes in shared files, not repeated        │
+│     → Ask: "Does this already exist somewhere?"              │
+│                                                              │
+│  3. USE EXISTING TECHNOLOGY                                  │
+│     → Use the frameworks and libraries already in the project│
+│     → Don't introduce a new library if an existing one works │
+│     → Follow the project's established patterns              │
+│                                                              │
+│  4. ASK BEFORE ADDING ANYTHING NEW                           │
+│     → New npm package? → ASK first                           │
+│     → New framework or tool? → ASK first                     │
+│     → New database table pattern? → ASK first                │
+│     → New folder structure? → ASK first                      │
+│     → Never install or download without confirmation         │
+│                                                              │
+│  5. FOLLOW BEST PRACTICES                                    │
+│     → Clean, readable code over clever code                  │
+│     → Proper error handling on every path                    │
+│     → Input validation at every boundary                     │
+│     → Consistent naming conventions throughout               │
+│     → Small, focused functions over large ones               │
+│                                                              │
+│  6. NO AI TOOL REFERENCES — ANYWHERE                         │
+│     → No "Generated by..." in code comments                  │
+│     → No "Co-Authored-By: Claude/Cursor/Copilot" in commits │
+│     → No AI tool mentions in PR descriptions                 │
+│     → No AI watermarks in any output                         │
+│     → All output must look 100% human-written                │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## When to Use This Skill
+
+| Scenario | Use? |
+|----------|------|
+| Component library / design system | Yes — highest value |
+| Landing pages, marketing pages | Yes — layout is critical |
+| Dashboard layouts, data tables | Yes |
+| Form pages with complex layouts | Yes |
+| Auth pages (login, signup) | Yes — brand-sensitive |
+| Admin-only pages seen by 3 people | Maybe — lower priority |
+| Pages with heavy animations | Caution — high false positive rate |
+| Real-time data displays (stock tickers) | No — too dynamic |
+| Email templates (HTML) | Yes — rendered in a headless browser |
+
+---
+
+## Tool Comparison
+
+```
+┌───────────────┬──────────────┬──────────────┬──────────────┐
+│  Tool         │  Integration │  Cost        │  Best For    │
+├───────────────┼──────────────┼──────────────┼──────────────┤
+│  Playwright   │  Built-in    │  Free        │  Full-page   │
+│  (toHaveScreenshot)          │              │  regression  │
+│               │              │              │  with E2E    │
+├───────────────┼──────────────┼──────────────┼──────────────┤
+│  Percy        │  CI service  │  Paid        │  Cross-      │
+│  (BrowserStack)│             │  (free tier) │  browser     │
+│               │              │              │  visual diff │
+├───────────────┼──────────────┼──────────────┼──────────────┤
+│  Chromatic    │  Storybook   │  Paid        │  Component   │
+│               │              │  (free tier) │  library     │
+│               │              │              │  visual QA   │
+├───────────────┼──────────────┼──────────────┼──────────────┤
+│  BackstopJS   │  Standalone  │  Free        │  Simple page │
+│               │              │              │  screenshot  │
+│               │              │              │  comparison  │
+├───────────────┼──────────────┼──────────────┼──────────────┤
+│  reg-suit     │  Standalone  │  Free        │  S3-based    │
+│               │              │              │  baseline    │
+│               │              │              │  storage     │
+└───────────────┴──────────────┴──────────────┴──────────────┘
+```
+
+### Decision Tree
+
+```
+┌────────────────────────────────────┐
+│  Already using Playwright?         │
+├──────────┬─────────────────────────┤
+│   Yes    │         No              │
+│   ▼      │         ▼              │
+│  Use     │  ┌──────────────────┐  │
+│  Playwright│ │ Have a Storybook?│  │
+│  built-in │ ├────────┬─────────┤  │
+│  snapshot  │ │  Yes   │   No    │  │
+│           │ │  ▼     │   ▼     │  │
+│           │ │Chromatic│BackstopJS│ │
+│           │ │or Percy│or Playwright│
+│           │ └────────┴─────────┘  │
+└──────────┴─────────────────────────┘
+```
+
+---
+
+## Process Flow
+
+```
+┌──────────┐   First run    ┌──────────────┐   Stored as    ┌──────────────┐
+│ Visual   │ ─────────────▶ │ Capture      │ ─────────────▶ │ Baseline     │
+│ Test     │                │ Screenshots  │                │ (committed   │
+│ Created  │                │              │                │  to repo)    │
+└──────────┘                └──────────────┘                └──────┬───────┘
+                                                                   │
+                            ┌──────────────────────────────────────┘
+                            ▼
+┌──────────┐   PR push     ┌──────────────┐   Compare      ┌──────────────┐
+│ Code     │ ────────────▶ │ New          │ ─────────────▶ │ Diff found?  │
+│ Changed  │               │ Screenshots  │                │              │
+└──────────┘               └──────────────┘                ├──────┬───────┤
+                                                           │  No  │  Yes  │
+                                                           │  ▼   │  ▼    │
+                                                           │ Pass │Review │
+                                                           │  ✓   │ diff  │
+                                                           │      │image  │
+                                                           │      │  ▼    │
+                                                           │      │Intent-│
+                                                           │      │ional? │
+                                                           │      │Yes→   │
+                                                           │      │Update │
+                                                           │      │base-  │
+                                                           │      │line   │
+                                                           │      │No→Fix │
+                                                           └──────┴───────┘
+```
+
+---
+
+## Playwright Visual Regression Setup
+
+### Configuration
+
+```typescript
+// playwright.config.ts
+import { defineConfig } from '@playwright/test'
+
+export default defineConfig({
+  testDir: './tests/visual',
+  // Consistent rendering across machines
+  use: {
+    // Force consistent viewport
+    viewport: { width: 1280, height: 720 },
+    // Disable animations — they cause false positives
+    actionTimeout: 5000,
+    // Consistent locale and timezone
+    locale: 'en-US',
+    timezoneId: 'America/New_York',
+  },
+  // Run in a single worker for consistent screenshots
+  workers: 1,
+  // Only use Chromium for visual tests (cross-browser adds noise)
+  projects: [
+    {
+      name: 'visual-chromium',
+      use: {
+        browserName: 'chromium',
+        // Disable GPU rendering for consistency
+        launchOptions: {
+          args: ['--disable-gpu', '--font-render-hinting=none'],
+        },
+      },
+    },
+  ],
+  // Snapshot settings
+  expect: {
+    toHaveScreenshot: {
+      // Allow 0.2% pixel difference (anti-aliasing tolerance)
+      maxDiffPixelRatio: 0.002,
+      // Allow slight color variations
+      threshold: 0.2,
+      // Animation tolerance
+      animations: 'disabled',
+    },
+  },
+})
+```
+
+### Writing Visual Tests
+
+```typescript
+// tests/visual/dashboard.visual.ts
+import { test, expect } from '@playwright/test'
+
+test.describe('Dashboard Visual Tests', () => {
+  test.beforeEach(async ({ page }) => {
+    // Login via API (fast)
+    await page.request.post('/api/auth/login', {
+      data: { email: 'admin@test.com', password: 'TestPass123!' },
+    })
+
+    await page.goto('/dashboard')
+    // Wait for all data to load
+    await page.waitForLoadState('networkidle')
+    // Wait for skeleton loaders to disappear
+    await page.locator('[data-testid="skeleton"]').waitFor({ state: 'hidden' })
+  })
+
+  test('dashboard — full page', async ({ page }) => {
+    await expect(page).toHaveScreenshot('dashboard-full.png', {
+      fullPage: true,
+    })
+  })
+
+  test('dashboard — stats cards', async ({ page }) => {
+    const statsSection = page.locator('[data-testid="stats-cards"]')
+    await expect(statsSection).toHaveScreenshot('dashboard-stats.png')
+  })
+
+  test('dashboard — mobile viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 })
+    await page.waitForTimeout(300) // Allow responsive layout to settle
+    await expect(page).toHaveScreenshot('dashboard-mobile.png', {
+      fullPage: true,
+    })
+  })
+
+  test('dashboard — tablet viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 768, height: 1024 })
+    await page.waitForTimeout(300)
+    await expect(page).toHaveScreenshot('dashboard-tablet.png', {
+      fullPage: true,
+    })
+  })
+})
+```
+
+---
+
+## Handling Dynamic Content
+
+Dynamic content is the #1 source of false positives. Solve it before it wastes your team's time.
+
+### Strategy Decision
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  DYNAMIC CONTENT TYPE       │  STRATEGY                      │
+├──────────────────────────────┼────────────────────────────────┤
+│  Timestamps, dates           │  Mock clock or mask region     │
+│  User names, avatars         │  Use consistent test data      │
+│  Random IDs, tokens          │  CSS mask or hide element      │
+│  Animations, transitions     │  Disable via CSS or config     │
+│  Charts with live data       │  Mock API with static data     │
+│  Ads, third-party widgets    │  Block in test or mask region  │
+│  Cursor position / focus     │  Remove focus before screenshot│
+│  Scrollbar rendering         │  Hide scrollbars via CSS       │
+│  Loading spinners            │  Wait for load complete        │
+│  Carousel / auto-rotating    │  Freeze at first slide         │
+└──────────────────────────────┴────────────────────────────────┘
+```
+
+### Masking Regions
+
+```typescript
+// Mask dynamic elements so they don't cause false diffs
+test('user profile page', async ({ page }) => {
+  await page.goto('/profile')
+  await page.waitForLoadState('networkidle')
+
+  await expect(page).toHaveScreenshot('profile-page.png', {
+    // Mask elements that change between runs
+    mask: [
+      page.locator('[data-testid="last-login-time"]'),
+      page.locator('[data-testid="user-avatar"]'),
+      page.locator('[data-testid="session-token"]'),
+    ],
+    // Mask color (default is pink #FF00FF)
+    maskColor: '#CCCCCC',
+  })
+})
+```
+
+### Disabling Animations
+
+```typescript
+// tests/visual/global-setup.ts
+import { FullConfig } from '@playwright/test'
+
+async function globalSetup(config: FullConfig) {
+  // Inject CSS to disable all animations
+}
+
+export default globalSetup
+
+// In each test, inject animation-disabling CSS:
+test.beforeEach(async ({ page }) => {
+  await page.addStyleTag({
+    content: `
+      *, *::before, *::after {
+        animation-duration: 0s !important;
+        animation-delay: 0s !important;
+        transition-duration: 0s !important;
+        transition-delay: 0s !important;
+        caret-color: transparent !important;
+      }
+      /* Hide scrollbars for consistent screenshots */
+      ::-webkit-scrollbar { display: none !important; }
+      * { scrollbar-width: none !important; }
+    `,
+  })
+})
+```
+
+### Freezing Dates and Times
+
+```typescript
+// Mock the clock so dates are always the same
+test('dashboard with frozen date', async ({ page }) => {
+  // Set clock to a fixed date
+  await page.clock.install({ time: new Date('2026-01-15T10:00:00Z') })
+
+  await page.goto('/dashboard')
+  await page.waitForLoadState('networkidle')
+
+  await expect(page).toHaveScreenshot('dashboard-frozen-time.png')
+})
+```
+
+---
+
+## Baseline Management
+
+### The Baseline Workflow
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  BASELINE MANAGEMENT RULES                                   │
+│                                                              │
+│  1. Baselines are committed to the repo                      │
+│     → tests/visual/*.visual.ts-snapshots/                    │
+│     → Treat them as source code — review diffs in PRs        │
+│                                                              │
+│  2. Update baselines INTENTIONALLY                           │
+│     → npx playwright test --update-snapshots                 │
+│     → Review EVERY updated image before committing           │
+│     → Commit message: "chore: update visual baselines for X" │
+│                                                              │
+│  3. Never auto-update baselines in CI                        │
+│     → CI only compares — humans decide if changes are OK     │
+│     → A visual diff blocks the PR until reviewed             │
+│                                                              │
+│  4. Platform consistency                                     │
+│     → Generate baselines on the SAME OS as CI (Linux)        │
+│     → Use Docker for local baseline generation if needed     │
+│     → Mac font rendering ≠ Linux font rendering              │
+│                                                              │
+│  5. One baseline per viewport per page                       │
+│     → desktop-dashboard.png                                  │
+│     → mobile-dashboard.png                                   │
+│     → tablet-dashboard.png                                   │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Generate Baselines in Docker (Matches CI)
+
+```bash
+# Generate baselines using the same Linux environment as CI
+docker run --rm \
+  -v $(pwd):/work \
+  -w /work \
+  mcr.microsoft.com/playwright:v1.45.0-focal \
+  npx playwright test tests/visual --update-snapshots
+```
+
+### Baseline Update Command
+
+```bash
+# Update all baselines
+npx playwright test tests/visual --update-snapshots
+
+# Update baselines for a specific test file
+npx playwright test tests/visual/dashboard.visual.ts --update-snapshots
+
+# Update baselines for a specific test
+npx playwright test -g "dashboard — full page" --update-snapshots
+```
+
+---
+
+## CI Integration
+
+### GitHub Actions Workflow
+
+```yaml
+# .github/workflows/visual-regression.yml
+name: Visual Regression
+
+on:
+  pull_request:
+    paths:
+      - 'src/frontend/**'
+      - 'tests/visual/**'
+
+jobs:
+  visual-tests:
+    name: Visual Regression Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      # Use official Playwright image for consistent rendering
+      image: mcr.microsoft.com/playwright:v1.45.0-focal
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: cd src/frontend && npm ci
+
+      - name: Start app
+        run: |
+          cd src/frontend && npm run build && npm start &
+          npx wait-on http://localhost:3000 --timeout 60000
+
+      - name: Run visual tests
+        run: cd src/frontend && npx playwright test tests/visual/
+
+      - name: Upload diff artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-diff-report
+          path: |
+            src/frontend/test-results/
+            src/frontend/playwright-report/
+          retention-days: 14
+
+      - name: Comment PR with diff images
+        if: failure()
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: visual-regression
+          message: |
+            ## Visual Regression Detected
+
+            Visual differences were found. Please review the diff artifacts.
+
+            [Download diff report](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            If these changes are intentional, update baselines:
+            ```bash
+            npx playwright test tests/visual --update-snapshots
+            ```
+```
+
+---
+
+## Responsive Screenshot Matrix
+
+```typescript
+// tests/visual/responsive.visual.ts
+import { test, expect } from '@playwright/test'
+
+const viewports = [
+  { name: 'mobile', width: 375, height: 812 },
+  { name: 'tablet', width: 768, height: 1024 },
+  { name: 'desktop', width: 1280, height: 800 },
+  { name: 'wide', width: 1920, height: 1080 },
+]
+
+const pages = [
+  { name: 'dashboard', path: '/dashboard' },
+  { name: 'courses', path: '/courses' },
+  { name: 'profile', path: '/profile' },
+  { name: 'login', path: '/login' },
+]
+
+for (const viewport of viewports) {
+  for (const page of pages) {
+    test(`${page.name} @ ${viewport.name} (${viewport.width}x${viewport.height})`, async ({
+      page: pwPage,
+    }) => {
+      await pwPage.setViewportSize({
+        width: viewport.width,
+        height: viewport.height,
+      })
+
+      await pwPage.goto(page.path)
+      await pwPage.waitForLoadState('networkidle')
+
+      // Disable animations
+      await pwPage.addStyleTag({
+        content: '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',
+      })
+
+      await expect(pwPage).toHaveScreenshot(
+        `${page.name}-${viewport.name}.png`,
+        { fullPage: true }
+      )
+    })
+  }
+}
+```
+
+---
+
+## Threshold Configuration
+
+### Choosing the Right Threshold
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  THRESHOLD GUIDE                                             │
+│                                                              │
+│  maxDiffPixelRatio:                                          │
+│    0.000 → Pixel-perfect match (too strict for most UIs)     │
+│    0.001 → Very strict (catches sub-pixel rendering diffs)   │
+│    0.002 → Recommended default (anti-aliasing tolerance)     │
+│    0.005 → Relaxed (allows minor rendering variations)       │
+│    0.01  → Very relaxed (only catches major layout shifts)   │
+│    0.05  → Too relaxed (misses real regressions)             │
+│                                                              │
+│  threshold (per-pixel color diff):                           │
+│    0.1   → Strict color matching                             │
+│    0.2   → Recommended (handles font smoothing differences)  │
+│    0.3   → Relaxed (allows color shifts)                     │
+│                                                              │
+│  Rule: Start strict, loosen only for specific noisy pages    │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Per-Test Threshold Overrides
+
+```typescript
+// Strict for brand-critical pages
+test('login page', async ({ page }) => {
+  await expect(page).toHaveScreenshot('login.png', {
+    maxDiffPixelRatio: 0.001,
+    threshold: 0.1,
+  })
+})
+
+// Relaxed for pages with charts/graphs
+test('analytics dashboard', async ({ page }) => {
+  await expect(page).toHaveScreenshot('analytics.png', {
+    maxDiffPixelRatio: 0.005,
+    threshold: 0.3,
+  })
+})
+```
+
+---
+
+## Common Mistakes / Anti-Patterns
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  ANTI-PATTERN                    │  DO THIS INSTEAD          │
+├──────────────────────────────────┼───────────────────────────┤
+│  Screenshot entire page with     │  Mask dynamic content     │
+│  timestamps and live data        │  or use static test data  │
+│                                  │                           │
+│  Generate baselines on Mac,      │  Use Docker/CI container  │
+│  run CI on Linux                 │  for baseline generation  │
+│                                  │                           │
+│  Auto-update baselines in CI     │  Manual review + commit   │
+│                                  │                           │
+│  0% threshold (pixel-perfect)    │  0.2% tolerance minimum   │
+│                                  │                           │
+│  Screenshot with animations      │  Disable all animations   │
+│  mid-transition                  │  before capturing         │
+│                                  │                           │
+│  No wait for network/loading     │  networkidle + skeleton   │
+│                                  │  hidden before capture    │
+│                                  │                           │
+│  100+ visual tests in every PR   │  Critical pages only,     │
+│                                  │  full suite nightly       │
+│                                  │                           │
+│  Ignore failing visual tests     │  Review diffs, update or  │
+│                                  │  fix — never skip         │
+│                                  │                           │
+│  Same threshold for all pages    │  Tune per-page as needed  │
+│                                  │                           │
+│  No viewport variants            │  Test mobile + tablet +   │
+│                                  │  desktop at minimum       │
+└──────────────────────────────────┴───────────────────────────┘
+```
+
+---
+
+## Tips for Best Results
+
+1. **Start with 5-10 critical pages** — don't try to screenshot every page on day one
+2. **Always disable animations** — the #1 source of false positives
+3. **Use static mock data** — MSW or API intercepts with deterministic responses
+4. **Generate baselines in Docker** — matches CI rendering exactly
+5. **Review visual diffs in PRs** — treat screenshot updates like code changes
+6. **Component-level screenshots** are more stable than full-page screenshots
+7. **Set a maxDiffPixels absolute cap** for large pages instead of ratio
+8. **Run visual tests in a single worker** — parallel execution can cause rendering inconsistencies
+9. **Separate visual test suite** from E2E tests — different configs and thresholds
+10. **Delete stale baselines** — if a page is removed, remove its baseline screenshots too

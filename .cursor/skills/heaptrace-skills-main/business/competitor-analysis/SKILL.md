@@ -1,0 +1,571 @@
+<!--
+┌──────────────────────────────────────────────────────────────┐
+│  HEAPTRACE DEVELOPER SKILLS                                  │
+│  Copyright © 2026 Heaptrace Technology Private Limited        │
+│                                                              │
+│  CONFIDENTIAL — FOR AUTHORIZED CLIENTS ONLY                  │
+│                                                              │
+│  This skill file is the intellectual property of Heaptrace.  │
+│  It is provided exclusively to licensed clients and their    │
+│  development teams for internal use only.                    │
+│                                                              │
+│  You MAY:                                                    │
+│  ✅ Use within your development team                         │
+│  ✅ Customize and tune for your project                      │
+│  ✅ Use with Claude Code, Cursor, or any AI coding tool      │
+│                                                              │
+│  You MAY NOT:                                                │
+│  ❌ Redistribute, share, or publish publicly                 │
+│  ❌ Sell, sublicense, or transfer to third parties            │
+│  ❌ Remove or modify this copyright notice                   │
+│  ❌ Commit to any public or shared repository                │
+│                                                              │
+│  Unauthorized use or distribution is prohibited.             │
+│  Contact: support@heaptrace.com                              │
+└──────────────────────────────────────────────────────────────┘
+-->
+
+---
+name: competitor-analysis
+description: "Analyze competitor products and features systematically. Produces feature matrices, SWOT analysis per competitor, gap analysis, pricing comparisons, market positioning maps, and actionable differentiation opportunities. Output is ready for executive presentations and product strategy discussions."
+---
+
+# Competitor Analysis — From Market Scan to Strategic Insights
+
+Takes a product, feature area, or market segment and produces a structured competitive analysis covering feature comparison, SWOT analysis, pricing, positioning, and differentiation opportunities. The output supports product strategy decisions and client-facing presentations.
+
+---
+
+## Common Rules — Read Before Every Task
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│              MANDATORY RULES FOR EVERY TASK                  │
+│                                                              │
+│  You are a product strategist conducting competitive         │
+│  research. Your output will inform product roadmap and       │
+│  go-to-market decisions. Be rigorous and evidence-based.     │
+│  Follow these rules strictly.                                │
+│                                                              │
+│  ────────────────────────────────────────────────────────    │
+│                                                              │
+│  1. EVIDENCE OVER OPINION                                    │
+│     → Base every claim on observable product behavior        │
+│     → Cite specific features, pages, or pricing tiers       │
+│     → Distinguish between fact and inference                 │
+│     → Mark assumptions clearly as "[ASSUMPTION]"             │
+│                                                              │
+│  2. BE FAIR AND ACCURATE                                     │
+│     → Do not understate competitor strengths                 │
+│     → Do not overstate competitor weaknesses                 │
+│     → Acknowledge where competitors are genuinely better     │
+│     → Biased analysis leads to bad strategy                  │
+│                                                              │
+│  3. FOCUS ON WHAT MATTERS TO USERS                           │
+│     → Compare features users actually care about             │
+│     → Ignore vanity features nobody uses                     │
+│     → Weight analysis by user impact, not feature count      │
+│     → Talk to users, not just marketing pages                │
+│                                                              │
+│  4. MAKE IT ACTIONABLE                                       │
+│     → Every insight must lead to a recommendation            │
+│     → "They have X" is observation — "We should Y" is value │
+│     → Prioritize opportunities by effort vs impact           │
+│     → Link findings to your product roadmap                  │
+│                                                              │
+│  5. DATE YOUR RESEARCH                                       │
+│     → Competitor products change constantly                  │
+│     → Mark every data point with when it was observed        │
+│     → Set a review cadence (quarterly recommended)           │
+│     → Pricing and features are point-in-time snapshots       │
+│                                                              │
+│  6. NO AI TOOL REFERENCES — ANYWHERE                         │
+│     → No "Generated by..." in document headers               │
+│     → No AI tool mentions in any output                      │
+│     → All output must look 100% human-written                │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## When to Use This Skill
+
+- Planning a new product or major feature and need to understand the landscape
+- Preparing a competitive positioning deck for sales or executive review
+- Evaluating build vs buy vs partner decisions
+- Responding to a client asking "How do you compare to X?"
+- Quarterly product strategy review
+
+---
+
+## How It Works
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                  COMPETITOR ANALYSIS FLOW                         │
+│                                                                  │
+│  ┌────────────┐    ┌────────────┐    ┌─────────────────────┐    │
+│  │ STEP 1     │    │ STEP 2     │    │ STEP 3              │    │
+│  │ Identify   │───▶│ Feature    │───▶│ SWOT per            │    │
+│  │ Competitors│    │ Matrix     │    │ Competitor           │    │
+│  └────────────┘    └────────────┘    └──────────┬──────────┘    │
+│                                                  │               │
+│  ┌────────────┐    ┌────────────┐    ┌──────────▼──────────┐    │
+│  │ STEP 6     │    │ STEP 5     │    │ STEP 4              │    │
+│  │ Strategic  │◀───│ Gap &      │◀───│ Pricing &           │    │
+│  │ Recommend. │    │ Opportunity│    │ Positioning          │    │
+│  └────────────┘    └────────────┘    └─────────────────────┘    │
+│                                                                  │
+│  Output: Complete competitive analysis with recommendations      │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Step 1 — Identify Competitors
+
+### Competitor Classification
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  COMPETITOR TIERS                                           │
+│                                                             │
+│  TIER 1 — Direct Competitors                                │
+│  Same market, same use case, overlapping customers          │
+│  → These are your primary comparison targets                │
+│  → Usually 3-5 companies                                    │
+│                                                             │
+│  TIER 2 — Indirect Competitors                              │
+│  Adjacent market, partial overlap, different core focus      │
+│  → Might expand into your space                             │
+│  → Usually 2-3 companies                                    │
+│                                                             │
+│  TIER 3 — Substitutes                                       │
+│  Different approach, same problem                           │
+│  → Spreadsheets, manual processes, custom-built solutions   │
+│  → Do not underestimate these                               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Competitor Profile Card
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  COMPETITOR: [Name]                                      │
+│  Tier: [1 / 2 / 3]                                      │
+│                                                          │
+│  Website:       [URL]                                    │
+│  Founded:       [Year]                                   │
+│  Company Size:  [Employees]                              │
+│  Funding:       [Total raised or "Bootstrapped"]         │
+│  Target Market: [SMB / Mid-market / Enterprise]          │
+│  Pricing Model: [Per user / Flat / Usage-based]          │
+│  Key Strength:  [One-line summary]                       │
+│  Key Weakness:  [One-line summary]                       │
+│  Market Share:  [Estimate if available]                  │
+│  Last Observed: [Date of research]                       │
+└──────────────────────────────────────────────────────────┘
+```
+
+### Decision Tree — Is This a Real Competitor?
+
+```
+                    ┌──────────────────────────┐
+                    │ Do they solve the same   │
+                    │ core problem?            │
+                    └────────┬─────────────────┘
+                             │
+                    ┌────────▼────────┐
+                    │     YES         │
+                    └────────┬────────┘
+                             │
+                    ┌────────▼─────────────────┐
+                    │ Do they target the same   │
+                    │ customer segment?         │
+                    └────────┬─────────────────┘
+                             │
+              ┌──────────────┼──────────────┐
+              │ YES                         │ NO
+              ▼                             ▼
+        Tier 1 — Direct              Tier 2 — Indirect
+        (Primary focus)              (Monitor quarterly)
+
+                    If they solve a DIFFERENT problem
+                    but users use them INSTEAD of you:
+                             │
+                             ▼
+                    Tier 3 — Substitute
+                    (Understand why users choose this)
+```
+
+---
+
+## Step 2 — Feature Matrix
+
+### Feature Comparison Table
+
+Rate each feature using this scale:
+
+| Symbol | Meaning |
+|--------|---------|
+| ++ | Best in class — market-leading implementation |
+| + | Good — fully functional, meets expectations |
+| ~ | Basic — works but limited or clunky |
+| - | Missing — not available |
+| ? | Unknown — could not verify |
+
+### Example Feature Matrix
+
+| Feature | Your Product | Competitor A | Competitor B | Competitor C |
+|---------|-------------|-------------|-------------|-------------|
+| **Core Features** | | | | |
+| Course creation (manual) | + | ++ | + | ~ |
+| AI-powered course generation | ++ | - | ~ | - |
+| SCORM support | ~ | ++ | ++ | + |
+| Learning paths | + | + | ++ | - |
+| Quizzes & assessments | + | + | + | + |
+| Certificates | + | + | ++ | ~ |
+| **User Management** | | | | |
+| SSO (SAML/OIDC) | + | ++ | + | - |
+| Role-based access | + | + | + | ~ |
+| Multi-tenancy | ++ | + | - | - |
+| User groups/branches | + | ++ | + | ~ |
+| **Engagement** | | | | |
+| Gamification | + | ++ | ~ | - |
+| Discussion forums | - | + | + | ~ |
+| Mobile app (native) | ~ | ++ | + | - |
+| Push notifications | ~ | + | + | - |
+| **Reporting** | | | | |
+| Standard reports | + | + | ++ | ~ |
+| Custom report builder | - | ++ | + | - |
+| Scheduled reports | - | + | + | - |
+| API access | + | ++ | + | ~ |
+| **Administration** | | | | |
+| White labeling | + | ++ | + | ~ |
+| Webhooks | + | + | ~ | - |
+| Integrations marketplace | - | ++ | + | - |
+
+### Feature Count Summary
+
+| Category | Your Product | Competitor A | Competitor B | Competitor C |
+|----------|-------------|-------------|-------------|-------------|
+| Best in class (++) | 2 | 7 | 3 | 0 |
+| Good (+) | 12 | 8 | 11 | 3 |
+| Basic (~) | 3 | 1 | 3 | 6 |
+| Missing (-) | 3 | 4 | 3 | 11 |
+| **Feature Score** | **33** | **39** | **33** | **12** |
+
+*(Score: ++ = 3, + = 2, ~ = 1, - = 0)*
+
+---
+
+## Step 3 — SWOT Analysis Per Competitor
+
+### SWOT Template
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  SWOT — [Competitor Name]                                    │
+│                                                              │
+│  ┌─────────────────────────┐ ┌─────────────────────────────┐ │
+│  │     STRENGTHS           │ │     WEAKNESSES              │ │
+│  │                         │ │                             │ │
+│  │  • [Internal advantage] │ │  • [Internal limitation]    │ │
+│  │  • [Internal advantage] │ │  • [Internal limitation]    │ │
+│  │  • [Internal advantage] │ │  • [Internal limitation]    │ │
+│  │                         │ │                             │ │
+│  └─────────────────────────┘ └─────────────────────────────┘ │
+│  ┌─────────────────────────┐ ┌─────────────────────────────┐ │
+│  │     OPPORTUNITIES       │ │     THREATS                 │ │
+│  │     (for us)            │ │     (from them)             │ │
+│  │                         │ │                             │ │
+│  │  • [We can exploit this]│ │  • [This threatens us]      │ │
+│  │  • [We can exploit this]│ │  • [This threatens us]      │ │
+│  │  • [We can exploit this]│ │  • [This threatens us]      │ │
+│  │                         │ │                             │ │
+│  └─────────────────────────┘ └─────────────────────────────┘ │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Example SWOT — Competitor A (TalentLMS)
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  SWOT — Competitor A                                         │
+│                                                              │
+│  STRENGTHS                      WEAKNESSES                   │
+│  • Mature platform (10+ yrs)    • Dated UI/UX design         │
+│  • 70+ native integrations      • No AI course generation    │
+│  • Strong brand recognition     • Expensive at scale ($$$)   │
+│  • Excellent SCORM support      • Slow feature releases      │
+│  • 24/7 phone support           • No true multi-tenancy      │
+│                                                              │
+│  OPPORTUNITIES (for us)         THREATS (from them)          │
+│  • Capture users frustrated     • They could add AI features │
+│    with their dated UX          • Enterprise sales team can  │
+│  • Lead with AI generation        outspend us in deals       │
+│    as differentiator            • Brand trust means some     │
+│  • Offer simpler pricing for      buyers default to them     │
+│    SMBs they overcharge         • Could acquire an AI startup│
+│  • Multi-tenant architecture      for course generation      │
+│    wins managed service deals                                │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Step 4 — Pricing & Positioning
+
+### Pricing Comparison Table
+
+| Tier | Your Product | Competitor A | Competitor B | Competitor C |
+|------|-------------|-------------|-------------|-------------|
+| Free tier | Up to 10 users | Up to 5 users | No free tier | Up to 3 users |
+| Starter | $3/user/mo | $5/user/mo | $8/user/mo | $4/user/mo |
+| Professional | $6/user/mo | $8/user/mo | $15/user/mo | $7/user/mo |
+| Enterprise | Custom | $12/user/mo | Custom | $10/user/mo |
+| Minimum contract | None | Annual | Annual | None |
+| Setup fee | None | $500 | $2,000 | None |
+| **Cost for 100 users (Pro)** | **$600/mo** | **$800/mo** | **$1,500/mo** | **$700/mo** |
+| **Cost for 1,000 users (Pro)** | **$6,000/mo** | **$8,000/mo** | **$15,000/mo** | **$7,000/mo** |
+
+### Market Positioning Map
+
+```
+                         HIGH PRICE
+                            │
+                            │
+              Enterprise    │    Enterprise
+              (Competitor B)│    (Competitor A)
+                    ●       │        ●
+                            │
+     ───────────────────────┼───────────────────────
+     FEWER                  │                  MORE
+     FEATURES               │              FEATURES
+                            │
+                  ●         │     ●
+              (Competitor C)│  (Your Product)
+                            │
+              SMB Focus     │    Mid-Market
+                            │
+                            │
+                         LOW PRICE
+```
+
+### Positioning Statement
+
+Use this template to articulate your unique position:
+
+```
+For [target customer] who [need/pain point],
+[Product Name] is the [category] that [key differentiator].
+
+Unlike [primary competitor], we [unique advantage].
+```
+
+### Example:
+
+```
+For growing companies that need to train teams quickly,
+HeapLearn is the LMS that generates professional courses
+with AI in minutes instead of weeks.
+
+Unlike TalentLMS, we combine AI-powered content creation
+with modern UX and transparent per-user pricing.
+```
+
+---
+
+## Step 5 — Gap Analysis & Opportunities
+
+### Gap Analysis Matrix
+
+| Gap (We Lack) | Competitor Has It? | User Demand | Effort to Build | Strategic Value | Priority |
+|---------------|-------------------|-------------|-----------------|-----------------|----------|
+| Custom report builder | A: Yes, B: Yes | High (top 5 request) | Large (8-12 weeks) | High — enterprise deals need it | P1 |
+| SCORM 2004 full support | A: Yes, B: Yes | Medium | Medium (4-6 weeks) | Medium — compliance market | P2 |
+| Native mobile app | A: Yes | Medium | Large (12-16 weeks) | Medium — nice to have | P3 |
+| Integration marketplace | A: Yes | Low | Large (ongoing) | Low — too early for our stage | P4 |
+
+### Opportunity Matrix
+
+| Opportunity | Type | Effort | Impact | Time to Market | Recommended Action |
+|-------------|------|--------|--------|----------------|-------------------|
+| AI course generation (our advantage) | Differentiation | Done | High | Shipped | Double down — improve quality, add more content types |
+| Multi-tenant architecture | Differentiation | Done | High | Shipped | Market aggressively to managed service providers |
+| Modern UI/UX | Competitive parity | Medium | High | 4-6 weeks | Redesign key screens, highlight in demos |
+| Custom reports | Gap closure | Large | High | 8-12 weeks | Phase 1: 5 pre-built reports. Phase 2: Report builder |
+| Discussion forums | Gap closure | Medium | Medium | 4-6 weeks | Defer to Phase 2 — not a deal-breaker yet |
+
+### Competitive Response Playbook
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  WHEN A CLIENT ASKS: "How do you compare to [Competitor]?"   │
+│                                                              │
+│  1. Acknowledge the competitor's strengths (builds trust)    │
+│     "They're a solid platform with good [X]."                │
+│                                                              │
+│  2. Pivot to your differentiators                            │
+│     "Where we differ is [specific advantage]."               │
+│                                                              │
+│  3. Make it about the client's needs                         │
+│     "Based on what you've told me, [our advantage]           │
+│      directly addresses your [specific need]."               │
+│                                                              │
+│  4. Offer a head-to-head evaluation                          │
+│     "I'd recommend trying both side by side.                 │
+│      Here's what to test: [3 specific scenarios]."           │
+│                                                              │
+│  NEVER:                                                      │
+│  ❌ Trash-talk the competitor                                │
+│  ❌ Make claims you can't demonstrate live                   │
+│  ❌ Promise features not yet built                           │
+│  ❌ Ignore areas where they're genuinely better              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Step 6 — Strategic Recommendations
+
+### Recommendation Format
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  RECOMMENDATION: [Short title]                               │
+│                                                              │
+│  Finding:     [What the analysis revealed]                   │
+│  Implication: [Why this matters for our business]            │
+│  Action:      [What we should do]                            │
+│  Timeline:    [When to start]                                │
+│  Investment:  [Estimated effort — S/M/L]                     │
+│  Expected ROI:[How this pays off]                            │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Example Recommendations
+
+```
+RECOMMENDATION 1: Lead with AI differentiation in all go-to-market
+
+Finding:     No Tier 1 competitor offers AI course generation
+Implication: This is our strongest differentiator for the next 12-18 months
+Action:      Make AI generation the hero feature in demos, website,
+             and sales decks. Create comparison landing pages.
+Timeline:    Immediate (marketing effort)
+Investment:  Small (content + positioning updates)
+Expected ROI: 20-30% increase in demo-to-trial conversion
+
+RECOMMENDATION 2: Close the custom reporting gap
+
+Finding:     Both Tier 1 competitors offer custom reporting;
+             it is a top-5 feature request from prospects
+Implication: We lose enterprise deals when prospects need custom reports
+Action:      Build 5 pre-built reports in Q2, report builder in Q3
+Timeline:    Start Q2
+Investment:  Large (8-12 weeks engineering)
+Expected ROI: Unblocks 3-5 enterprise deals worth $50K+ ARR each
+```
+
+---
+
+## Complete Output Template
+
+```markdown
+# Competitive Analysis: [Product/Category]
+
+**Author:** [Name]
+**Date:** [Date]
+**Review Cadence:** Quarterly
+**Next Review:** [Date + 3 months]
+
+---
+
+## Executive Summary
+
+[3-5 sentences: key findings, biggest threats, top opportunities]
+
+## 1. Competitor Landscape
+
+[Competitor profile cards for 3-5 competitors]
+
+## 2. Feature Comparison Matrix
+
+[Feature matrix table with scoring]
+
+## 3. SWOT Analysis
+
+[One SWOT per Tier 1 competitor]
+
+## 4. Pricing Comparison
+
+[Pricing table + positioning map]
+
+## 5. Gap Analysis
+
+[Gap matrix + opportunity matrix]
+
+## 6. Strategic Recommendations
+
+[3-5 prioritized recommendations]
+
+## 7. Competitive Response Guide
+
+[Playbook for handling "How do you compare?" questions]
+
+## Appendix
+
+- Data sources and observation dates
+- Detailed feature notes
+- Competitor screenshots (if applicable)
+```
+
+---
+
+## Completeness Checklist
+
+```
+COMPETITOR ANALYSIS QUALITY CHECKLIST
+─────────────────────────────────────
+[ ] At least 3 competitors identified and classified (Tier 1/2/3)
+[ ] Competitor profiles include company size, funding, target market
+[ ] Feature matrix covers at least 15 features across 4+ categories
+[ ] Features rated with consistent scale (++/+/~/-)
+[ ] SWOT completed for each Tier 1 competitor
+[ ] Opportunities section includes what WE can do (not just observations)
+[ ] Pricing comparison includes at least 3 tiers and total cost calculations
+[ ] Positioning map places all competitors and your product
+[ ] Gap analysis links gaps to user demand and strategic value
+[ ] At least 3 strategic recommendations with timeline and investment estimate
+[ ] Competitive response guide included for sales team
+[ ] All data points dated (when observed)
+[ ] No unsupported claims — every insight tied to evidence
+[ ] Executive summary fits on one page
+[ ] Document marked with review cadence date
+```
+
+---
+
+## Common Mistakes
+
+| Mistake | Impact | Prevention |
+|---------|--------|------------|
+| Only comparing features, not outcomes | Miss the real competitive dynamics | Compare how users accomplish goals, not feature lists |
+| Cherry-picking data to look favorable | Team makes bad strategic decisions | Be honest — acknowledge where competitors win |
+| Comparing to today, not their roadmap | Surprised by competitor launches | Track competitor release notes and blog posts |
+| Ignoring substitutes (spreadsheets, manual) | Underestimate biggest competitor | Many users choose "no tool" over any tool |
+| Analysis without recommendations | Document collects dust | Every finding needs "So what? Now what?" |
+| One-time analysis | Stale data leads to wrong decisions | Set quarterly review cadence |
+
+---
+
+## Tips for Presenting Competitive Analysis
+
+1. **Start with "So what?"** — Executives want implications, not raw data. Lead with recommendations.
+2. **Use the positioning map** — A visual showing where you sit vs competitors is worth 10 pages of text
+3. **Be honest about weaknesses** — Credibility comes from acknowledging gaps, not hiding them
+4. **Connect to revenue** — "This gap costs us X deals worth $Y" gets attention
+5. **Give sales a cheat sheet** — The competitive response guide is the most-used output
+6. **Update quarterly** — A 6-month-old analysis is worse than no analysis (stale confidence)
+7. **Include screenshots** — Showing competitor UI alongside yours makes the comparison tangible

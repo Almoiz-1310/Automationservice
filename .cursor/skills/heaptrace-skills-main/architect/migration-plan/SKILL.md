@@ -1,0 +1,509 @@
+<!--
+┌──────────────────────────────────────────────────────────────┐
+│  HEAPTRACE DEVELOPER SKILLS                                  │
+│  Copyright © 2026 Heaptrace Technology Private Limited        │
+│                                                              │
+│  CONFIDENTIAL — FOR AUTHORIZED CLIENTS ONLY                  │
+│                                                              │
+│  This skill file is the intellectual property of Heaptrace.  │
+│  It is provided exclusively to licensed clients and their    │
+│  development teams for internal use only.                    │
+│                                                              │
+│  You MAY:                                                    │
+│  ✅ Use within your development team                         │
+│  ✅ Customize and tune for your project                      │
+│  ✅ Use with Claude Code, Cursor, or any AI coding tool      │
+│                                                              │
+│  You MAY NOT:                                                │
+│  ❌ Redistribute, share, or publish publicly                 │
+│  ❌ Sell, sublicense, or transfer to third parties            │
+│  ❌ Remove or modify this copyright notice                   │
+│  ❌ Commit to any public or shared repository                │
+│                                                              │
+│  Unauthorized use or distribution is prohibited.             │
+│  Contact: support@heaptrace.com                              │
+└──────────────────────────────────────────────────────────────┘
+-->
+
+---
+name: migration-plan
+description: "Plan data and system migrations — zero-downtime strategy, rollback procedures, validation checks. Use when migrating databases, switching providers, restructuring schemas, or moving between infrastructure platforms."
+---
+
+# Migration Plan — From Current State to Target State Without Downtime
+
+Takes a migration requirement (database restructure, provider switch, infrastructure move) and produces a step-by-step plan with rollback procedures, validation checks, and a zero-downtime execution timeline.
+
+---
+
+## ⛔ Common Rules — Read Before Every Task
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│              MANDATORY RULES FOR EVERY TASK                  │
+│                                                              │
+│  You are a senior technical architect working on a product.  │
+│  You are expert in distributed systems, API design, and      │
+│  building scalable full-stack applications. Follow these     │
+│  rules strictly.                                             │
+│                                                              │
+│  ────────────────────────────────────────────────────────    │
+│                                                              │
+│  1. UNDERSTAND BEFORE YOU BUILD                              │
+│     → Study the existing architecture first                  │
+│     → Read how similar features are already built            │
+│     → Identify existing patterns, services, and utilities    │
+│     → Never assume — look at the actual codebase             │
+│                                                              │
+│  2. REUSE — NEVER DUPLICATE                                  │
+│     → Search for existing components, functions, utilities   │
+│     → If something similar exists, extend it — don't copy it │
+│     → Shared logic goes in shared files, not repeated        │
+│     → Ask: "Does this already exist somewhere?"              │
+│                                                              │
+│  3. USE EXISTING TECHNOLOGY                                  │
+│     → Use the frameworks and libraries already in the project│
+│     → Don't introduce a new library if an existing one works │
+│     → Follow the project's established patterns              │
+│                                                              │
+│  4. ASK BEFORE ADDING ANYTHING NEW                           │
+│     → New npm package? → ASK first                           │
+│     → New framework or tool? → ASK first                     │
+│     → New database table pattern? → ASK first                │
+│     → New folder structure? → ASK first                      │
+│     → Never install or download without confirmation         │
+│                                                              │
+│  5. FOLLOW BEST PRACTICES                                    │
+│     → Clean, readable code over clever code                  │
+│     → Proper error handling on every path                    │
+│     → Input validation at every boundary                     │
+│     → Consistent naming conventions throughout               │
+│     → Small, focused functions over large ones               │
+│                                                              │
+│  6. NO AI TOOL REFERENCES — ANYWHERE                         │
+│     → No "Generated by..." in code comments                  │
+│     → No "Co-Authored-By: Claude/Cursor/Copilot" in commits │
+│     → No AI tool mentions in PR descriptions                 │
+│     → No AI watermarks in any output                         │
+│     → All output must look 100% human-written                │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## When to Use This Skill
+
+- Restructuring a database schema (rename columns, change types, split tables)
+- Switching from one provider to another (e.g., SendGrid to AWS SES)
+- Moving from one database to another (e.g., MySQL to PostgreSQL)
+- Migrating infrastructure (e.g., Heroku to AWS, monolith to microservices)
+- Large-scale data backfill or transformation
+- Upgrading a major framework version with breaking changes
+
+---
+
+## How It Works
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    MIGRATION PLAN FLOW                           │
+│                                                                 │
+│  ┌────────────┐    ┌────────────┐    ┌──────────────────────┐   │
+│  │ STEP 1     │    │ STEP 2     │    │ STEP 3               │   │
+│  │ Assess     │───▶│ Design     │───▶│ Build Migration      │   │
+│  │ Current    │    │ Target     │    │ Scripts               │   │
+│  │ State      │    │ State      │    │                       │   │
+│  └────────────┘    └────────────┘    └──────────┬───────────┘   │
+│                                                  │               │
+│  ┌────────────┐    ┌────────────┐    ┌──────────▼───────────┐   │
+│  │ STEP 6     │    │ STEP 5     │    │ STEP 4               │   │
+│  │ Execute &  │◀───│ Rollback   │◀───│ Validation &         │   │
+│  │ Monitor    │    │ Plan       │    │ Testing               │   │
+│  └────────────┘    └────────────┘    └──────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Step 1: Assess Current State
+
+### Current State Inventory
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  CURRENT STATE ASSESSMENT                                    │
+│                                                              │
+│  What is being migrated:                                     │
+│  □ Database schema (tables, columns, types)                  │
+│  □ Data (rows, documents, files)                             │
+│  □ External service/provider                                 │
+│  □ Infrastructure (hosting, networking)                      │
+│  □ Application code (framework, language)                    │
+│                                                              │
+│  Scale:                                                      │
+│  • Total data size: __________ (GB/TB)                       │
+│  • Total rows in affected tables: __________                 │
+│  • Active users affected: __________                         │
+│  • Services dependent on this: __________                    │
+│  • Current uptime requirement: __________ (99.9%?)           │
+│                                                              │
+│  Dependencies:                                               │
+│  • Code that reads from affected tables/APIs: __________     │
+│  • Code that writes to affected tables/APIs: __________      │
+│  • External services that depend on current format: ________ │
+│  • Scheduled jobs that touch affected data: __________       │
+│  • Cached data that references affected schema: __________   │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Impact Analysis
+
+| Component | Affected? | Impact | Effort |
+|-----------|-----------|--------|--------|
+| Backend API routes | Yes/No | Which routes | Hours |
+| Frontend pages | Yes/No | Which pages | Hours |
+| Background workers | Yes/No | Which jobs | Hours |
+| External integrations | Yes/No | Which services | Hours |
+| Cached data | Yes/No | Which caches | Hours |
+| Reports/analytics | Yes/No | Which queries | Hours |
+| Mobile app | Yes/No | Which screens | Hours |
+
+---
+
+## Step 2: Design Target State
+
+### Target State Specification
+
+Document exactly what the system should look like after migration:
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  TARGET STATE                                                │
+│                                                              │
+│  Schema Changes:                                             │
+│  ┌────────────────┬────────────────┬────────────────────────┐│
+│  │ Current        │ Target         │ Migration Action       ││
+│  ├────────────────┼────────────────┼────────────────────────┤│
+│  │ col: VARCHAR   │ col: TEXT      │ ALTER COLUMN           ││
+│  │ col: old_name  │ col: new_name  │ Add new, copy, drop    ││
+│  │ (missing)      │ col: new_col   │ ADD COLUMN + backfill  ││
+│  │ col: unused    │ (removed)      │ Stop reading, then DROP││
+│  │ table: old     │ table: new     │ Create new, migrate    ││
+│  └────────────────┴────────────────┴────────────────────────┘│
+│                                                              │
+│  Provider Changes:                                           │
+│  • Old: _____________ → New: _____________                   │
+│  • API compatibility: _____________                          │
+│  • Data format differences: _____________                    │
+│                                                              │
+│  Infrastructure Changes:                                     │
+│  • Old: _____________ → New: _____________                   │
+│  • Network topology changes: _____________                   │
+│  • DNS changes needed: _____________                         │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Step 3: Build Migration Strategy
+
+### Zero-Downtime Migration Pattern
+
+The safest approach for any migration is the **expand-contract pattern**:
+
+```
+PHASE 1: EXPAND
+┌──────────────────────────────────────────────────────────────┐
+│ Deploy code that writes to BOTH old AND new                  │
+│ • Add new column/table/service alongside old                 │
+│ • Application writes to both (dual-write)                    │
+│ • Application reads from old only                            │
+│ • No user impact — old path is still primary                 │
+└──────────────────────────────────────────────────────────────┘
+            │
+            ▼
+PHASE 2: MIGRATE
+┌──────────────────────────────────────────────────────────────┐
+│ Backfill existing data from old to new                       │
+│ • Run migration script in batches (1000 rows at a time)      │
+│ • Validate each batch against source                         │
+│ • Monitor for errors and data mismatches                     │
+│ • Continue dual-writing for new data during backfill         │
+└──────────────────────────────────────────────────────────────┘
+            │
+            ▼
+PHASE 3: SWITCH
+┌──────────────────────────────────────────────────────────────┐
+│ Switch reads from old to new                                 │
+│ • Deploy code that reads from new                            │
+│ • Keep writing to both (safety net)                          │
+│ • Validate that reads from new match expectations            │
+│ • Monitor for errors, latency changes                        │
+└──────────────────────────────────────────────────────────────┘
+            │
+            ▼
+PHASE 4: CONTRACT
+┌──────────────────────────────────────────────────────────────┐
+│ Remove old path (after bake period — 1-2 weeks)              │
+│ • Stop writing to old                                        │
+│ • Remove old column/table/service                            │
+│ • Clean up dual-write code                                   │
+│ • Archive old data if needed                                 │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Batch Processing Template
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  BATCH MIGRATION CONFIGURATION                               │
+│                                                              │
+│  Batch size: 1000 rows per iteration                         │
+│  Pause between batches: 100ms (reduce DB pressure)           │
+│  Concurrency: 1 (serial to avoid locks)                      │
+│  Progress tracking: Log every batch with count/total         │
+│  Error handling: Log error, skip row, continue               │
+│  Resume support: Track last processed ID                     │
+│  Estimated time: [total rows / batch size * pause]           │
+│                                                              │
+│  Pseudocode:                                                 │
+│  cursor = null                                               │
+│  while true:                                                 │
+│    batch = SELECT * FROM old WHERE id > cursor               │
+│            ORDER BY id LIMIT 1000                            │
+│    if batch.empty: break                                     │
+│    for row in batch:                                         │
+│      try: transform_and_insert(row)                          │
+│      catch: log_error(row, error)                            │
+│    cursor = batch.last.id                                    │
+│    log_progress(cursor, total)                               │
+│    sleep(100ms)                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Migration Script Checklist
+
+- [ ] Script is idempotent (safe to run multiple times)
+- [ ] Script tracks progress and can resume from last checkpoint
+- [ ] Script processes in batches (never load all rows at once)
+- [ ] Script logs progress every N rows
+- [ ] Script handles errors per-row (does not abort on single failure)
+- [ ] Script validates data after transform
+- [ ] Script has a dry-run mode (validate without writing)
+- [ ] Script is tested on a copy of production data
+
+---
+
+## Step 4: Validation and Testing
+
+### Validation Strategy
+
+```
+PRE-MIGRATION VALIDATION:
+┌──────────────────────────────────────────────────────────────┐
+│  □ Row counts match between source and target                │
+│  □ Sample records match (compare 100 random rows)            │
+│  □ Aggregate values match (SUM, COUNT, AVG on key columns)   │
+│  □ Foreign key integrity verified                            │
+│  □ Unique constraints hold                                   │
+│  □ No NULL values where NOT NULL expected                    │
+│  □ Enum values are all valid in new schema                   │
+└──────────────────────────────────────────────────────────────┘
+
+POST-MIGRATION VALIDATION:
+┌──────────────────────────────────────────────────────────────┐
+│  □ Application smoke tests pass (login, list, create, edit)  │
+│  □ API integration tests pass                                │
+│  □ No increase in error rate (compare before/after)          │
+│  □ No increase in response latency                           │
+│  □ Background jobs complete successfully                     │
+│  □ Webhook processing works                                  │
+│  □ Search/filtering returns correct results                  │
+│  □ Reports and dashboards show correct data                  │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Data Comparison Queries
+
+```sql
+-- Row count comparison
+SELECT 'old' AS source, COUNT(*) FROM old_table
+UNION ALL
+SELECT 'new' AS source, COUNT(*) FROM new_table;
+
+-- Checksum comparison (detect data differences)
+SELECT MD5(STRING_AGG(id::text || col1 || col2, ',' ORDER BY id))
+FROM old_table;
+-- Compare with same query on new_table
+
+-- Missing records
+SELECT id FROM old_table
+EXCEPT
+SELECT id FROM new_table;
+-- And reverse to find orphans in new
+```
+
+### Testing Stages
+
+| Stage | Environment | Data | Duration | Gate |
+|-------|------------|------|----------|------|
+| 1. Unit tests | Local | Mock data | Minutes | All pass |
+| 2. Integration tests | Local | Seed data | Minutes | All pass |
+| 3. Staging dry-run | Staging | Copy of prod | Hours | Counts match |
+| 4. Staging full run | Staging | Copy of prod | Hours | Smoke tests pass |
+| 5. Production (Phase 1) | Production | Real data | Days | Dual-write works |
+| 6. Production (Phase 2) | Production | Real data | Hours | Backfill complete |
+| 7. Production (Phase 3) | Production | Real data | Days | Reads from new OK |
+| 8. Production (Phase 4) | Production | Real data | Weeks | Old path removed |
+
+---
+
+## Step 5: Rollback Plan
+
+### Rollback Decision Tree
+
+```
+Is something wrong after migration?
+├── Data is incorrect
+│   ├── Can fix with a patch script? → Fix forward
+│   └── Widespread corruption? → ROLLBACK
+│
+├── Performance degraded
+│   ├── Missing index? → Add index, fix forward
+│   └── Fundamental design issue? → ROLLBACK
+│
+├── Application errors
+│   ├── Isolated to one endpoint? → Fix and deploy
+│   └── Widespread failures? → ROLLBACK
+│
+└── External integration broken
+    ├── Config issue? → Fix config, redeploy
+    └── Fundamental incompatibility? → ROLLBACK
+```
+
+### Rollback Procedure Template
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  ROLLBACK PROCEDURE                                          │
+│                                                              │
+│  Trigger: [What condition triggers rollback]                 │
+│  Decision maker: [Who approves rollback]                     │
+│  Estimated time: [How long rollback takes]                   │
+│                                                              │
+│  Steps:                                                      │
+│  1. □ Stop all writes to new target                          │
+│  2. □ Switch reads back to old source                        │
+│  3. □ Deploy previous code version                           │
+│  4. □ Verify old path is working                             │
+│  5. □ Sync any data written to new back to old               │
+│  6. □ Notify stakeholders                                    │
+│  7. □ Post-mortem: identify root cause                       │
+│                                                              │
+│  Data Recovery:                                              │
+│  • If dual-writing: old data is already current              │
+│  • If not: restore from pre-migration backup                 │
+│  • For new records created during migration:                 │
+│    [specific recovery procedure]                             │
+│                                                              │
+│  IMPORTANT: Take a database snapshot BEFORE starting         │
+│  the migration. This is your last-resort safety net.         │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Step 6: Execute and Monitor
+
+### Execution Timeline Template
+
+```
+DAY 0 — PREPARATION
+├── □ Take database snapshot/backup
+├── □ Notify stakeholders of migration window
+├── □ Verify rollback procedure works (dry-run)
+├── □ Deploy monitoring dashboards
+└── □ Confirm staging migration was successful
+
+DAY 1 — EXPAND PHASE
+├── □ Deploy dual-write code
+├── □ Verify both old and new receive writes
+├── □ Monitor error rates for 24 hours
+└── □ Go/No-Go decision for backfill
+
+DAY 2-3 — MIGRATE PHASE
+├── □ Run backfill script
+├── □ Monitor progress (% complete)
+├── □ Validate batch results
+├── □ Verify row counts match at completion
+└── □ Spot-check 100 random records
+
+DAY 4 — SWITCH PHASE
+├── □ Deploy code that reads from new
+├── □ Monitor error rates and latency
+├── □ Run integration tests against production
+├── □ Verify dashboards and reports are correct
+└── □ Go/No-Go decision for contract phase
+
+DAY 5-14 — BAKE PERIOD
+├── □ Monitor for 1-2 weeks with both paths active
+├── □ Collect metrics: error rates, latency, data consistency
+└── □ If stable → proceed to contract
+
+DAY 15+ — CONTRACT PHASE
+├── □ Remove dual-write code
+├── □ Drop old columns/tables
+├── □ Archive old data if needed
+├── □ Clean up feature flags
+└── □ Update documentation
+```
+
+### Monitoring During Migration
+
+| Metric | Normal Range | Alert Threshold | Action |
+|--------|-------------|----------------|--------|
+| Error rate | < 0.1% | > 1% | Pause and investigate |
+| p95 latency | < 200ms | > 500ms | Check query plans |
+| DB CPU | < 60% | > 80% | Reduce batch size |
+| DB connections | < 80% pool | > 90% pool | Pause migration |
+| Queue depth | < 100 | > 1000 | Slow down writes |
+| Row count delta | 0 | > 0 | Investigate mismatch |
+
+---
+
+## Anti-Patterns — Never Do These
+
+| Anti-Pattern | Why It Fails | Do Instead |
+|-------------|-------------|-----------|
+| Big-bang migration (all at once) | High risk, hard to rollback | Use expand-contract pattern |
+| No backup before migration | No safety net if things go wrong | Always snapshot before start |
+| Migrating production first | Untested path in production | Test in staging with prod data copy |
+| No rollback plan | Stuck if something goes wrong | Write and test rollback procedure |
+| Loading all rows into memory | OOM crash on large tables | Use cursor-based batch processing |
+| Blocking migration (table locks) | Downtime during migration | Use non-blocking operations |
+| No validation after migration | Silent data corruption | Validate counts, checksums, samples |
+| Removing old path immediately | No safety net for hidden issues | Bake for 1-2 weeks minimum |
+
+---
+
+## Quality Checklist — Before Starting Migration
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  MIGRATION READINESS CHECKLIST                               │
+│                                                              │
+│  □ Current state fully documented                            │
+│  □ Target state fully documented                             │
+│  □ All affected code paths identified                        │
+│  □ Migration scripts written and tested locally              │
+│  □ Migration tested on staging with production data copy     │
+│  □ Validation queries written and verified                   │
+│  □ Rollback procedure documented and tested                  │
+│  □ Database backup/snapshot scheduled before execution       │
+│  □ Monitoring dashboards deployed                            │
+│  □ Stakeholders notified of timeline                         │
+│  □ Go/No-Go criteria defined for each phase                  │
+│  □ On-call engineer assigned during migration window         │
+│  □ Communication plan for incident (who to notify, how)      │
+└──────────────────────────────────────────────────────────────┘
+```

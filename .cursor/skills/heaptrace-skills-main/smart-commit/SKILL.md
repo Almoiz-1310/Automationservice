@@ -1,0 +1,598 @@
+<!--
+┌──────────────────────────────────────────────────────────────┐
+│  HEAPTRACE DEVELOPER SKILLS                                  │
+│  Copyright © 2026 Heaptrace Technology Private Limited        │
+│                                                              │
+│  CONFIDENTIAL — FOR AUTHORIZED CLIENTS ONLY                  │
+│                                                              │
+│  This skill file is the intellectual property of Heaptrace.  │
+│  It is provided exclusively to licensed clients and their    │
+│  development teams for internal use only.                    │
+│                                                              │
+│  You MAY:                                                    │
+│  ✅ Use within your development team                         │
+│  ✅ Customize and tune for your project                      │
+│  ✅ Use with Claude Code, Cursor, or any AI coding tool      │
+│                                                              │
+│  You MAY NOT:                                                │
+│  ❌ Redistribute, share, or publish publicly                 │
+│  ❌ Sell, sublicense, or transfer to third parties            │
+│  ❌ Remove or modify this copyright notice                   │
+│  ❌ Commit to any public or shared repository                │
+│                                                              │
+│  Unauthorized use or distribution is prohibited.             │
+│  Contact: support@heaptrace.com                              │
+└──────────────────────────────────────────────────────────────┘
+-->
+
+---
+name: smart-commit
+description: "Analyze staged changes and generate a clear, semantic commit message that explains the WHY, not just the WHAT. Handles single commits, multi-file changes, and breaking changes. Use after making code changes, before pushing."
+---
+
+# Smart Commit — Write Meaningful Commit Messages
+
+Analyzes your staged changes (or working directory diff) and generates a clear, well-structured commit message that future developers will actually understand.
+
+---
+
+## ⛔ Common Rules — Read Before Every Task
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│              MANDATORY RULES FOR EVERY TASK                  │
+│                                                              │
+│  You are a senior software engineer working on a product.    │
+│  You are expert in database design, APIs, and building       │
+│  full-stack applications. Follow these rules strictly.       │
+│                                                              │
+│  ────────────────────────────────────────────────────────    │
+│                                                              │
+│  1. UNDERSTAND BEFORE YOU BUILD                              │
+│     → Study the existing architecture first                  │
+│     → Read how similar features are already built            │
+│     → Identify existing patterns, services, and utilities    │
+│     → Never assume — look at the actual codebase             │
+│                                                              │
+│  2. REUSE — NEVER DUPLICATE                                  │
+│     → Search for existing components, functions, utilities   │
+│     → If something similar exists, extend it — don't copy it │
+│     → Shared logic goes in shared files, not repeated        │
+│     → Ask: "Does this already exist somewhere?"              │
+│                                                              │
+│  3. USE EXISTING TECHNOLOGY                                  │
+│     → Use the frameworks and libraries already in the project│
+│     → Don't introduce a new library if an existing one works │
+│     → Follow the project's established patterns              │
+│                                                              │
+│  4. ASK BEFORE ADDING ANYTHING NEW                           │
+│     → New npm package? → ASK first                           │
+│     → New framework or tool? → ASK first                     │
+│     → New database table pattern? → ASK first                │
+│     → New folder structure? → ASK first                      │
+│     → Never install or download without confirmation         │
+│                                                              │
+│  5. FOLLOW BEST PRACTICES                                    │
+│     → Clean, readable code over clever code                  │
+│     → Proper error handling on every path                    │
+│     → Input validation at every boundary                     │
+│     → Consistent naming conventions throughout               │
+│     → Small, focused functions over large ones               │
+│                                                              │
+│  6. NO AI TOOL REFERENCES — ANYWHERE                         │
+│     → No "Generated by..." in code comments                  │
+│     → No "Co-Authored-By: Claude/Cursor/Copilot" in commits │
+│     → No AI tool mentions in PR descriptions                 │
+│     → No AI watermarks in any output                         │
+│     → All output must look 100% human-written                │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## When to Use This Skill
+
+- You've made changes and need to commit
+- You've made a large change across multiple files and don't know how to summarize it
+- You want consistent, professional commit messages across your team
+- You're preparing a PR and want clean commit history
+
+---
+
+## How It Works
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                   SMART COMMIT FLOW                          │
+│                                                              │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐    │
+│  │ STEP 1   │  │ STEP 2   │  │ STEP 3   │  │ STEP 4   │    │
+│  │ Read the │─▶│ Classify │─▶│ Write    │─▶│ Commit   │    │
+│  │ Diff     │  │ Change   │  │ Message  │  │          │    │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘    │
+│   git diff      What type?    Subject +     Stage + commit   │
+│   git status    What scope?   Body + Why    Verify           │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Step 1: Read the Changes
+
+Before writing a message, understand what changed.
+
+### 1.1 — Check What's Changed
+
+```bash
+# See all modified files
+git status
+
+# See staged changes (what will be committed)
+git diff --staged
+
+# See unstaged changes (not yet added)
+git diff
+
+# See summary of changes (files + lines changed)
+git diff --staged --stat
+```
+
+### 1.2 — Understand the Change
+
+For each modified file, answer:
+
+| Question | Why It Matters |
+|----------|---------------|
+| What was changed? | Describes the content of the diff |
+| Why was it changed? | This is what goes in the commit message |
+| What problem does this solve? | Gives future devs context |
+| Does this change behavior? | Determines if it's a feat, fix, or refactor |
+
+---
+
+## Step 2: Classify the Change
+
+### 2.1 — Change Type
+
+Pick the type that best describes **the purpose** of the change:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                  COMMIT TYPE GUIDE                           │
+│                                                              │
+│  feat:      New feature or capability added                  │
+│             "Users can now do something they couldn't before"│
+│                                                              │
+│  fix:       Bug fix                                          │
+│             "Something was broken, now it works"              │
+│                                                              │
+│  refactor:  Code restructuring (no behavior change)          │
+│             "Code works the same but is organized better"    │
+│                                                              │
+│  chore:     Tooling, config, dependencies, builds            │
+│             "Maintenance work, not user-facing"               │
+│                                                              │
+│  docs:      Documentation only                               │
+│             "Comments, README, docs files changed"            │
+│                                                              │
+│  test:      Adding or fixing tests                           │
+│             "Test coverage, no production code changed"       │
+│                                                              │
+│  style:     Formatting, whitespace, semicolons               │
+│             "No logic changed, just cosmetic"                 │
+│                                                              │
+│  perf:      Performance improvement                          │
+│             "Same behavior but faster/more efficient"         │
+│                                                              │
+│  ci:        CI/CD pipeline changes                           │
+│             "Workflow files, deploy scripts"                   │
+│                                                              │
+│  revert:    Reverts a previous commit                        │
+│             "Undoing a previous change"                        │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 2.2 — Decision Tree for Ambiguous Changes
+
+```
+Did the change add new user-facing behavior?
+│
+├── YES → feat
+│
+└── NO
+    │
+    ├── Did it fix broken behavior?
+    │   ├── YES → fix
+    │   └── NO ↓
+    │
+    ├── Did it change how code is organized (but works the same)?
+    │   ├── YES → refactor
+    │   └── NO ↓
+    │
+    ├── Did it improve speed/efficiency (same behavior)?
+    │   ├── YES → perf
+    │   └── NO ↓
+    │
+    ├── Did it only change tests?
+    │   ├── YES → test
+    │   └── NO ↓
+    │
+    ├── Did it only change docs/comments?
+    │   ├── YES → docs
+    │   └── NO ↓
+    │
+    ├── Did it only change CI/deploy?
+    │   ├── YES → ci
+    │   └── NO ↓
+    │
+    └── deps, config, tooling → chore
+```
+
+### 2.3 — Scope (Optional but Recommended)
+
+Add a scope to show **what area** of the codebase was changed:
+
+```
+feat(auth): add Google OAuth login
+fix(api): handle null user in profile endpoint
+refactor(billing): extract invoice calculation to service
+chore(deps): update prisma to v5.10
+```
+
+**Common scopes:**
+
+| Scope | Covers |
+|-------|--------|
+| `auth` | Authentication, authorization, login, JWT |
+| `api` | Backend endpoints, middleware, routes |
+| `ui` | Frontend components, pages, layouts |
+| `db` | Database schema, migrations, queries |
+| `billing` | Payments, subscriptions, invoices |
+| `config` | Environment, settings, feature flags |
+| `deps` | Dependencies, package.json changes |
+| `ci` | GitHub Actions, deploy scripts |
+| `lms` | LMS-specific features (courses, paths) |
+| `email` | Email templates, SMTP, notifications |
+
+---
+
+## Step 3: Write the Commit Message
+
+### 3.1 — Message Structure
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                COMMIT MESSAGE FORMAT                     │
+│                                                          │
+│  Line 1:  type(scope): subject line (max 72 chars)       │
+│                                                          │
+│  Line 2:  [blank line]                                   │
+│                                                          │
+│  Line 3+: Body — explains WHY, not WHAT                  │
+│           (what is already visible in the diff)           │
+│           Wrap at 72 characters per line                  │
+│                                                          │
+│  Last:    Footer — references, breaking changes           │
+│                                                          │
+│  ─────────────────────────────────────────────────────   │
+│                                                          │
+│  Example:                                                │
+│                                                          │
+│  fix(api): return 404 instead of 500 for missing users   │
+│                                                          │
+│  The profile endpoint threw an unhandled error when       │
+│  querying a deleted user, causing a 500 response.        │
+│  Added a null check after the DB query and return a      │
+│  proper 404 with a descriptive error message.            │
+│                                                          │
+│  Fixes: #247                                             │
+└──────────────────────────────────────────────────────────┘
+```
+
+### 3.2 — Subject Line Rules
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                SUBJECT LINE RULES                       │
+│                                                         │
+│  ✅ DO                        ❌ DON'T                  │
+│                                                         │
+│  Use imperative mood           Use past tense           │
+│  "add user validation"         "added user validation"  │
+│                                                         │
+│  Keep under 72 characters      Write a paragraph        │
+│  "fix null check in auth"      "fixed the null..."      │
+│                                                         │
+│  Start lowercase after :       Capitalize after :       │
+│  "feat: add dark mode"         "Feat: Add Dark Mode"    │
+│                                                         │
+│  Be specific                   Be vague                 │
+│  "fix pagination off-by-one"   "fix bug"                │
+│                                                         │
+│  Describe the change           Describe the file        │
+│  "add email to user profile"   "update user.ts"         │
+└─────────────────────────────────────────────────────────┘
+```
+
+### 3.3 — Body — The WHY, Not the WHAT
+
+The diff shows WHAT changed. The body explains **WHY**.
+
+```
+┌──────────────────────────────────────────────────────────┐
+│               BODY WRITING GUIDE                         │
+│                                                          │
+│  Answer these questions in the body:                     │
+│                                                          │
+│  1. Why was this change necessary?                       │
+│     → "The profile page crashed when users had no avatar"│
+│                                                          │
+│  2. What problem does it solve?                          │
+│     → "Users with null avatars caused a TypeError"       │
+│                                                          │
+│  3. Are there side effects or things to watch out for?   │
+│     → "This changes the default avatar to a placeholder" │
+│                                                          │
+│  ─────────────────────────────────────────────────────   │
+│                                                          │
+│  ❌ Bad body (describes WHAT — already in the diff):     │
+│  "Changed the avatar component to add a null check       │
+│   on line 23 and added a fallback image URL"             │
+│                                                          │
+│  ✅ Good body (describes WHY):                           │
+│  "Users who never uploaded an avatar saw a broken image  │
+│   icon. The component assumed avatar_url was always      │
+│   present, but it's nullable in the database. Added a    │
+│   fallback to the default placeholder."                  │
+└──────────────────────────────────────────────────────────┘
+```
+
+### 3.4 — Footer — References & Breaking Changes
+
+```markdown
+# Reference an issue
+Fixes: #123
+Closes: #456
+Related: #789
+
+# Breaking change (uses ! after type)
+feat(api)!: change user response format
+
+BREAKING CHANGE: The /api/users endpoint now returns
+`fullName` instead of separate `firstName` and `lastName`
+fields. Update any client code that reads these fields.
+
+# Multiple references
+Fixes: #123, #124
+Co-authored-by: Name <email@example.com>
+```
+
+---
+
+## MANDATORY RULE: No AI Tool References in Commit Messages
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│           ⛔ NEVER ADD AI TOOL REFERENCES TO COMMITS         │
+│                                                              │
+│  Commit messages represent YOUR team's work.                 │
+│  They must NEVER contain references to any AI tool.          │
+│                                                              │
+│  ❌ NEVER include any of these:                              │
+│                                                              │
+│     Co-Authored-By: Claude <noreply@anthropic.com>           │
+│     Co-Authored-By: Claude Opus 4 <noreply@anthropic.com>   │
+│     Generated by Claude                                      │
+│     Generated by Cursor                                      │
+│     Generated by GitHub Copilot                              │
+│     Co-authored-by: Cursor AI                                │
+│     🤖 Generated with Claude Code                            │
+│     AI-assisted by ...                                       │
+│     Written with AI                                          │
+│                                                              │
+│  This includes:                                              │
+│     - Subject lines                                          │
+│     - Body text                                              │
+│     - Footer lines                                           │
+│     - Co-authored-by tags                                    │
+│     - Any metadata or trailer                                │
+│                                                              │
+│  ✅ Commit messages should look 100% human-written.          │
+│     The git history belongs to the TEAM, not the tool.       │
+└──────────────────────────────────────────────────────────────┘
+```
+
+**Why this matters:**
+- Git history is a permanent record — AI tags clutter it
+- Clients and external reviewers see commit logs
+- The developer is responsible for the code, not the tool
+- It looks unprofessional in open-source or shared repos
+
+**If your tool auto-adds these lines**, strip them before committing:
+```bash
+# Check for AI references before pushing
+git log -1 --format=%B | grep -i "claude\|cursor\|copilot\|AI\|generated\|anthropic"
+
+# If found, amend to remove
+git commit --amend
+```
+
+---
+
+## Step 4: Stage and Commit
+
+### 4.1 — Stage Thoughtfully
+
+```
+┌──────────────────────────────────────────────────────────┐
+│              STAGING STRATEGY                            │
+│                                                          │
+│  One logical change = one commit                         │
+│                                                          │
+│  ✅ Good: Stage related files together                   │
+│     git add src/services/auth.ts src/routes/auth.ts      │
+│     → Both are part of "add auth endpoint"               │
+│                                                          │
+│  ❌ Bad: Stage everything at once                        │
+│     git add .                                            │
+│     → Mixes a bug fix with a new feature with a typo fix │
+│                                                          │
+│  Split unrelated changes into separate commits:          │
+│                                                          │
+│  Commit 1: fix(auth): handle expired token refresh       │
+│  Commit 2: feat(ui): add dark mode toggle                │
+│  Commit 3: chore(deps): update eslint to v9             │
+└──────────────────────────────────────────────────────────┘
+```
+
+### 4.2 — Commit
+
+```bash
+# Simple commit (subject only — for small changes)
+git commit -m "fix(auth): handle expired token in refresh flow"
+
+# Detailed commit (subject + body — for anything non-trivial)
+git commit -m "feat(lms): add course certificate generation
+
+Learners who complete all sections of a course can now
+download a PDF certificate. The certificate includes the
+learner name, course title, completion date, and a unique
+verification code.
+
+The PDF is generated server-side using puppeteer with an
+HTML template that matches the platform branding.
+
+Closes: #312"
+```
+
+### 4.3 — Verify the Commit
+
+```bash
+# Check the commit looks right
+git log -1 --format=full
+
+# See what files were included
+git log -1 --stat
+
+# If something is wrong, amend BEFORE pushing
+git commit --amend
+```
+
+---
+
+## Quick Reference — Message Templates
+
+### Simple Feature
+```
+feat(scope): add [what] to [where]
+
+[Why this was needed. What problem it solves for users.]
+```
+
+### Bug Fix
+```
+fix(scope): handle [edge case] in [where]
+
+[What was happening wrong. Why it happened.
+What the fix does differently.]
+
+Fixes: #[number]
+```
+
+### Refactor
+```
+refactor(scope): extract [what] into [where]
+
+[Why the code was reorganized. What benefit this provides.
+No behavior changes.]
+```
+
+### Multiple Related Changes
+```
+feat(scope): add [main feature]
+
+- Add [sub-change 1]
+- Add [sub-change 2]
+- Update [related change]
+
+[Why this feature was needed. Context for the approach chosen.]
+```
+
+### Database Change
+```
+feat(db): add [table/column] for [feature]
+
+New migration: [migration-name]
+[What the schema change enables. Any data considerations.]
+```
+
+### Dependency Update
+```
+chore(deps): update [package] to [version]
+
+[Why the update was needed — security fix, new feature,
+breaking change resolution, etc.]
+```
+
+### Breaking Change
+```
+feat(api)!: [what changed]
+
+BREAKING CHANGE: [exactly what breaks and how to update]
+
+[Why this breaking change was necessary.]
+```
+
+---
+
+## Common Mistakes
+
+```
+┌──────────────────────────────────────────────────────────┐
+│            COMMIT MESSAGE ANTI-PATTERNS                  │
+│                                                          │
+│  ❌ "fix bug"                                            │
+│     → Which bug? Where? What was wrong?                  │
+│     ✅ "fix(api): return 404 for deleted users"          │
+│                                                          │
+│  ❌ "update files"                                       │
+│     → Which files? Why?                                  │
+│     ✅ "refactor(auth): move token logic to service"     │
+│                                                          │
+│  ❌ "WIP"                                                │
+│     → Never commit WIP to shared branches                │
+│     ✅ Commit what's done with a real message             │
+│                                                          │
+│  ❌ "fix fix fix" / "asdfasdf"                           │
+│     → Unusable in git history                            │
+│     ✅ Take 30 seconds to write a real message            │
+│                                                          │
+│  ❌ "Changed auth.ts line 47 to add if statement"        │
+│     → Describes the diff (we can read that ourselves)    │
+│     ✅ "fix(auth): prevent crash on missing user session" │
+│                                                          │
+│  ❌ A commit with 30 unrelated files                     │
+│     → Impossible to review, revert, or understand        │
+│     ✅ Split into logical commits, one concern each       │
+│                                                          │
+│  ❌ "Fixes #123" (as entire message)                     │
+│     → No context without looking up the issue            │
+│     ✅ "fix(billing): apply discount before tax calc      │
+│        Fixes: #123"                                      │
+│                                                          │
+│  ❌ "Co-Authored-By: Claude" / "Generated by Cursor"     │
+│     → AI tool references do NOT belong in git history    │
+│     ✅ Remove all AI tags — commits are YOUR team's work  │
+└──────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Tips for Best Results
+
+1. **Write the message before committing** — Think about the WHY while the change is fresh in your mind.
+2. **One commit = one logical change** — If you need "and" in your subject, consider two commits.
+3. **Read your own history** — Run `git log --oneline -20` and ask: "Could I understand these in 6 months?"
+4. **Use the body** — Subject lines are not enough for non-trivial changes. Two extra lines of context save hours of archaeology later.
+5. **Reference issues** — Link to tickets, PRs, or discussions. Future you will thank present you.
+6. **Amend mistakes immediately** — Typo in the message? `git commit --amend` before pushing. After pushing, live with it.

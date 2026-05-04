@@ -1,0 +1,379 @@
+<!--
+┌──────────────────────────────────────────────────────────────┐
+│  HEAPTRACE DEVELOPER SKILLS                                  │
+│  Copyright © 2026 Heaptrace Technology Private Limited        │
+│                                                              │
+│  CONFIDENTIAL — FOR AUTHORIZED CLIENTS ONLY                  │
+│                                                              │
+│  This skill file is the intellectual property of Heaptrace.  │
+│  It is provided exclusively to licensed clients and their    │
+│  development teams for internal use only.                    │
+│                                                              │
+│  You MAY:                                                    │
+│  ✅ Use within your development team                         │
+│  ✅ Customize and tune for your project                      │
+│  ✅ Use with Claude Code, Cursor, or any AI coding tool      │
+│                                                              │
+│  You MAY NOT:                                                │
+│  ❌ Redistribute, share, or publish publicly                 │
+│  ❌ Sell, sublicense, or transfer to third parties            │
+│  ❌ Remove or modify this copyright notice                   │
+│  ❌ Commit to any public or shared repository                │
+│                                                              │
+│  Unauthorized use or distribution is prohibited.             │
+│  Contact: support@heaptrace.com                              │
+└──────────────────────────────────────────────────────────────┘
+-->
+
+---
+name: tech-debt-audit
+description: "Scan a codebase for technical debt — outdated patterns, missing tests, hardcoded values, dead code, inconsistent conventions, and security gaps. Use during quarterly reviews, before major features, or when onboarding to an unfamiliar project."
+---
+
+# Tech Debt Audit — Find What Is Slowing You Down
+
+Systematically scans a codebase for technical debt across multiple categories — outdated patterns, missing tests, hardcoded values, dead code, inconsistent conventions, duplicated logic, and security gaps — then prioritizes remediation by impact and effort.
+
+---
+
+## ⛔ Common Rules — Read Before Every Task
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│              MANDATORY RULES FOR EVERY TASK                  │
+│                                                              │
+│  You are a senior software engineer working on a product.    │
+│  You are expert in database design, APIs, and building       │
+│  full-stack applications. Follow these rules strictly.       │
+│                                                              │
+│  ────────────────────────────────────────────────────────    │
+│                                                              │
+│  1. UNDERSTAND BEFORE YOU BUILD                              │
+│     → Study the existing architecture first                  │
+│     → Read how similar features are already built            │
+│     → Identify existing patterns, services, and utilities    │
+│     → Never assume — look at the actual codebase             │
+│                                                              │
+│  2. REUSE — NEVER DUPLICATE                                  │
+│     → Search for existing components, functions, utilities   │
+│     → If something similar exists, extend it — don't copy it │
+│     → Shared logic goes in shared files, not repeated        │
+│     → Ask: "Does this already exist somewhere?"              │
+│                                                              │
+│  3. USE EXISTING TECHNOLOGY                                  │
+│     → Use the frameworks and libraries already in the project│
+│     → Don't introduce a new library if an existing one works │
+│     → Follow the project's established patterns              │
+│                                                              │
+│  4. ASK BEFORE ADDING ANYTHING NEW                           │
+│     → New npm package? → ASK first                           │
+│     → New framework or tool? → ASK first                     │
+│     → New database table pattern? → ASK first                │
+│     → New folder structure? → ASK first                      │
+│     → Never install or download without confirmation         │
+│                                                              │
+│  5. FOLLOW BEST PRACTICES                                    │
+│     → Clean, readable code over clever code                  │
+│     → Proper error handling on every path                    │
+│     → Input validation at every boundary                     │
+│     → Consistent naming conventions throughout               │
+│     → Small, focused functions over large ones               │
+│                                                              │
+│  6. NO AI TOOL REFERENCES — ANYWHERE                         │
+│     → No "Generated by..." in code comments                  │
+│     → No "Co-Authored-By: Claude/Cursor/Copilot" in commits │
+│     → No AI tool mentions in PR descriptions                 │
+│     → No AI watermarks in any output                         │
+│     → All output must look 100% human-written                │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## When to Use This Skill
+
+- Quarterly tech debt review — scheduled health check
+- Before starting a major feature — understand what will slow you down
+- After rapid prototyping — clean up shortcuts taken during crunch
+- Onboarding to an unfamiliar codebase — identify landmines early
+- After an incident — find systemic issues beyond the immediate bug
+
+---
+
+## How It Works
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                    TECH DEBT AUDIT FLOW                               │
+│                                                                      │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐            │
+│  │   SCAN   │  │ CLASSIFY │  │PRIORITIZE│  │  REPORT  │            │
+│  │ CODEBASE │─▶│  & TAG   │─▶│  BY ROI  │─▶│  & PLAN  │            │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘            │
+│       │              │              │              │                  │
+│       ▼              ▼              ▼              ▼                  │
+│  Search for      Categorize     Effort vs.    Debt register          │
+│  patterns,       each item,     impact        + remediation          │
+│  smells, gaps    assign type    quadrant      roadmap                │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Debt Categories — What to Look For
+
+### Category 1: Hardcoded Values
+
+```
+WHAT TO FIND:
+  □ Magic numbers in business logic (if (count > 50) ...)
+  □ Hardcoded URLs, API endpoints, email addresses
+  □ Hardcoded feature flags or toggles
+  □ Environment-specific values in source code
+  □ Hardcoded credentials or API keys (CRITICAL)
+  □ Hardcoded timeouts, retry counts, thresholds
+
+HOW TO SEARCH:
+  → Grep for string literals in business logic files
+  → Search for http://, https:// in non-config files
+  → Search for @gmail, @yahoo, @example in source
+  → Look for numeric literals in conditionals
+```
+
+### Category 2: Missing or Weak Tests
+
+```
+WHAT TO FIND:
+  □ Critical paths with zero test coverage
+  □ Tests that pass but don't assert anything meaningful
+  □ Flaky tests (pass/fail randomly)
+  □ Missing edge case coverage (null, empty, boundary)
+  □ No integration tests for API endpoints
+  □ Missing validation tests (what happens with bad input?)
+
+COVERAGE PRIORITY (test these first):
+  1. Authentication / authorization flows
+  2. Payment / billing logic
+  3. Data mutation endpoints (POST, PUT, DELETE)
+  4. Business rule calculations
+  5. Error handling paths
+```
+
+### Category 3: Dead Code
+
+```
+WHAT TO FIND:
+  □ Unused exports — functions/classes never imported
+  □ Commented-out code blocks (> 5 lines)
+  □ Feature flags for features that shipped months ago
+  □ Unused dependencies in package.json
+  □ Unreachable code paths (after return/throw)
+  □ Deprecated API endpoints still in the router
+  □ Database columns/tables no longer referenced in code
+
+HOW TO DETECT:
+  → Run: npx depcheck (unused npm dependencies)
+  → Run: npx ts-prune (unused TypeScript exports)
+  → Search for large comment blocks: // TODO, /* old */
+  → Check git blame — files not touched in 6+ months
+```
+
+### Category 4: Inconsistent Patterns
+
+```
+WHAT TO FIND:
+  □ Multiple ways to do the same thing
+    - Some routes use middleware auth, others check manually
+    - Some APIs return { data }, others return { result }
+    - Some use async/await, others use .then() chains
+  □ Naming inconsistencies
+    - camelCase vs snake_case mixed in same layer
+    - getUserById vs fetchUser vs loadUserData
+  □ Error handling inconsistencies
+    - Some routes catch errors, others let them bubble
+    - Mixed use of HTTP status codes for same error type
+  □ File organization inconsistencies
+    - Feature A has service/controller/route separation
+    - Feature B has everything in one file
+```
+
+### Category 5: Code Duplication
+
+```
+WHAT TO FIND:
+  □ Copy-pasted functions with minor differences
+  □ Similar API handlers with repeated boilerplate
+  □ Duplicated validation logic across endpoints
+  □ Same UI component built twice for different pages
+  □ Repeated SQL queries / Prisma queries with same shape
+
+DETECTION APPROACH:
+  → Look for files with similar names in different folders
+  → Search for identical function signatures
+  → Compare API handlers — are they structurally identical?
+  → Check for repeated 10+ line blocks
+```
+
+### Category 6: Outdated Dependencies
+
+```
+WHAT TO FIND:
+  □ Major version behind on framework (Next.js, Express)
+  □ Dependencies with known security vulnerabilities
+  □ Deprecated packages still in use
+  □ Pinned versions preventing security patches
+  □ Lock file drift (package-lock.json out of sync)
+
+HOW TO CHECK:
+  → Run: npm audit
+  → Run: npm outdated
+  → Run: npx npm-check-updates
+  → Check: GitHub Dependabot alerts
+```
+
+### Category 7: Security Gaps
+
+```
+WHAT TO FIND:
+  □ Missing input validation on API endpoints
+  □ SQL injection vectors (raw queries with string concat)
+  □ Missing rate limiting on sensitive endpoints
+  □ Secrets in source code or committed .env files
+  □ Missing CORS configuration or overly permissive CORS
+  □ Missing authentication on endpoints that need it
+  □ Missing authorization checks (user can access others' data)
+  □ Missing CSRF protection on state-changing endpoints
+  □ Sensitive data in logs (passwords, tokens, PII)
+```
+
+### Category 8: Performance Debt
+
+```
+WHAT TO FIND:
+  □ N+1 database queries (loop with individual queries)
+  □ Missing database indexes on frequently queried columns
+  □ Unbounded queries (no LIMIT clause)
+  □ Large payloads returned when only a few fields are needed
+  □ Missing caching for expensive or repeated operations
+  □ Synchronous operations that should be async/background
+  □ Frontend bundle importing entire libraries for one function
+```
+
+---
+
+## Prioritization Framework
+
+Use the Effort vs. Impact quadrant to decide what to fix first:
+
+```
+                        HIGH IMPACT
+                            │
+              ┌─────────────┼─────────────┐
+              │  QUICK WINS  │  STRATEGIC  │
+              │  Fix now —   │  Plan and   │
+              │  high ROI    │  schedule   │
+   LOW ───────┼─────────────┼─────────────┼─── HIGH
+   EFFORT     │  IGNORE     │  AVOID      │   EFFORT
+              │  Not worth   │  High cost, │
+              │  the time    │  consider   │
+              │              │  alternatives│
+              └─────────────┼─────────────┘
+                            │
+                        LOW IMPACT
+```
+
+| Quadrant | Action | Example |
+|----------|--------|---------|
+| Quick Wins (low effort, high impact) | Fix immediately | Remove hardcoded secrets, add missing auth check |
+| Strategic (high effort, high impact) | Schedule in next 1-2 sprints | Refactor God service, add test suite |
+| Ignore (low effort, low impact) | Skip or do opportunistically | Rename a variable, fix a typo in comment |
+| Avoid (high effort, low impact) | Do not do unless forced | Rewrite working code for style preference |
+
+---
+
+## Output Template
+
+```markdown
+# Tech Debt Audit Report
+
+## Date: YYYY-MM-DD
+## Scope: [Entire codebase / Module X / Backend only]
+## Auditor: [Name/Role]
+
+## Summary
+- **Total items found**: NN
+- **Critical**: N | **High**: N | **Medium**: N | **Low**: N
+- **Estimated total remediation**: NN story points
+- **Top 3 quick wins**: #1, #5, #12
+
+## Debt Register
+
+### Critical (Fix Before Next Release)
+| # | Category | Location | Description | Effort | Impact |
+|---|----------|----------|-------------|--------|--------|
+| 1 | Security | src/api/auth.ts:45 | Missing rate limit on login | 2 pts | Critical |
+
+### High (Fix This Sprint)
+| # | Category | Location | Description | Effort | Impact |
+|---|----------|----------|-------------|--------|--------|
+| 2 | Performance | src/api/courses.ts:120 | N+1 query in course listing | 3 pts | High |
+
+### Medium (Schedule Next Sprint)
+| # | Category | Location | Description | Effort | Impact |
+|---|----------|----------|-------------|--------|--------|
+| 3 | Duplication | src/components/ | CourseCard duplicated in 3 files | 3 pts | Medium |
+
+### Low (Backlog)
+| # | Category | Location | Description | Effort | Impact |
+|---|----------|----------|-------------|--------|--------|
+| 4 | Dead Code | src/utils/old-helpers.ts | Entire file unused | 1 pt | Low |
+
+## Remediation Roadmap
+
+### Immediate (This Week)
+- [ ] #1 — Add rate limiting to auth endpoints
+- [ ] #5 — Remove hardcoded API key from config
+
+### Short-term (Next 2 Sprints)
+- [ ] #2 — Fix N+1 queries with eager loading
+- [ ] #3 — Extract shared CourseCard component
+
+### Medium-term (This Quarter)
+- [ ] #8 — Add integration test suite for payment flow
+- [ ] #11 — Migrate deprecated auth library
+
+## Metrics to Track
+| Metric | Current | Target | Timeline |
+|--------|---------|--------|----------|
+| Test coverage (critical paths) | 35% | 80% | 3 months |
+| npm audit vulnerabilities | 12 | 0 | 1 month |
+| Avg API response time (p95) | 800ms | 200ms | 2 months |
+```
+
+---
+
+## Common Mistakes When Auditing
+
+| Mistake | Why It Fails | Fix |
+|---------|-------------|-----|
+| Trying to fix everything at once | Burns the team, nothing ships | Prioritize ruthlessly, fix top 5 |
+| Only looking at code style | Misses real problems (security, perf) | Focus on runtime impact first |
+| No severity classification | Team does not know what matters | Use the quadrant framework |
+| Audit without action plan | Report sits in a drawer | Every finding needs an owner and date |
+| Ignoring tests as debt | Untested code is a ticking bomb | Test coverage is a first-class metric |
+| Treating all debt as bad | Some debt is intentional and fine | Document deliberate trade-offs |
+
+---
+
+## Checklist Before Submitting Audit
+
+```
+□ All 8 debt categories scanned
+□ Every finding has a file/line reference
+□ Every finding is classified by severity
+□ Quick wins are clearly identified
+□ Remediation roadmap has specific timelines
+□ Critical security items are flagged separately
+□ Report includes metrics to track improvement
+□ No recommendations to rewrite without justification
+```

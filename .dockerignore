@@ -1,0 +1,9 @@
+node_modules
+.git
+.env
+data
+*.md
+.cursor
+examples
+test
+scripts

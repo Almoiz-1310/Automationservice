@@ -1,0 +1,2839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heaptrace Developer Skills</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   HEAPTRACE SKILLS — DEVELOPER DARK THEME
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #1e293b;
+  --bg-card-hover: #334155;
+  --bg-code: #0d1117;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border: #334155;
+  --border-glow: rgba(6, 182, 212, 0.3);
+  --cyan: #06b6d4;
+  --cyan-light: #22d3ee;
+  --purple: #a855f7;
+  --pink: #ec4899;
+  --green: #10b981;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --blue: #3b82f6;
+  --indigo: #6366f1;
+  --teal: #14b8a6;
+  --orange: #f97316;
+  --rose: #f43f5e;
+  --violet: #8b5cf6;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow-glow: 0 0 20px rgba(6, 182, 212, 0.15);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ── NAVIGATION ── */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+}
+.nav-inner {
+  max-width: 1280px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px;
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 700; font-size: 1.1rem; color: var(--text-primary);
+  text-decoration: none;
+}
+.nav-logo .logo-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--cyan), var(--purple));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 800; color: white;
+}
+.nav-links { display: flex; gap: 8px; }
+.nav-links a {
+  color: var(--text-secondary); text-decoration: none;
+  padding: 6px 14px; border-radius: 6px; font-size: 0.875rem;
+  font-weight: 500; transition: var(--transition);
+}
+.nav-links a:hover { color: var(--text-primary); background: var(--bg-secondary); }
+.nav-links a.active { color: var(--cyan); background: rgba(6, 182, 212, 0.1); }
+
+.btn-download {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg, var(--cyan), var(--blue));
+  color: white; padding: 8px 20px; border-radius: 8px;
+  font-size: 0.875rem; font-weight: 600; text-decoration: none;
+  transition: var(--transition); border: none; cursor: pointer;
+}
+.btn-download:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: var(--shadow-glow); }
+
+/* ── TAB NAVIGATION ── */
+.tab-nav {
+  position: fixed; top: 64px; left: 0; right: 0; z-index: 99;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.tab-nav::-webkit-scrollbar { display: none; }
+.tab-nav-inner {
+  max-width: 1280px; margin: 0 auto;
+  display: flex; align-items: center; gap: 4px;
+  height: 48px;
+  min-width: max-content;
+}
+.tab-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-secondary);
+  padding: 10px 20px; border-radius: 8px 8px 0 0;
+  font-size: 0.875rem; font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  transition: var(--transition);
+  white-space: nowrap;
+  position: relative;
+  border-bottom: 2px solid transparent;
+}
+.tab-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.03);
+}
+.tab-btn.active {
+  color: var(--cyan);
+  border-bottom-color: var(--cyan);
+  background: rgba(6, 182, 212, 0.06);
+}
+.tab-btn .tab-icon {
+  margin-right: 6px;
+}
+
+/* ── TAB CONTENT ── */
+.tab-content {
+  display: none;
+}
+.tab-content.active {
+  display: block;
+}
+
+/* ── HERO ── */
+.hero {
+  padding: 160px 2rem 80px;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(6, 182, 212, 0.12), transparent);
+  pointer-events: none;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.2);
+  color: var(--cyan); padding: 6px 16px; border-radius: 999px;
+  font-size: 0.8rem; font-weight: 600; margin-bottom: 24px;
+  letter-spacing: 0.05em; text-transform: uppercase;
+}
+.hero h1 {
+  font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 800;
+  line-height: 1.1; margin-bottom: 20px;
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--cyan-light) 50%, var(--purple) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero p {
+  font-size: 1.2rem; color: var(--text-secondary);
+  max-width: 640px; margin: 0 auto 40px; line-height: 1.8;
+}
+.hero-stats {
+  display: flex; justify-content: center; gap: 48px;
+  margin-top: 48px;
+}
+.hero-stat { text-align: center; }
+.hero-stat .number {
+  font-size: 2.5rem; font-weight: 800;
+  background: linear-gradient(135deg, var(--cyan), var(--purple));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-stat .label { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+
+/* ── SECTION ── */
+.section {
+  max-width: 1280px; margin: 0 auto;
+  padding: 80px 2rem;
+}
+.section-title {
+  font-size: 2rem; font-weight: 700; margin-bottom: 8px;
+}
+.section-subtitle {
+  font-size: 1rem; color: var(--text-secondary); margin-bottom: 48px;
+}
+
+/* ── WORKFLOW SECTION ── */
+.workflow-container {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; flex-wrap: wrap; margin-bottom: 60px;
+  padding: 40px 20px;
+}
+.workflow-step {
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; width: 100px;
+}
+.workflow-icon {
+  width: 56px; height: 56px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; margin-bottom: 8px;
+  border: 1px solid var(--border);
+  transition: var(--transition);
+}
+.workflow-step:hover .workflow-icon {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.workflow-label { font-size: 0.75rem; color: var(--text-secondary); font-weight: 500; }
+.workflow-arrow {
+  font-size: 20px; color: var(--text-muted);
+  margin: 0 4px; padding-bottom: 20px;
+}
+
+/* ── PACK FILTER ── */
+.pack-filters {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+.pack-filter-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 16px; border-radius: 999px;
+  font-size: 0.8rem; font-weight: 600;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: 'Inter', sans-serif;
+}
+.pack-filter-btn:hover {
+  border-color: var(--text-muted);
+  color: var(--text-primary);
+}
+.pack-filter-btn.active {
+  color: white;
+}
+.pack-filter-count {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+/* ── SKILLS GRID ── */
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 20px;
+}
+.skill-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative; overflow: hidden;
+}
+.skill-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; border-radius: var(--radius) var(--radius) 0 0;
+  opacity: 0; transition: var(--transition);
+}
+.skill-card:hover {
+  border-color: transparent;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+}
+.skill-card:hover::before { opacity: 1; }
+.skill-card.hidden { display: none; }
+.skill-card-header { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px; }
+.skill-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.skill-card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 2px; }
+.skill-card-category {
+  font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.skill-card-pack {
+  display: inline-block;
+  font-size: 0.65rem; font-weight: 600;
+  padding: 2px 8px; border-radius: 999px;
+  margin-top: 4px;
+}
+.skill-card-desc {
+  font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;
+  margin-bottom: 16px;
+}
+.skill-card-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag {
+  font-size: 0.7rem; padding: 3px 10px; border-radius: 999px;
+  background: rgba(255,255,255,0.05); color: var(--text-muted);
+  font-weight: 500; border: 1px solid var(--border);
+}
+
+/* ── SKILL DETAIL MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: none; align-items: flex-start; justify-content: center;
+  padding: 80px 20px 40px;
+  overflow-y: auto;
+}
+.modal-overlay.active { display: flex; }
+.modal {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: 100%; max-width: 900px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+}
+.modal-header {
+  position: sticky; top: 0; z-index: 10;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(12px);
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-header-left { display: flex; align-items: center; gap: 16px; }
+.modal-close {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  color: var(--text-secondary); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; transition: var(--transition);
+}
+.modal-close:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+.modal-body { padding: 32px; }
+.modal-section { margin-bottom: 40px; }
+.modal-section h3 {
+  font-size: 1.2rem; font-weight: 700; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.modal-section h3 .section-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  display: inline-block;
+}
+
+/* Flow diagram in modal */
+.flow-diagram {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 24px;
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+.flow-steps {
+  display: flex; align-items: center; justify-content: center;
+  gap: 12px; min-width: fit-content;
+}
+.flow-step-box {
+  padding: 16px 20px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  text-align: center; min-width: 120px;
+  background: var(--bg-secondary);
+  transition: var(--transition);
+}
+.flow-step-box:hover {
+  border-color: var(--cyan);
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.2);
+}
+.flow-step-num {
+  font-size: 0.7rem; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+.flow-step-name { font-weight: 600; font-size: 0.9rem; }
+.flow-step-detail { font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; }
+.flow-arrow { color: var(--cyan); font-size: 20px; flex-shrink: 0; }
+
+/* Checklist */
+.checklist {
+  list-style: none; padding: 0;
+  display: grid; gap: 8px;
+}
+.checklist li {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 0.9rem; color: var(--text-secondary);
+  padding: 10px 14px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  transition: var(--transition);
+}
+.checklist li:hover { border-color: var(--border); }
+.check-icon { color: var(--green); flex-shrink: 0; margin-top: 2px; }
+
+/* When to use tags */
+.use-cases {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.use-case {
+  padding: 6px 14px; border-radius: 999px;
+  font-size: 0.8rem; font-weight: 500;
+  background: rgba(6, 182, 212, 0.08);
+  color: var(--cyan-light);
+  border: 1px solid rgba(6, 182, 212, 0.15);
+}
+
+/* ── RULES SECTION ── */
+.rules-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+}
+.rule-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  transition: var(--transition);
+}
+.rule-card:hover { border-color: var(--cyan); box-shadow: var(--shadow-glow); }
+.rule-number {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem; font-weight: 700; margin-bottom: 12px;
+  background: rgba(6, 182, 212, 0.1); color: var(--cyan);
+  border: 1px solid rgba(6, 182, 212, 0.2);
+}
+.rule-title { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+.rule-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+
+/* ── GETTING STARTED ── */
+.steps-list { display: grid; gap: 16px; }
+.step-item {
+  display: flex; gap: 20px;
+  padding: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: var(--transition);
+}
+.step-item:hover { border-color: var(--cyan); }
+.step-number {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; font-weight: 800; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--cyan), var(--blue));
+  color: white;
+}
+.step-content h4 { font-weight: 600; margin-bottom: 4px; }
+.step-content p { font-size: 0.9rem; color: var(--text-secondary); }
+.step-code {
+  margin-top: 12px; padding: 12px 16px;
+  background: var(--bg-code); border-radius: var(--radius-sm);
+  font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
+  color: var(--cyan-light); border: 1px solid var(--border);
+  overflow-x: auto;
+}
+
+/* ── CODE BLOCK (for Setup/Learn tabs) ── */
+.code-block {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 20px 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  overflow-x: auto;
+  margin: 16px 0;
+  white-space: pre;
+}
+.code-block .kw { color: var(--purple); }
+.code-block .cm { color: var(--text-muted); }
+.code-block .str { color: var(--green); }
+.code-block .fn { color: var(--cyan-light); }
+
+/* ── COMPARISON TABLE ── */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 0.9rem;
+}
+.compare-table th {
+  text-align: left;
+  padding: 14px 16px;
+  background: var(--bg-code);
+  color: var(--cyan);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--border);
+}
+.compare-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
+  vertical-align: top;
+}
+.compare-table tr:hover td {
+  background: rgba(6, 182, 212, 0.03);
+}
+.compare-table td:first-child {
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+/* ── GUIDE CARD (for Setup/Learn content) ── */
+.guide-section {
+  margin-bottom: 60px;
+}
+.guide-section h2 {
+  font-size: 1.6rem; font-weight: 700; margin-bottom: 8px;
+}
+.guide-section h2 .guide-icon {
+  margin-right: 10px;
+}
+.guide-section .guide-lead {
+  font-size: 1rem; color: var(--text-secondary); margin-bottom: 32px;
+  line-height: 1.8;
+}
+.guide-step {
+  display: flex; gap: 20px; padding: 24px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); margin-bottom: 16px;
+  transition: var(--transition);
+}
+.guide-step:hover { border-color: var(--cyan); }
+.guide-step-num {
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.95rem; font-weight: 800; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--cyan), var(--blue));
+  color: white;
+}
+.guide-step-content h4 {
+  font-weight: 600; margin-bottom: 6px; font-size: 1rem;
+}
+.guide-step-content p {
+  font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7;
+}
+
+/* ── INFO CALLOUT ── */
+.callout {
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  margin: 16px 0;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+.callout-cyan {
+  background: rgba(6, 182, 212, 0.08);
+  border-left: 3px solid var(--cyan);
+  color: var(--text-secondary);
+}
+.callout-purple {
+  background: rgba(168, 85, 247, 0.08);
+  border-left: 3px solid var(--purple);
+  color: var(--text-secondary);
+}
+.callout-green {
+  background: rgba(16, 185, 129, 0.08);
+  border-left: 3px solid var(--green);
+  color: var(--text-secondary);
+}
+.callout-amber {
+  background: rgba(245, 158, 11, 0.08);
+  border-left: 3px solid var(--amber);
+  color: var(--text-secondary);
+}
+
+/* ── THREE-COL DIAGRAM ── */
+.diagram-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+.diagram-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  text-align: center;
+  transition: var(--transition);
+}
+.diagram-box:hover { border-color: var(--cyan); box-shadow: var(--shadow-glow); }
+.diagram-box h4 {
+  font-size: 1rem; font-weight: 700; margin-bottom: 8px;
+}
+.diagram-box p {
+  font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;
+}
+.diagram-box .diagram-label {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 0.7rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 4px 12px; border-radius: 999px;
+}
+
+/* ── DOWNLOAD MODAL ── */
+.download-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: none; align-items: flex-start; justify-content: center;
+  padding: 80px 20px 40px;
+  overflow-y: auto;
+}
+.download-overlay.active { display: flex; }
+.download-modal {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: 100%; max-width: 700px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+}
+.download-modal-header {
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.download-modal-header h2 { font-size: 1.3rem; font-weight: 700; }
+.download-modal-body { padding: 24px 32px; }
+.download-section { margin-bottom: 32px; }
+.download-section h3 {
+  font-size: 1rem; font-weight: 700; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.download-pack-header {
+  font-size: 0.8rem; font-weight: 700; margin: 16px 0 8px;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  display: flex; align-items: center; gap: 8px;
+}
+.download-pack-header .dot {
+  width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+}
+.download-skill-list {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px;
+}
+.download-skill-link {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-radius: var(--radius-sm);
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  color: var(--cyan-light); text-decoration: none;
+  font-size: 0.8rem; font-family: 'JetBrains Mono', monospace;
+  transition: var(--transition);
+}
+.download-skill-link:hover { border-color: var(--cyan); background: var(--bg-card-hover); }
+.download-skill-link svg { flex-shrink: 0; }
+
+/* ── FOOTER ── */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 40px 2rem; text-align: center;
+  color: var(--text-muted); font-size: 0.85rem;
+}
+.footer a { color: var(--cyan); text-decoration: none; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .hero { padding: 140px 1.5rem 60px; }
+  .hero-stats { gap: 24px; }
+  .hero-stat .number { font-size: 1.8rem; }
+  .skills-grid { grid-template-columns: 1fr; }
+  .rules-grid { grid-template-columns: 1fr; }
+  .workflow-container { gap: 4px; }
+  .workflow-step { width: 70px; }
+  .workflow-icon { width: 44px; height: 44px; font-size: 18px; }
+  .workflow-label { font-size: 0.65rem; }
+  .nav-links { display: none; }
+  .modal { border-radius: 12px; }
+  .modal-body { padding: 20px; }
+  .flow-steps { flex-direction: column; }
+  .flow-arrow { transform: rotate(90deg); }
+  .tab-nav-inner { padding: 0 4px; }
+  .tab-btn { padding: 10px 14px; font-size: 0.8rem; }
+  .diagram-grid { grid-template-columns: 1fr; }
+  .guide-step { flex-direction: column; gap: 12px; }
+  .compare-table { font-size: 0.8rem; }
+  .compare-table th, .compare-table td { padding: 10px 10px; }
+  .pack-filters { gap: 6px; }
+  .pack-filter-btn { padding: 5px 12px; font-size: 0.75rem; }
+  .download-skill-list { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAVIGATION ═══ -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <div class="logo-icon">H</div>
+      <span>Heaptrace Skills</span>
+    </a>
+    <div class="nav-links">
+      <a href="#skills" class="active">Skills</a>
+      <a href="#workflow">Workflow</a>
+      <a href="#rules">Rules</a>
+      <a href="#setup">Setup</a>
+    </div>
+    <button class="btn-download" onclick="openDownloadModal()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      Download Skills
+    </button>
+  </div>
+</nav>
+
+<!-- ═══ TAB NAVIGATION ═══ -->
+<div class="tab-nav">
+  <div class="tab-nav-inner">
+    <button class="tab-btn active" onclick="switchTab('skills')">
+      <span class="tab-icon">&#9881;</span> Skills
+    </button>
+    <button class="tab-btn" onclick="switchTab('setup-guide')">
+      <span class="tab-icon">&#9776;</span> Setup Guide
+    </button>
+    <button class="tab-btn" onclick="switchTab('learn')">
+      <span class="tab-icon">&#9733;</span> Learn
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 1: SKILLS (existing content)
+     ═══════════════════════════════════════════════════════════ -->
+<div class="tab-content active" id="tab-skills">
+
+  <!-- ═══ HERO ═══ -->
+  <section class="hero">
+    <div class="hero-badge">Developer Toolkit</div>
+    <h1>66 Skills Across<br>8 Expert Packs</h1>
+    <p>A structured skill system for your entire team. From planning to release, architecture to testing — every role has repeatable, proven processes.</p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="number">66</div>
+        <div class="label">Skills</div>
+      </div>
+      <div class="hero-stat">
+        <div class="number">6</div>
+        <div class="label">Core Rules</div>
+      </div>
+      <div class="hero-stat">
+        <div class="number">8</div>
+        <div class="label">Packs</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ WORKFLOW ═══ -->
+  <section class="section" id="workflow">
+    <div style="text-align:center">
+      <h2 class="section-title">Developer Workflow</h2>
+      <p class="section-subtitle">How skills map to your daily work — from receiving a task to shipping it.</p>
+    </div>
+    <div class="workflow-container">
+      <div class="workflow-step" onclick="openSkill('suggest')">
+        <div class="workflow-icon" style="background:rgba(245,158,11,0.12);color:var(--amber)">&#128161;</div>
+        <div class="workflow-label">Suggest</div>
+      </div>
+      <div class="workflow-arrow">&rarr;</div>
+      <div class="workflow-step" onclick="openSkill('feature-plan')">
+        <div class="workflow-icon" style="background:rgba(168,85,247,0.12);color:var(--purple)">&#128203;</div>
+        <div class="workflow-label">Plan</div>
+      </div>
+      <div class="workflow-arrow">&rarr;</div>
+      <div class="workflow-step" onclick="openSkill('feature-work')">
+        <div class="workflow-icon" style="background:rgba(59,130,246,0.12);color:var(--blue)">&#128296;</div>
+        <div class="workflow-label">Build</div>
+      </div>
+      <div class="workflow-arrow">&rarr;</div>
+      <div class="workflow-step" onclick="openSkill('code-review')">
+        <div class="workflow-icon" style="background:rgba(6,182,212,0.12);color:var(--cyan)">&#128269;</div>
+        <div class="workflow-label">Review</div>
+      </div>
+      <div class="workflow-arrow">&rarr;</div>
+      <div class="workflow-step" onclick="openSkill('test-gen')">
+        <div class="workflow-icon" style="background:rgba(99,102,241,0.12);color:var(--indigo)">&#129514;</div>
+        <div class="workflow-label">Test</div>
+      </div>
+      <div class="workflow-arrow">&rarr;</div>
+      <div class="workflow-step" onclick="openSkill('smart-commit')">
+        <div class="workflow-icon" style="background:rgba(16,185,129,0.12);color:var(--green)">&#9989;</div>
+        <div class="workflow-label">Commit</div>
+      </div>
+      <div class="workflow-arrow">&rarr;</div>
+      <div class="workflow-step" onclick="openSkill('release-notes')">
+        <div class="workflow-icon" style="background:rgba(249,115,22,0.12);color:var(--orange)">&#128640;</div>
+        <div class="workflow-label">Release</div>
+      </div>
+    </div>
+    <div style="text-align:center">
+      <p style="color:var(--text-muted);font-size:0.85rem">
+        <span style="color:var(--red)">&#128027; find-fix</span> &nbsp;&middot;&nbsp;
+        <span style="color:var(--teal)">&#128214; explain</span> &nbsp;&middot;&nbsp;
+        <span style="color:var(--rose)">&#128274; sec-audit</span>
+        &nbsp;— available anytime in the workflow
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══ SKILLS GRID ═══ -->
+  <section class="section" id="skills">
+    <h2 class="section-title">All Skills</h2>
+    <p class="section-subtitle">Click any skill to see full details, flow diagrams, and usage guide.</p>
+    <div class="pack-filters" id="packFilters"></div>
+    <div class="skills-grid" id="skillsGrid"></div>
+  </section>
+
+  <!-- ═══ RULES ═══ -->
+  <section class="section" id="rules">
+    <h2 class="section-title">Mandatory Rules</h2>
+    <p class="section-subtitle">Every skill follows these 6 rules. No exceptions.</p>
+    <div class="rules-grid">
+      <div class="rule-card">
+        <div class="rule-number">1</div>
+        <div class="rule-title">Understand Before You Build</div>
+        <div class="rule-desc">Study the existing architecture first. Read how similar features are already built. Identify existing patterns, services, and utilities. Never assume — look at the actual codebase.</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-number">2</div>
+        <div class="rule-title">Reuse — Never Duplicate</div>
+        <div class="rule-desc">Search for existing components, functions, and utilities. If something similar exists, extend it — don't copy it. Shared logic goes in shared files.</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-number">3</div>
+        <div class="rule-title">Use Existing Technology</div>
+        <div class="rule-desc">Use the frameworks and libraries already in the project. Don't introduce a new library if an existing one works. Follow established patterns.</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-number">4</div>
+        <div class="rule-title">Ask Before Adding Anything New</div>
+        <div class="rule-desc">New npm package, framework, tool, database pattern, or folder structure? Ask first. Never install or download without confirmation.</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-number">5</div>
+        <div class="rule-title">Follow Best Practices</div>
+        <div class="rule-desc">Clean, readable code over clever code. Proper error handling on every path. Input validation at every boundary. Consistent naming throughout.</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-number">6</div>
+        <div class="rule-title">No Tool References — Anywhere</div>
+        <div class="rule-desc">No "Generated by..." in code comments. No "Co-Authored-By" tags in commits. No tool mentions in PRs. All output must look 100% human-written.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ GETTING STARTED ═══ -->
+  <section class="section" id="setup">
+    <h2 class="section-title">Getting Started</h2>
+    <p class="section-subtitle">Start using the skills in your workflow in 3 steps.</p>
+    <div class="steps-list">
+      <div class="step-item">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>Download the Skills</h4>
+          <p>Download all 66 skills organized by pack, or pick individual skill ZIPs.</p>
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:12px">
+            <button class="btn-download" style="font-size:0.9rem" onclick="openDownloadModal()">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+              Download Skills
+            </button>
+            <span style="color:var(--text-muted);font-size:0.8rem">8 packs &middot; 66 skills</span>
+          </div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h4>Reference a Skill</h4>
+          <p>When starting a task, tell your coding assistant to follow the skill. Paste the skill content or reference the file path.</p>
+          <div class="step-code">Follow the steps in heaptrace-skills/feature-plan/SKILL.md</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h4>Follow the Process</h4>
+          <p>Each skill has a step-by-step flow with checklists, diagrams, and templates. Follow them in order for consistent, high-quality output every time.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="footer">
+    <p>Built by <a href="#">Heaptrace</a> &nbsp;&middot;&nbsp; 66 Skills for Better Software Development</p>
+  </footer>
+
+</div><!-- end tab-skills -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 2: SETUP GUIDE (new)
+     ═══════════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-setup-guide">
+
+  <section class="hero" style="padding-bottom:40px">
+    <div class="hero-badge">Setup Guide</div>
+    <h1>Get Started in<br>Minutes</h1>
+    <p>Step-by-step instructions to set up Heaptrace Skills in your preferred development environment.</p>
+  </section>
+
+  <div class="section" style="padding-top:20px">
+
+    <!-- ── Setup in Cursor ── -->
+    <div class="guide-section">
+      <h2><span class="guide-icon" style="color:var(--purple)">&#9654;</span> Setup in Cursor</h2>
+      <p class="guide-lead">Configure Cursor to use Heaptrace Skills as coding rules for your project.</p>
+
+      <div class="flow-diagram" style="margin-bottom:32px">
+        <div class="flow-steps">
+          <div class="flow-step-box">
+            <div class="flow-step-num">Step 1</div>
+            <div class="flow-step-name">Download</div>
+            <div class="flow-step-detail">Get the skills ZIP</div>
+          </div>
+          <div class="flow-arrow" style="color:var(--purple)">&rarr;</div>
+          <div class="flow-step-box">
+            <div class="flow-step-num">Step 2</div>
+            <div class="flow-step-name">Open Settings</div>
+            <div class="flow-step-detail">Features &rarr; Rules</div>
+          </div>
+          <div class="flow-arrow" style="color:var(--purple)">&rarr;</div>
+          <div class="flow-step-box">
+            <div class="flow-step-num">Step 3</div>
+            <div class="flow-step-name">Add Rule</div>
+            <div class="flow-step-detail">Point to skill files</div>
+          </div>
+          <div class="flow-arrow" style="color:var(--purple)">&rarr;</div>
+          <div class="flow-step-box">
+            <div class="flow-step-num">Step 4</div>
+            <div class="flow-step-name">Use Skills</div>
+            <div class="flow-step-detail">Reference by name</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-step">
+        <div class="guide-step-num">1</div>
+        <div class="guide-step-content">
+          <h4>Download and extract the skills folder</h4>
+          <p>Download the ZIP and place the <code class="mono" style="color:var(--cyan-light)">heaptrace-skills/</code> folder in your project root or any accessible location.</p>
+          <div class="step-code">unzip heaptrace-skills.zip -d ./heaptrace-skills/</div>
+        </div>
+      </div>
+
+      <div class="guide-step">
+        <div class="guide-step-num">2</div>
+        <div class="guide-step-content">
+          <h4>Open Cursor Settings</h4>
+          <p>Navigate to <strong>Settings &rarr; Features &rarr; Rules</strong>. This is where you define project-level instructions that Cursor follows during every coding session.</p>
+        </div>
+      </div>
+
+      <div class="guide-step">
+        <div class="guide-step-num">3</div>
+        <div class="guide-step-content">
+          <h4>Add rules pointing to skill files</h4>
+          <p>You can either add rules that reference the skill folder path, or paste skill content directly into your <code class="mono" style="color:var(--cyan-light)">.cursorrules</code> file.</p>
+          <div class="code-block"># .cursorrules — Example configuration
+#
+# Reference specific skills for your workflow:
+#
+# When planning a feature, follow the process in:
+#   heaptrace-skills/feature-plan/SKILL.md
+#
+# When reviewing code, follow:
+#   heaptrace-skills/code-review/SKILL.md
+#
+# When fixing bugs, follow:
+#   heaptrace-skills/find-fix/SKILL.md
+#
+# General rules:
+# - Always understand existing code before making changes
+# - Reuse existing components — never duplicate
+# - Follow best practices for error handling and validation
+# - No tool references in code, commits, or PRs</div>
+        </div>
+      </div>
+
+      <div class="guide-step">
+        <div class="guide-step-num">4</div>
+        <div class="guide-step-content">
+          <h4>Start a task and reference the skill by name</h4>
+          <p>When working in Cursor, reference the skill directly: <em>"Follow the feature-plan skill to plan this feature"</em> or <em>"Use the code-review skill to review these changes."</em></p>
+        </div>
+      </div>
+
+      <div class="callout callout-purple">
+        <strong>Tip:</strong> You can paste the full content of frequently-used skills directly into your <code class="mono">.cursorrules</code> file so they are always available without referencing a file path.
+      </div>
+    </div>
+
+    <!-- ── Setup in Claude Code ── -->
+    <div class="guide-section">
+      <h2><span class="guide-icon" style="color:var(--cyan)">&#9654;</span> Setup in Claude Code</h2>
+      <p class="guide-lead">Configure Claude Code to use Heaptrace Skills through your project instructions file.</p>
+
+      <div class="flow-diagram" style="margin-bottom:32px">
+        <div class="flow-steps">
+          <div class="flow-step-box">
+            <div class="flow-step-num">Step 1</div>
+            <div class="flow-step-name">Download</div>
+            <div class="flow-step-detail">Get the skills ZIP</div>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step-box">
+            <div class="flow-step-num">Step 2</div>
+            <div class="flow-step-name">Place Files</div>
+            <div class="flow-step-detail">Project root or ~/.claude/</div>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step-box">
+            <div class="flow-step-num">Step 3</div>
+            <div class="flow-step-name">Configure</div>
+            <div class="flow-step-detail">Reference in CLAUDE.md</div>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step-box">
+            <div class="flow-step-num">Step 4</div>
+            <div class="flow-step-name">Invoke</div>
+            <div class="flow-step-detail">Use /skill-name or paste</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-step">
+        <div class="guide-step-num">1</div>
+        <div class="guide-step-content">
+          <h4>Download and extract the skills folder</h4>
+          <p>Download the ZIP and extract to your preferred location.</p>
+          <div class="step-code">unzip heaptrace-skills.zip -d ~/heaptrace-skills/</div>
+        </div>
+      </div>
+
+      <div class="guide-step">
+        <div class="guide-step-num">2</div>
+        <div class="guide-step-content">
+          <h4>Place in your project or home directory</h4>
+          <p>Copy the folder into your project root alongside your code, or place it in <code class="mono" style="color:var(--cyan-light)">~/.claude/</code> for global access across all projects.</p>
+          <div class="step-code"># Option A: Project-level (recommended)
+cp -r ~/heaptrace-skills/ ./heaptrace-skills/
+
+# Option B: Global access
+cp -r ~/heaptrace-skills/ ~/.claude/skills/</div>
+        </div>
+      </div>
+
+      <div class="guide-step">
+        <div class="guide-step-num">3</div>
+        <div class="guide-step-content">
+          <h4>Reference skills in your CLAUDE.md</h4>
+          <p>Add references in your project's <code class="mono" style="color:var(--cyan-light)">.claude/CLAUDE.md</code> file so skills are automatically available.</p>
+          <div class="code-block"># CLAUDE.md — Example configuration
+
+## Skills
+The following developer skills are available in `heaptrace-skills/`:
+
+- **feature-plan** — Use when planning any new feature
+- **feature-work** — Use when implementing a feature end-to-end
+- **code-review**  — Use for all code reviews and self-reviews
+- **find-fix**     — Use when investigating and fixing bugs
+- **test-gen**     — Use when writing tests
+- **smart-commit** — Use for all git commits
+- **sec-audit**    — Run before every release
+
+To invoke a skill:
+  Follow the process in heaptrace-skills/{skill-name}/SKILL.md</div>
+        </div>
+      </div>
+
+      <div class="guide-step">
+        <div class="guide-step-num">4</div>
+        <div class="guide-step-content">
+          <h4>Invoke skills in your workflow</h4>
+          <p>Reference a skill by name in chat: <em>"Follow the feature-plan skill to plan this feature"</em>. If configured as slash commands, use <code class="mono" style="color:var(--cyan-light)">/skill-name</code> to invoke directly.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-cyan">
+        <strong>Tip:</strong> For frequently used skills, configure them as slash commands in your skills/ directory so you can invoke them with a single <code class="mono">/command</code>.
+      </div>
+    </div>
+
+    <!-- ── Quick Comparison ── -->
+    <div class="guide-section">
+      <h2><span class="guide-icon" style="color:var(--green)">&#9654;</span> Quick Comparison</h2>
+      <p class="guide-lead">A side-by-side view of how skills work in each environment.</p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Cursor</th>
+            <th>Claude Code</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Where skills live</td>
+            <td><code class="mono" style="color:var(--purple);font-size:0.8rem">.cursorrules</code> or project folder</td>
+            <td><code class="mono" style="color:var(--cyan-light);font-size:0.8rem">CLAUDE.md</code> or <code class="mono" style="color:var(--cyan-light);font-size:0.8rem">skills/</code> folder</td>
+          </tr>
+          <tr>
+            <td>How to reference</td>
+            <td>Paste in rules or @file</td>
+            <td>/skill-name or paste in chat</td>
+          </tr>
+          <tr>
+            <td>Auto-trigger</td>
+            <td>Via <code class="mono" style="color:var(--purple);font-size:0.8rem">.cursorrules</code></td>
+            <td>Via skill frontmatter</td>
+          </tr>
+          <tr>
+            <td>Best for</td>
+            <td>In-editor coding</td>
+            <td>Terminal-based workflows</td>
+          </tr>
+          <tr>
+            <td>Project-wide rules</td>
+            <td><code class="mono" style="color:var(--purple);font-size:0.8rem">.cursorrules</code> in project root</td>
+            <td><code class="mono" style="color:var(--cyan-light);font-size:0.8rem">.claude/CLAUDE.md</code> in project</td>
+          </tr>
+          <tr>
+            <td>Global rules</td>
+            <td>Settings &rarr; Rules</td>
+            <td><code class="mono" style="color:var(--cyan-light);font-size:0.8rem">~/.claude/CLAUDE.md</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <footer class="footer">
+    <p>Built by <a href="#">Heaptrace</a> &nbsp;&middot;&nbsp; 66 Skills for Better Software Development</p>
+  </footer>
+
+</div><!-- end tab-setup-guide -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 3: LEARN (new)
+     ═══════════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-learn">
+
+  <section class="hero" style="padding-bottom:40px">
+    <div class="hero-badge">Learn</div>
+    <h1>Understand Skills,<br>Rules &amp; Customization</h1>
+    <p>Learn what skills are, how they work, and how to create and customize your own for any project.</p>
+  </section>
+
+  <div class="section" style="padding-top:20px">
+
+    <!-- ── What Are Skills? ── -->
+    <div class="guide-section">
+      <h2><span class="guide-icon" style="color:var(--cyan)">&#10022;</span> What Are Skills?</h2>
+      <p class="guide-lead">Skills are structured, repeatable processes that guide developers through common tasks. They turn tribal knowledge into documented workflows that any team member can follow.</p>
+
+      <div class="flow-diagram" style="margin-bottom:24px">
+        <div class="flow-steps">
+          <div class="flow-step-box" style="border-color:var(--amber)">
+            <div class="flow-step-num">Input</div>
+            <div class="flow-step-name">Requirement</div>
+            <div class="flow-step-detail">A task or request</div>
+          </div>
+          <div class="flow-arrow" style="color:var(--green)">&rarr;</div>
+          <div class="flow-step-box" style="border-color:var(--cyan)">
+            <div class="flow-step-num">Process</div>
+            <div class="flow-step-name">Skill Applied</div>
+            <div class="flow-step-detail">Structured steps</div>
+          </div>
+          <div class="flow-arrow" style="color:var(--green)">&rarr;</div>
+          <div class="flow-step-box" style="border-color:var(--green)">
+            <div class="flow-step-num">Output</div>
+            <div class="flow-step-name">Quality Result</div>
+            <div class="flow-step-detail">Consistent every time</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="font-size:1.1rem;font-weight:700;margin:32px 0 16px">Why Skills Matter</h3>
+      <div class="rules-grid">
+        <div class="rule-card">
+          <div class="rule-number" style="background:rgba(6,182,212,0.1);color:var(--cyan)">1</div>
+          <div class="rule-title">Consistency</div>
+          <div class="rule-desc">Every developer follows the same process, producing predictable, high-quality results regardless of experience level.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-number" style="background:rgba(16,185,129,0.1);color:var(--green)">2</div>
+          <div class="rule-title">Faster Onboarding</div>
+          <div class="rule-desc">New team members can immediately follow proven processes instead of figuring things out from scratch.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-number" style="background:rgba(168,85,247,0.1);color:var(--purple)">3</div>
+          <div class="rule-title">Fewer Bugs</div>
+          <div class="rule-desc">Checklists and structured reviews catch issues before they reach production, reducing rework and incident rates.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-number" style="background:rgba(245,158,11,0.1);color:var(--amber)">4</div>
+          <div class="rule-title">Knowledge Capture</div>
+          <div class="rule-desc">Best practices are documented and evolve with the team rather than living in one person's head.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── How Skills Work ── -->
+    <div class="guide-section">
+      <h2><span class="guide-icon" style="color:var(--purple)">&#10022;</span> How Skills Work</h2>
+      <p class="guide-lead">Every skill follows the same structure: a SKILL.md file with frontmatter metadata, step-by-step instructions, checklists, and templates.</p>
+
+      <h3 style="font-size:1.1rem;font-weight:700;margin:0 0 16px">Anatomy of a Skill File</h3>
+      <div class="code-block">heaptrace-skills/
+  feature-plan/
+    SKILL.md          &larr; The skill definition
+  feature-work/
+    SKILL.md
+  code-review/
+    SKILL.md
+  ...
+
+Each SKILL.md contains:
+
+  1. Frontmatter      &mdash; Name, description, trigger conditions
+  2. When to Use      &mdash; Scenarios where this skill applies
+  3. Process Flow     &mdash; Step-by-step instructions with diagrams
+  4. Checklist        &mdash; Verification items to complete
+  5. Templates        &mdash; Reusable output formats
+  6. Examples         &mdash; Real-world usage examples</div>
+
+      <h3 style="font-size:1.1rem;font-weight:700;margin:32px 0 16px">The Skill Workflow</h3>
+      <div class="flow-diagram">
+        <div class="flow-steps">
+          <div class="flow-step-box">
+            <div class="flow-step-num">Step 1</div>
+            <div class="flow-step-name">Get Task</div>
+            <div class="flow-step-detail">Receive a requirement</div>
+          </div>
+          <div class="flow-arrow" style="color:var(--purple)">&rarr;</div>
+          <div class="flow-step-box">
+            <div class="flow-step-num">Step 2</div>
+            <div class="flow-step-name">Pick Skill</div>
+            <div class="flow-step-detail">Match task to skill</div>
+          </div>
+          <div class="flow-arrow" style="color:var(--purple)">&rarr;</div>
+          <div class="flow-step-box">
+            <div class="flow-step-num">Step 3</div>
+            <div class="flow-step-name">Follow Steps</div>
+            <div class="flow-step-detail">Execute the process</div>
+          </div>
+          <div class="flow-arrow" style="color:var(--purple)">&rarr;</div>
+          <div class="flow-step-box">
+            <div class="flow-step-num">Step 4</div>
+            <div class="flow-step-name">Deliver</div>
+            <div class="flow-step-detail">Quality output</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Rules & Instructions ── -->
+    <div class="guide-section">
+      <h2><span class="guide-icon" style="color:var(--green)">&#10022;</span> Rules &amp; Instructions</h2>
+      <p class="guide-lead">Understanding the difference between project rules, editor rules, and skills is key to using them effectively.</p>
+
+      <div class="diagram-grid">
+        <div class="diagram-box">
+          <h4 style="color:var(--cyan)">CLAUDE.md</h4>
+          <p>Project-wide rules for Claude Code. Lives in <code class="mono" style="color:var(--cyan-light);font-size:0.8rem">.claude/CLAUDE.md</code>. Defines coding conventions, architecture decisions, and mandatory checks.</p>
+          <p style="margin-top:12px;font-size:0.82rem;color:var(--text-muted);font-style:italic">"Always use Prisma for DB changes"</p>
+          <div class="diagram-label" style="background:rgba(6,182,212,0.1);color:var(--cyan);border:1px solid rgba(6,182,212,0.2)">Tool-Specific</div>
+        </div>
+        <div class="diagram-box">
+          <h4 style="color:var(--purple)">.cursorrules</h4>
+          <p>Project-wide rules for Cursor. Lives in project root. Defines coding conventions and contextual instructions for the editor.</p>
+          <p style="margin-top:12px;font-size:0.82rem;color:var(--text-muted);font-style:italic">"Always use Prisma for DB changes"</p>
+          <div class="diagram-label" style="background:rgba(168,85,247,0.1);color:var(--purple);border:1px solid rgba(168,85,247,0.2)">Tool-Specific</div>
+        </div>
+        <div class="diagram-box">
+          <h4 style="color:var(--green)">Skills</h4>
+          <p>Task-specific guides that work with any tool. Not tied to a single editor. Portable, reusable, and shareable across teams.</p>
+          <p style="margin-top:12px;font-size:0.82rem;color:var(--text-muted);font-style:italic">"When planning a feature, follow these 8 steps..."</p>
+          <div class="diagram-label" style="background:rgba(16,185,129,0.1);color:var(--green);border:1px solid rgba(16,185,129,0.2)">Tool-Agnostic</div>
+        </div>
+      </div>
+
+      <div class="callout callout-green" style="margin-top:24px">
+        <strong>Key distinction:</strong> CLAUDE.md and .cursorrules define <em>what rules to follow</em> (project conventions). Skills define <em>how to do specific tasks</em> (step-by-step processes). Use both together for the best results.
+      </div>
+    </div>
+
+    <!-- ── Create Your Own Skills ── -->
+    <div class="guide-section">
+      <h2><span class="guide-icon" style="color:var(--amber)">&#10022;</span> Create Your Own Skills</h2>
+      <p class="guide-lead">You can create custom skills for any repeatable process in your team's workflow. Start with a process you do often, document the steps, and add verification checklists.</p>
+
+      <h3 style="font-size:1.1rem;font-weight:700;margin:0 0 16px">The Creation Process</h3>
+      <div class="flow-diagram" style="margin-bottom:32px">
+        <div class="flow-steps">
+          <div class="flow-step-box" style="border-color:var(--amber)">
+            <div class="flow-step-num">Step 1</div>
+            <div class="flow-step-name">Identify</div>
+            <div class="flow-step-detail">Find a repeated task</div>
+          </div>
+          <div class="flow-arrow" style="color:var(--amber)">&rarr;</div>
+          <div class="flow-step-box" style="border-color:var(--amber)">
+            <div class="flow-step-num">Step 2</div>
+            <div class="flow-step-name">Document</div>
+            <div class="flow-step-detail">Write the steps</div>
+          </div>
+          <div class="flow-arrow" style="color:var(--amber)">&rarr;</div>
+          <div class="flow-step-box" style="border-color:var(--amber)">
+            <div class="flow-step-num">Step 3</div>
+            <div class="flow-step-name">Add Checks</div>
+            <div class="flow-step-detail">Verification items</div>
+          </div>
+          <div class="flow-arrow" style="color:var(--amber)">&rarr;</div>
+          <div class="flow-step-box" style="border-color:var(--amber)">
+            <div class="flow-step-num">Step 4</div>
+            <div class="flow-step-name">Test</div>
+            <div class="flow-step-detail">Use with real work</div>
+          </div>
+          <div class="flow-arrow" style="color:var(--amber)">&rarr;</div>
+          <div class="flow-step-box" style="border-color:var(--green)">
+            <div class="flow-step-num">Step 5</div>
+            <div class="flow-step-name">Refine</div>
+            <div class="flow-step-detail">Iterate and improve</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="font-size:1.1rem;font-weight:700;margin:0 0 16px">Skill Template</h3>
+      <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px">Use this template as a starting point for any new skill.</p>
+      <div class="code-block"># {Skill Name}
+
+## Description
+{One-line summary of what this skill does}
+
+## When to Use
+- {Scenario 1}
+- {Scenario 2}
+- {Scenario 3}
+
+## Process
+
+### Step 1: {First Step Name}
+- {What to do}
+- {What to check}
+
+### Step 2: {Second Step Name}
+- {What to do}
+- {What to check}
+
+### Step 3: {Third Step Name}
+- {What to do}
+- {What to check}
+
+## Checklist
+- [ ] {Verification item 1}
+- [ ] {Verification item 2}
+- [ ] {Verification item 3}
+- [ ] {Verification item 4}
+
+## Examples
+{Real-world example of this skill in action}</div>
+
+      <div class="callout callout-amber" style="margin-top:24px">
+        <strong>Tips for creating effective skills:</strong><br>
+        &bull; Start with a process you do at least once a week<br>
+        &bull; Write steps as if explaining to a new team member<br>
+        &bull; Add checklists based on mistakes you've seen in the past<br>
+        &bull; Keep each step focused — one action per step<br>
+        &bull; Include examples with real (anonymized) scenarios
+      </div>
+    </div>
+
+    <!-- ── Customize Existing Skills ── -->
+    <div class="guide-section">
+      <h2><span class="guide-icon" style="color:var(--rose)">&#10022;</span> Customize Existing Skills</h2>
+      <p class="guide-lead">Heaptrace Skills are designed to be customized. Adapt them to your specific project, tech stack, and team conventions.</p>
+
+      <div class="guide-step">
+        <div class="guide-step-num" style="background:linear-gradient(135deg, var(--rose), var(--red))">1</div>
+        <div class="guide-step-content">
+          <h4>Add your project's tech stack</h4>
+          <p>Update the skill steps to reference your specific frameworks, libraries, and tools. For example, if the code-review skill mentions "check for SQL injection," customize it to say "check Prisma queries for raw SQL usage."</p>
+        </div>
+      </div>
+
+      <div class="guide-step">
+        <div class="guide-step-num" style="background:linear-gradient(135deg, var(--rose), var(--red))">2</div>
+        <div class="guide-step-content">
+          <h4>Add project-specific patterns</h4>
+          <p>Include your component names, naming conventions, and architectural patterns. If your project uses a specific state management approach or API pattern, add those checks to relevant skills.</p>
+        </div>
+      </div>
+
+      <div class="guide-step">
+        <div class="guide-step-num" style="background:linear-gradient(135deg, var(--rose), var(--red))">3</div>
+        <div class="guide-step-content">
+          <h4>Add checklist items from past bugs</h4>
+          <p>Every time your team encounters a bug that a skill should have caught, add a new checklist item. This way your skills get smarter over time and prevent repeat mistakes.</p>
+        </div>
+      </div>
+
+      <div class="guide-step">
+        <div class="guide-step-num" style="background:linear-gradient(135deg, var(--rose), var(--red))">4</div>
+        <div class="guide-step-content">
+          <h4>Example: customizing code-review for your stack</h4>
+          <p>Here is an example of adding project-specific review items to the code-review skill's checklist:</p>
+          <div class="code-block"># Added checklist items for our project:
+- [ ] Check that all new API routes use the tenantMiddleware
+- [ ] Verify Prisma queries include tenant_id filter
+- [ ] Confirm new components reuse existing UI primitives from /components/ui/
+- [ ] Check that new pages follow the existing layout pattern
+- [ ] Verify error responses use the standard ApiError format
+- [ ] Ensure new environment variables are added to .env.example</div>
+        </div>
+      </div>
+
+      <div class="callout callout-cyan" style="margin-top:8px">
+        <strong>Remember:</strong> Skills are living documents. Review and update them quarterly as your project evolves, your team grows, and new patterns emerge.
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="footer">
+    <p>Built by <a href="#">Heaptrace</a> &nbsp;&middot;&nbsp; 66 Skills for Better Software Development</p>
+  </footer>
+
+</div><!-- end tab-learn -->
+
+
+<!-- ═══ SKILL DETAIL MODAL ═══ -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <div class="skill-icon" id="modalIcon" style="width:40px;height:40px;border-radius:10px;font-size:18px"></div>
+        <div>
+          <div id="modalTitle" style="font-weight:700;font-size:1.1rem"></div>
+          <div id="modalCategory" style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em"></div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">&#10005;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- ═══ DOWNLOAD MODAL ═══ -->
+<div class="download-overlay" id="downloadOverlay" onclick="closeDownloadModal(event)">
+  <div class="download-modal" onclick="event.stopPropagation()">
+    <div class="download-modal-header">
+      <h2>Download Skills</h2>
+      <button class="modal-close" onclick="closeDownloadModal()">&#10005;</button>
+    </div>
+    <div class="download-modal-body" id="downloadModalBody"></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   PACK DEFINITIONS
+   ═══════════════════════════════════════════════════════════ */
+const packs = [
+  { id: 'developer', name: 'Developer', color: '#06b6d4', icon: '\u{1F4BB}' },
+  { id: 'lead-engineer', name: 'Lead Engineer', color: '#f59e0b', icon: '\u{1F3AF}' },
+  { id: 'architect', name: 'Technical Architect', color: '#8b5cf6', icon: '\u{1F3D7}' },
+  { id: 'qa', name: 'QA / Testing', color: '#10b981', icon: '\u{1F9EA}' },
+  { id: 'automation-qa', name: 'Automation QA', color: '#6366f1', icon: '\u{2699}' },
+  { id: 'cloud', name: 'AWS Cloud', color: '#f97316', icon: '\u{2601}' },
+  { id: 'designer', name: 'UI/UX Designer', color: '#ec4899', icon: '\u{1F3A8}' },
+  { id: 'business', name: 'Business / Product', color: '#14b8a6', icon: '\u{1F4C8}' },
+];
+
+/* ═══════════════════════════════════════════════════════════
+   SKILLS DATA
+   ═══════════════════════════════════════════════════════════ */
+const skills = [
+  // ── Pack 1: Developer (10 skills) ──
+  {
+    id: 'feature-plan', name: 'Feature Plan', icon: '\u{1F4CB}', category: 'Planning',
+    pack: 'developer', color: '#06b6d4',
+    desc: 'Plan a new feature from a requirement or idea. Breaks it down into clear tasks, creates UI mockups, defines data flow, and identifies risks.',
+    tags: ['requirements', 'mockups', 'task breakdown', 'risk analysis'],
+    useCases: ['New feature request', 'Client requirement', 'Sprint planning', 'Before writing code'],
+    flow: [
+      { step: 'Step 1', name: 'Understand', detail: 'Read the requirement' },
+      { step: 'Step 2', name: 'Research', detail: 'Check existing code' },
+      { step: 'Step 3', name: 'Design', detail: 'Mockups & flow diagrams' },
+      { step: 'Step 4', name: 'Plan', detail: 'Break into tasks' },
+    ],
+    checklist: [
+      'Break requirement into user stories', 'Create ASCII UI mockups for every screen',
+      'Draw data flow diagrams (entry to database)', 'Define API contracts (endpoints, request/response)',
+      'Identify database changes needed', 'List risks and open questions',
+      'Estimate effort per task', 'Get approval before implementing',
+    ],
+    whyImportant: 'Features built without a plan take 3x longer due to rework, missed requirements, and scope creep. A 30-minute plan saves days of wasted effort.'
+  },
+  {
+    id: 'feature-work', name: 'Feature Work', icon: '\u{1F528}', category: 'Building',
+    pack: 'developer', color: '#06b6d4',
+    desc: 'Implement a feature end-to-end from a plan. Handles the full build cycle: DB schema \u2192 Backend API \u2192 Frontend UI \u2192 Testing \u2192 Verification.',
+    tags: ['implementation', 'full-stack', 'coding', 'layer-by-layer'],
+    useCases: ['Approved plan ready to build', 'Sprint task assigned', 'Clear requirement to implement'],
+    flow: [
+      { step: 'Step 1', name: 'Setup', detail: 'Branch & environment' },
+      { step: 'Step 2', name: 'Database', detail: 'Schema & migration' },
+      { step: 'Step 3', name: 'Backend', detail: 'API & services' },
+      { step: 'Step 4', name: 'Frontend', detail: 'UI & integration' },
+      { step: 'Step 5', name: 'Verify', detail: 'Test & review' },
+    ],
+    checklist: [
+      'Create feature branch or worktree', 'Implement database layer (Prisma schema + migration)',
+      'Build backend services and business logic', 'Create API endpoints with validation',
+      'Build frontend components and pages', 'Wire up API calls and state management',
+      'Add loading, error, and empty states', 'Test all user flows manually', 'Self-review before PR',
+    ],
+    whyImportant: 'Building bottom-up (DB \u2192 API \u2192 UI) prevents the most common mistake: building a UI that doesn\'t match the data model, requiring painful rewrites.'
+  },
+  {
+    id: 'find-fix', name: 'Find & Fix', icon: '\u{1F41B}', category: 'Debugging',
+    pack: 'developer', color: '#06b6d4',
+    desc: 'Investigate and fix a bug from a report, error message, or user complaint. Follows a structured flow: reproduce \u2192 trace \u2192 root cause \u2192 fix \u2192 verify.',
+    tags: ['debugging', 'bug fix', 'root cause', 'regression'],
+    useCases: ['Bug report from QA or client', 'Error in logs', 'User complaint', 'Production incident'],
+    flow: [
+      { step: 'Step 1', name: 'Understand', detail: 'Read the bug report' },
+      { step: 'Step 2', name: 'Reproduce', detail: 'See it happen' },
+      { step: 'Step 3', name: 'Trace', detail: 'Follow the data' },
+      { step: 'Step 4', name: 'Fix', detail: 'Root cause fix' },
+      { step: 'Step 5', name: 'Verify', detail: 'Test & prevent' },
+    ],
+    checklist: [
+      'Understand what\'s expected vs what\'s happening', 'Reproduce the bug consistently',
+      'Narrow down: which layer is broken?', 'Trace data flow from trigger to failure point',
+      'Identify root cause (not just symptom)', 'Fix the root cause, not a workaround',
+      'Verify fix with original reproduction steps', 'Write regression test to prevent reoccurrence',
+      'Check for similar bugs elsewhere',
+    ],
+    whyImportant: 'Fixing symptoms instead of root causes creates an endless cycle of bugs. Structured debugging finds the real problem the first time.'
+  },
+  {
+    id: 'smart-commit', name: 'Smart Commit', icon: '\u2705', category: 'Git',
+    pack: 'developer', color: '#06b6d4',
+    desc: 'Analyze staged changes and generate a clear, semantic commit message that explains the WHY, not just the WHAT. No tool references ever.',
+    tags: ['git', 'commit message', 'semantic', 'conventional'],
+    useCases: ['After making changes', 'Before pushing', 'PR preparation', 'Clean commit history'],
+    flow: [
+      { step: 'Step 1', name: 'Read Diff', detail: 'Understand changes' },
+      { step: 'Step 2', name: 'Classify', detail: 'feat/fix/refactor' },
+      { step: 'Step 3', name: 'Write', detail: 'Subject + body' },
+      { step: 'Step 4', name: 'Commit', detail: 'Stage & verify' },
+    ],
+    checklist: [
+      'Read the diff \u2014 understand what changed', 'Classify the change type (feat, fix, refactor, etc.)',
+      'Write subject line: imperative, under 72 chars', 'Write body: explain WHY, not WHAT',
+      'Add scope for area of codebase', 'Reference related issues or tickets',
+      'Stage related files together (one logical change per commit)',
+      'NEVER include tool references (Co-Authored-By, Generated by)', 'Verify with git log before pushing',
+    ],
+    whyImportant: 'Git history is the permanent record of your project. Clean commit messages make debugging, reverting, and onboarding dramatically easier.'
+  },
+  {
+    id: 'suggest', name: 'Suggest', icon: '\u{1F4A1}', category: 'Advisory',
+    pack: 'developer', color: '#06b6d4',
+    desc: 'Read a task or requirement and suggest improvements, missing pieces, edge cases, and value-adds the client didn\'t ask for but clearly needs.',
+    tags: ['requirements', 'gap analysis', 'value-add', 'client advisory'],
+    useCases: ['Before starting work', 'Before client call', 'Vague requirement', 'Incomplete task description'],
+    flow: [
+      { step: 'Step 1', name: 'Understand', detail: 'Break down the ask' },
+      { step: 'Step 2', name: 'Find Gaps', detail: '10 analysis lenses' },
+      { step: 'Step 3', name: 'Categorize', detail: '2 buckets' },
+      { step: 'Step 4', name: 'Report', detail: 'Questions + actions' },
+    ],
+    checklist: [
+      'Break down: WHO, WHAT, WHY, WHERE, WHEN', 'Check existing codebase for related features',
+      'Run 10 gap lenses (edge cases, permissions, errors, UX, data, security, perf, notifications, mobile, growth)',
+      'Sort into: "Must Discuss with Client" vs "We Can Just Do This"',
+      'Suggest options for each question (not just problems)',
+      'List improvements that are industry standard (just include them)',
+      'Identify risks and dependencies', 'Write clear report for team/client discussion',
+    ],
+    whyImportant: 'The difference between a junior and senior developer is anticipation. Suggesting value-adds and catching gaps before coding saves everyone time and builds client trust.'
+  },
+  {
+    id: 'code-review', name: 'Code Review', icon: '\u{1F50D}', category: 'Quality',
+    pack: 'developer', color: '#06b6d4',
+    desc: 'Review code changes for logic errors, security issues, performance problems, duplication, and best practice violations. 8 structured review passes.',
+    tags: ['PR review', 'quality', 'security', 'performance'],
+    useCases: ['Before merging PR', 'Self-review after feature', 'Reviewing teammate\'s code', 'After bug fix'],
+    flow: [
+      { step: 'Step 1', name: 'Context', detail: 'Understand the change' },
+      { step: 'Step 2', name: '8 Passes', detail: 'Structured review' },
+      { step: 'Step 3', name: 'Report', detail: 'Findings + severity' },
+      { step: 'Step 4', name: 'Act', detail: 'Fix or comment' },
+    ],
+    checklist: [
+      'Pass 1: Logic & Correctness \u2014 does it work?', 'Pass 2: Security \u2014 can it be exploited?',
+      'Pass 3: Error Handling \u2014 what if things fail?', 'Pass 4: Performance \u2014 will it scale?',
+      'Pass 5: Code Duplication \u2014 is it DRY?', 'Pass 6: Naming & Readability \u2014 is it clear?',
+      'Pass 7: Testing \u2014 is it tested?', 'Pass 8: Consistency \u2014 does it match the codebase?',
+      'Include positives \u2014 what\'s done well',
+    ],
+    whyImportant: 'Bugs found in code review cost 10x less to fix than bugs found in production. A structured 8-pass review catches what a quick glance misses.'
+  },
+  {
+    id: 'test-gen', name: 'Test Gen', icon: '\u{1F9EA}', category: 'Testing',
+    pack: 'developer', color: '#06b6d4',
+    desc: 'Generate meaningful tests for a file, function, or endpoint. Covers happy path, errors, edge cases, and boundary values \u2014 tests that actually catch bugs.',
+    tags: ['unit tests', 'integration tests', 'edge cases', 'regression'],
+    useCases: ['After writing a feature', 'Before refactoring', 'After fixing a bug', 'Improving test coverage'],
+    flow: [
+      { step: 'Step 1', name: 'Read Code', detail: 'Inputs & outputs' },
+      { step: 'Step 2', name: 'Case Matrix', detail: '7 categories' },
+      { step: 'Step 3', name: 'Write Tests', detail: 'Arrange-Act-Assert' },
+      { step: 'Step 4', name: 'Verify', detail: 'Run & break test' },
+    ],
+    checklist: [
+      'Identify inputs, outputs, branches, dependencies', 'Happy path \u2014 normal usage works correctly',
+      'Validation errors \u2014 bad input is rejected', 'Auth/permission \u2014 access control enforced',
+      'Not found \u2014 missing resources handled', 'Edge cases \u2014 empty, null, unicode, concurrent',
+      'Boundary values \u2014 0, 1, max, max+1', 'Failure recovery \u2014 dependency failures caught',
+      '"Break it" test \u2014 temporarily break code, verify tests catch it',
+    ],
+    whyImportant: 'Tests that only cover the happy path give false confidence. Real bugs hide in edge cases and error paths \u2014 which is exactly what this skill targets.'
+  },
+  {
+    id: 'explain', name: 'Explain', icon: '\u{1F4D6}', category: 'Knowledge',
+    pack: 'developer', color: '#06b6d4',
+    desc: 'Deep-dive explanation of any code, system, or feature. Breaks down how it works, why it was built that way, how data flows, and what would break if changed.',
+    tags: ['onboarding', 'documentation', 'architecture', 'understanding'],
+    useCases: ['New to the project', 'Before modifying unfamiliar code', 'Explaining to a teammate', 'Before a major refactor'],
+    flow: [
+      { step: 'Step 1', name: 'Locate', detail: 'Find all related files' },
+      { step: 'Step 2', name: 'Trace', detail: 'Follow data flow' },
+      { step: 'Step 3', name: 'Map', detail: 'Dependencies & risks' },
+      { step: 'Step 4', name: 'Explain', detail: 'Clear documentation' },
+    ],
+    checklist: [
+      'Find all related files (6 layers: entry, frontend, API, service, DB, side effects)',
+      'Trace the full data flow (user action \u2192 database \u2192 response)',
+      'Document each step: file, what happens, data in/out',
+      'Map upstream dependencies (what this relies on)', 'Map downstream dependents (what relies on this)',
+      'Impact analysis: what breaks if you change it?', 'Explain WHY it was designed this way',
+      'Choose depth level: summary / walkthrough / deep dive',
+    ],
+    whyImportant: 'Modifying code you don\'t fully understand is the #1 cause of production incidents. 10 minutes of explanation prevents hours of debugging.'
+  },
+  {
+    id: 'sec-audit', name: 'Sec Audit', icon: '\u{1F512}', category: 'Security',
+    pack: 'developer', color: '#06b6d4',
+    desc: 'Scan code for security vulnerabilities \u2014 OWASP Top 10, exposed secrets, broken authentication, injection attacks, and insecure dependencies.',
+    tags: ['OWASP', 'secrets', 'injection', 'authentication', 'dependencies'],
+    useCases: ['Before shipping', 'During code review', 'After adding auth', 'New API endpoint', 'Periodic check'],
+    flow: [
+      { step: 'Step 1', name: 'Secrets', detail: 'Scan for exposed keys' },
+      { step: 'Step 2', name: 'OWASP 10', detail: '5 security checks' },
+      { step: 'Step 3', name: 'Deps', detail: 'npm audit' },
+      { step: 'Step 4', name: 'Report', detail: 'Findings + fixes' },
+    ],
+    checklist: [
+      'Scan for hardcoded secrets (API keys, passwords, tokens)', 'Check .env files not committed to git',
+      'Check 1: Broken Access Control (auth, IDOR, tenant isolation)',
+      'Check 2: Injection (SQL, XSS, command injection)',
+      'Check 3: Data Exposure (responses, logs, URLs, storage)',
+      'Check 4: Auth Weaknesses (passwords, sessions, reset flow)',
+      'Check 5: Missing Controls (rate limiting, CORS, CSRF, headers)',
+      'Run npm audit for dependency vulnerabilities', 'Classify findings by severity (Critical \u2192 Low)',
+    ],
+    whyImportant: 'A single exposed API key or missing auth check can compromise your entire application and every customer\'s data. Security isn\'t optional.'
+  },
+  {
+    id: 'release-notes', name: 'Release Notes', icon: '\u{1F680}', category: 'Delivery',
+    pack: 'developer', color: '#06b6d4',
+    desc: 'Generate human-readable release notes from git history. Groups changes by type, rewrites technical commits into client-friendly language.',
+    tags: ['changelog', 'client update', 'sprint demo', 'versioning'],
+    useCases: ['Before a release', 'Sprint demo prep', 'Client update email', 'Version tagging'],
+    flow: [
+      { step: 'Step 1', name: 'Gather', detail: 'git log between points' },
+      { step: 'Step 2', name: 'Group', detail: 'Features/fixes/chores' },
+      { step: 'Step 3', name: 'Rewrite', detail: 'Human-friendly language' },
+      { step: 'Step 4', name: 'Format', detail: 'Client or internal' },
+    ],
+    checklist: [
+      'Gather commits between two points (tags, dates, branches)',
+      'Group by category: features, fixes, improvements, security',
+      'Filter: include user-visible, skip internal chores', 'Combine related commits into single notes',
+      'Rewrite in plain language (no technical jargon)', 'Write from user\'s perspective ("You can now...")',
+      'Format for audience: client-facing vs internal', 'Include breaking changes prominently',
+      'Add version number and date',
+    ],
+    whyImportant: 'Clients and stakeholders judge your team by what they can see. Clean release notes show professionalism and build confidence in your delivery.'
+  },
+
+  // ── Pack 2: Lead Engineer (8 skills) ──
+  {
+    id: 'sprint-plan', name: 'Sprint Plan', icon: '\u{1F4C5}', category: 'Planning',
+    pack: 'lead-engineer', color: '#f59e0b',
+    desc: 'Break epics into sprints, estimate effort, assign tasks, and set realistic timelines for delivery.',
+    tags: ['sprint', 'estimation', 'capacity', 'backlog'],
+    useCases: ['Sprint planning meeting', 'Epic breakdown', 'Capacity planning', 'Milestone setting'],
+    flow: [
+      { step: 'Step 1', name: 'Review', detail: 'Assess backlog items' },
+      { step: 'Step 2', name: 'Estimate', detail: 'Story points / hours' },
+      { step: 'Step 3', name: 'Assign', detail: 'Match skills to tasks' },
+      { step: 'Step 4', name: 'Commit', detail: 'Sprint goal & scope' },
+    ],
+    checklist: ['Review and prioritize backlog items', 'Estimate story points for each item', 'Check team capacity and availability', 'Set sprint goal and success criteria', 'Identify dependencies between tasks', 'Assign tasks based on skills and load', 'Flag risks and blockers early', 'Get team alignment on sprint commitment'],
+    whyImportant: 'Poor sprint planning leads to missed deadlines and burned-out teams. Structured planning ensures realistic commitments and steady delivery.'
+  },
+  {
+    id: 'arch-review', name: 'Arch Review', icon: '\u{1F3D7}', category: 'Architecture',
+    pack: 'lead-engineer', color: '#f59e0b',
+    desc: 'Review architecture decisions for scalability, coupling, and maintainability before implementation begins.',
+    tags: ['architecture', 'scalability', 'coupling', 'review'],
+    useCases: ['Before major feature', 'System redesign', 'New service introduction', 'Performance bottleneck'],
+    flow: [
+      { step: 'Step 1', name: 'Map', detail: 'Current architecture' },
+      { step: 'Step 2', name: 'Analyze', detail: 'Coupling & cohesion' },
+      { step: 'Step 3', name: 'Identify', detail: 'Risks & bottlenecks' },
+      { step: 'Step 4', name: 'Recommend', detail: 'Changes & tradeoffs' },
+    ],
+    checklist: ['Map current system components and dependencies', 'Identify tightly coupled modules', 'Check for single points of failure', 'Review data flow and storage patterns', 'Assess horizontal scaling readiness', 'Evaluate API contract stability', 'Document tradeoffs for each option', 'Get team consensus on approach'],
+    whyImportant: 'Architecture mistakes are the most expensive to fix. A 2-hour review can prevent months of refactoring.'
+  },
+  {
+    id: 'tech-debt-audit', name: 'Tech Debt Audit', icon: '\u{1F4CA}', category: 'Quality',
+    pack: 'lead-engineer', color: '#f59e0b',
+    desc: 'Find and catalog technical debt across the codebase, prioritize it, and create a remediation plan.',
+    tags: ['tech debt', 'code quality', 'refactoring', 'maintenance'],
+    useCases: ['Quarterly review', 'Before major release', 'Slow velocity investigation', 'New team lead onboarding'],
+    flow: [
+      { step: 'Step 1', name: 'Scan', detail: 'Find debt indicators' },
+      { step: 'Step 2', name: 'Catalog', detail: 'Type & severity' },
+      { step: 'Step 3', name: 'Prioritize', detail: 'Impact vs effort' },
+      { step: 'Step 4', name: 'Plan', detail: 'Remediation roadmap' },
+    ],
+    checklist: ['Scan for TODO/FIXME/HACK comments', 'Identify duplicated code patterns', 'Check for outdated dependencies', 'Review test coverage gaps', 'Assess documentation staleness', 'Catalog workarounds and shortcuts', 'Prioritize by business impact', 'Create remediation timeline'],
+    whyImportant: 'Unchecked tech debt compounds like interest. Regular audits keep velocity high and prevent surprise failures.'
+  },
+  {
+    id: 'incident-response', name: 'Incident Response', icon: '\u{1F6A8}', category: 'Operations',
+    pack: 'lead-engineer', color: '#f59e0b',
+    desc: 'Structured incident handling from detection to resolution, plus postmortem to prevent recurrence.',
+    tags: ['incident', 'outage', 'postmortem', 'on-call'],
+    useCases: ['Production outage', 'Data integrity issue', 'Security breach', 'Performance degradation'],
+    flow: [
+      { step: 'Step 1', name: 'Detect', detail: 'Identify & classify' },
+      { step: 'Step 2', name: 'Respond', detail: 'Mitigate impact' },
+      { step: 'Step 3', name: 'Resolve', detail: 'Fix root cause' },
+      { step: 'Step 4', name: 'Review', detail: 'Postmortem & action items' },
+    ],
+    checklist: ['Classify severity (P1-P4)', 'Assign incident commander', 'Communicate status to stakeholders', 'Identify blast radius', 'Implement mitigation', 'Find and fix root cause', 'Write blameless postmortem', 'Create action items to prevent recurrence'],
+    whyImportant: 'Chaotic incident response extends outages. A structured process minimizes downtime and customer impact.'
+  },
+  {
+    id: 'pr-strategy', name: 'PR Strategy', icon: '\u{1F500}', category: 'Git',
+    pack: 'lead-engineer', color: '#f59e0b',
+    desc: 'Split large features into small, reviewable PRs with a clear merge strategy and dependency order.',
+    tags: ['pull request', 'code review', 'branching', 'merge strategy'],
+    useCases: ['Large feature implementation', 'Multi-week project', 'Team collaboration', 'Complex refactor'],
+    flow: [
+      { step: 'Step 1', name: 'Decompose', detail: 'Split into layers' },
+      { step: 'Step 2', name: 'Order', detail: 'Dependency graph' },
+      { step: 'Step 3', name: 'Size', detail: 'Under 400 lines each' },
+      { step: 'Step 4', name: 'Review', detail: 'Ship incrementally' },
+    ],
+    checklist: ['Map feature into independent layers', 'Create dependency graph between PRs', 'Keep each PR under 400 changed lines', 'Write clear PR descriptions with context', 'Include screenshots for UI changes', 'Add tests in same PR as feature code', 'Plan merge order and conflict resolution', 'Ship incrementally to reduce risk'],
+    whyImportant: 'Large PRs get rubber-stamped. Small PRs get thorough reviews, ship faster, and have fewer merge conflicts.'
+  },
+  {
+    id: 'onboard-dev', name: 'Onboard Dev', icon: '\u{1F44B}', category: 'Team',
+    pack: 'lead-engineer', color: '#f59e0b',
+    desc: 'Generate a comprehensive onboarding guide for new developers joining the project.',
+    tags: ['onboarding', 'documentation', 'setup', 'team'],
+    useCases: ['New hire joining', 'Contractor starting', 'Cross-team knowledge transfer', 'Open source contributors'],
+    flow: [
+      { step: 'Step 1', name: 'Environment', detail: 'Setup & tools' },
+      { step: 'Step 2', name: 'Architecture', detail: 'System overview' },
+      { step: 'Step 3', name: 'Codebase', detail: 'Key patterns' },
+      { step: 'Step 4', name: 'First Task', detail: 'Guided contribution' },
+    ],
+    checklist: ['Document local development setup steps', 'Create architecture overview diagram', 'List key patterns and conventions', 'Explain folder structure and ownership', 'Identify first-task candidates (good first issues)', 'Link to relevant documentation', 'Set up access to tools and services', 'Schedule intro meetings with team members'],
+    whyImportant: 'A developer without proper onboarding takes 3x longer to become productive. Good docs pay for themselves in the first week.'
+  },
+  {
+    id: 'perf-audit', name: 'Perf Audit', icon: '\u{26A1}', category: 'Performance',
+    pack: 'lead-engineer', color: '#f59e0b',
+    desc: 'Profile slow endpoints and pages, identify bottlenecks, and create a performance improvement plan.',
+    tags: ['performance', 'profiling', 'optimization', 'bottleneck'],
+    useCases: ['Slow page reports', 'API timeout issues', 'Database query performance', 'Before scaling event'],
+    flow: [
+      { step: 'Step 1', name: 'Measure', detail: 'Baseline metrics' },
+      { step: 'Step 2', name: 'Profile', detail: 'Find bottlenecks' },
+      { step: 'Step 3', name: 'Optimize', detail: 'Fix top issues' },
+      { step: 'Step 4', name: 'Verify', detail: 'Compare metrics' },
+    ],
+    checklist: ['Establish baseline performance metrics', 'Profile API endpoint response times', 'Analyze database query execution plans', 'Check for N+1 query patterns', 'Review frontend bundle size and load time', 'Identify memory leaks and resource waste', 'Implement targeted optimizations', 'Measure improvement against baseline'],
+    whyImportant: 'Performance issues compound. A 200ms API delay multiplied by 10 calls per page creates a 2-second wait that users notice and abandon.'
+  },
+  {
+    id: 'decision-doc', name: 'Decision Doc', icon: '\u{1F4DD}', category: 'Documentation',
+    pack: 'lead-engineer', color: '#f59e0b',
+    desc: 'Write Architecture Decision Records (ADRs) that document the what, why, and tradeoffs of technical decisions.',
+    tags: ['ADR', 'decision record', 'architecture', 'documentation'],
+    useCases: ['Major tech choice', 'Framework selection', 'Architecture change', 'Process change'],
+    flow: [
+      { step: 'Step 1', name: 'Context', detail: 'Problem statement' },
+      { step: 'Step 2', name: 'Options', detail: 'Evaluate alternatives' },
+      { step: 'Step 3', name: 'Decision', detail: 'Choose with rationale' },
+      { step: 'Step 4', name: 'Record', detail: 'Document for posterity' },
+    ],
+    checklist: ['Define the problem and constraints', 'List all viable options', 'Evaluate each option against criteria', 'Document chosen approach and rationale', 'List tradeoffs and accepted risks', 'Define success metrics', 'Get stakeholder sign-off', 'Store ADR in accessible location'],
+    whyImportant: 'Decisions without documentation get revisited endlessly. ADRs save time by recording the WHY so future teams understand the context.'
+  },
+
+  // ── Pack 3: Technical Architect (8 skills) ──
+  {
+    id: 'system-design', name: 'System Design', icon: '\u{1F5FA}', category: 'Architecture',
+    pack: 'architect', color: '#8b5cf6',
+    desc: 'Design systems from scratch with clear component boundaries, data flow, and scaling strategy.',
+    tags: ['system design', 'architecture', 'components', 'scaling'],
+    useCases: ['New product', 'Major redesign', 'Scaling existing system', 'Technical interview prep'],
+    flow: [
+      { step: 'Step 1', name: 'Requirements', detail: 'Functional & non-functional' },
+      { step: 'Step 2', name: 'Components', detail: 'High-level design' },
+      { step: 'Step 3', name: 'Data', detail: 'Storage & flow' },
+      { step: 'Step 4', name: 'Scale', detail: 'Bottlenecks & solutions' },
+    ],
+    checklist: ['Define functional requirements', 'Define non-functional requirements (latency, throughput)', 'Design component diagram', 'Define API contracts between components', 'Choose data storage strategy', 'Plan for horizontal scaling', 'Identify single points of failure', 'Document deployment topology'],
+    whyImportant: 'A system without clear design becomes a tangled mess that no one understands. Good design is the foundation of maintainable software.'
+  },
+  {
+    id: 'api-design', name: 'API Design', icon: '\u{1F310}', category: 'API',
+    pack: 'architect', color: '#8b5cf6',
+    desc: 'Design RESTful APIs with clear contracts, consistent naming, proper error handling, and versioning strategy.',
+    tags: ['REST', 'API contracts', 'endpoints', 'versioning'],
+    useCases: ['New API surface', 'API redesign', 'Third-party integration', 'Public API launch'],
+    flow: [
+      { step: 'Step 1', name: 'Resources', detail: 'Identify entities' },
+      { step: 'Step 2', name: 'Endpoints', detail: 'CRUD + custom' },
+      { step: 'Step 3', name: 'Contracts', detail: 'Request/response shapes' },
+      { step: 'Step 4', name: 'Document', detail: 'OpenAPI spec' },
+    ],
+    checklist: ['Identify resource nouns (plural, lowercase)', 'Define CRUD operations per resource', 'Design consistent error response format', 'Plan pagination strategy', 'Define authentication and authorization', 'Version the API from day one', 'Write request/response examples', 'Create OpenAPI/Swagger documentation'],
+    whyImportant: 'APIs are contracts that are hard to change once published. Good API design prevents breaking changes and reduces integration friction.'
+  },
+  {
+    id: 'db-design', name: 'DB Design', icon: '\u{1F5C4}', category: 'Database',
+    pack: 'architect', color: '#8b5cf6',
+    desc: 'Design database schemas and migrations with proper normalization, indexing, and multi-tenant isolation.',
+    tags: ['database', 'schema', 'migrations', 'indexing'],
+    useCases: ['New feature data model', 'Performance optimization', 'Multi-tenant setup', 'Data migration'],
+    flow: [
+      { step: 'Step 1', name: 'Model', detail: 'Entity relationships' },
+      { step: 'Step 2', name: 'Normalize', detail: 'Reduce redundancy' },
+      { step: 'Step 3', name: 'Index', detail: 'Query optimization' },
+      { step: 'Step 4', name: 'Migrate', detail: 'Safe rollout plan' },
+    ],
+    checklist: ['Map entities and relationships (ERD)', 'Apply normalization rules (3NF minimum)', 'Define primary keys and foreign keys', 'Add indexes for common query patterns', 'Plan tenant isolation strategy', 'Write forward and rollback migrations', 'Test with production-scale data', 'Document schema decisions'],
+    whyImportant: 'Database mistakes are the hardest to fix. A poorly designed schema leads to slow queries, data corruption, and painful migrations.'
+  },
+  {
+    id: 'integration-plan', name: 'Integration Plan', icon: '\u{1F517}', category: 'Integration',
+    pack: 'architect', color: '#8b5cf6',
+    desc: 'Plan third-party integrations with clear API mapping, error handling, and fallback strategies.',
+    tags: ['integration', 'third-party', 'API', 'webhooks'],
+    useCases: ['Payment provider integration', 'OAuth setup', 'Webhook implementation', 'Data sync with external service'],
+    flow: [
+      { step: 'Step 1', name: 'Map', detail: 'API capabilities' },
+      { step: 'Step 2', name: 'Design', detail: 'Integration architecture' },
+      { step: 'Step 3', name: 'Handle', detail: 'Errors & edge cases' },
+      { step: 'Step 4', name: 'Test', detail: 'Sandbox & production' },
+    ],
+    checklist: ['Map third-party API endpoints and capabilities', 'Design integration layer (adapter pattern)', 'Plan authentication and token management', 'Define webhook handling and verification', 'Implement retry logic with exponential backoff', 'Handle rate limits gracefully', 'Plan fallback behavior when service is down', 'Test in sandbox before production'],
+    whyImportant: 'Third-party integrations are the most common source of production issues. A solid plan prevents outages when external services fail.'
+  },
+  {
+    id: 'migration-plan', name: 'Migration Plan', icon: '\u{1F69A}', category: 'Data',
+    pack: 'architect', color: '#8b5cf6',
+    desc: 'Plan zero-downtime data migrations with rollback strategies and data validation checkpoints.',
+    tags: ['migration', 'zero-downtime', 'data', 'rollback'],
+    useCases: ['Database migration', 'Service migration', 'Cloud provider switch', 'Schema major change'],
+    flow: [
+      { step: 'Step 1', name: 'Assess', detail: 'Current state & risks' },
+      { step: 'Step 2', name: 'Plan', detail: 'Phased approach' },
+      { step: 'Step 3', name: 'Execute', detail: 'With checkpoints' },
+      { step: 'Step 4', name: 'Validate', detail: 'Data integrity checks' },
+    ],
+    checklist: ['Audit current data and identify dependencies', 'Design phased migration approach', 'Create rollback plan for each phase', 'Set up data validation checkpoints', 'Test migration with production-scale data copy', 'Plan communication timeline', 'Schedule migration window', 'Monitor post-migration health metrics'],
+    whyImportant: 'Data migrations are high-risk operations. Without a plan, you risk data loss, corruption, or extended downtime.'
+  },
+  {
+    id: 'scalability-review', name: 'Scalability Review', icon: '\u{1F4C8}', category: 'Scaling',
+    pack: 'architect', color: '#8b5cf6',
+    desc: 'Review system architecture for scaling bottlenecks, single points of failure, and capacity limits.',
+    tags: ['scalability', 'bottleneck', 'capacity', 'load'],
+    useCases: ['Before launch', 'Growth milestone', 'Performance degradation', 'Architecture review'],
+    flow: [
+      { step: 'Step 1', name: 'Profile', detail: 'Current load patterns' },
+      { step: 'Step 2', name: 'Identify', detail: 'Bottlenecks & limits' },
+      { step: 'Step 3', name: 'Design', detail: 'Scaling solutions' },
+      { step: 'Step 4', name: 'Plan', detail: 'Implementation roadmap' },
+    ],
+    checklist: ['Map current traffic patterns and peaks', 'Identify database connection limits', 'Check for stateful components that block scaling', 'Review caching strategy', 'Assess queue and worker capacity', 'Test under 3x expected load', 'Plan auto-scaling policies', 'Document scaling runbook'],
+    whyImportant: 'Systems that work at 1000 users often break at 10,000. Proactive scaling reviews prevent embarrassing outages during growth.'
+  },
+  {
+    id: 'event-design', name: 'Event Design', icon: '\u{1F4E8}', category: 'Architecture',
+    pack: 'architect', color: '#8b5cf6',
+    desc: 'Design event-driven architecture with clear event schemas, ordering guarantees, and dead-letter handling.',
+    tags: ['events', 'messaging', 'pub-sub', 'async'],
+    useCases: ['Microservice communication', 'Async processing', 'Real-time notifications', 'Audit logging'],
+    flow: [
+      { step: 'Step 1', name: 'Events', detail: 'Identify domain events' },
+      { step: 'Step 2', name: 'Schema', detail: 'Event contracts' },
+      { step: 'Step 3', name: 'Flow', detail: 'Producers & consumers' },
+      { step: 'Step 4', name: 'Handle', detail: 'Failures & ordering' },
+    ],
+    checklist: ['Identify domain events (nouns + past tense verbs)', 'Define event schema with versioning', 'Map producers and consumers', 'Design ordering and idempotency guarantees', 'Plan dead-letter queue handling', 'Define retry policies', 'Monitor event processing lag', 'Document event catalog'],
+    whyImportant: 'Poorly designed events create tight coupling and data inconsistency. Good event design enables reliable async processing at scale.'
+  },
+  {
+    id: 'cost-estimate', name: 'Cost Estimate', icon: '\u{1F4B0}', category: 'Planning',
+    pack: 'architect', color: '#8b5cf6',
+    desc: 'Estimate infrastructure costs for a system design, including compute, storage, networking, and managed services.',
+    tags: ['cost', 'infrastructure', 'budget', 'cloud'],
+    useCases: ['New project budget', 'Architecture proposal', 'Cloud migration', 'Cost optimization'],
+    flow: [
+      { step: 'Step 1', name: 'Inventory', detail: 'List all resources' },
+      { step: 'Step 2', name: 'Size', detail: 'Estimate capacity' },
+      { step: 'Step 3', name: 'Price', detail: 'Calculate costs' },
+      { step: 'Step 4', name: 'Optimize', detail: 'Reduce where possible' },
+    ],
+    checklist: ['List all required cloud resources', 'Estimate compute requirements (CPU, memory)', 'Calculate storage needs (hot, warm, cold)', 'Factor in data transfer costs', 'Include managed service pricing', 'Add buffer for growth (20-30%)', 'Compare reserved vs on-demand pricing', 'Present monthly and annual projections'],
+    whyImportant: 'Surprise cloud bills destroy project budgets. Accurate estimates upfront enable informed architecture decisions.'
+  },
+
+  // ── Pack 4: QA / Testing (8 skills) ──
+  {
+    id: 'test-plan', name: 'Test Plan', icon: '\u{1F4CB}', category: 'Planning',
+    pack: 'qa', color: '#10b981',
+    desc: 'Create comprehensive test plans covering scope, approach, resources, schedule, and risk mitigation.',
+    tags: ['test plan', 'strategy', 'coverage', 'risk'],
+    useCases: ['New feature testing', 'Release preparation', 'QA onboarding', 'Compliance requirement'],
+    flow: [
+      { step: 'Step 1', name: 'Scope', detail: 'What to test' },
+      { step: 'Step 2', name: 'Approach', detail: 'How to test' },
+      { step: 'Step 3', name: 'Cases', detail: 'Test scenarios' },
+      { step: 'Step 4', name: 'Schedule', detail: 'Timeline & resources' },
+    ],
+    checklist: ['Define test scope and objectives', 'Identify test types needed (unit, integration, e2e)', 'Write test scenarios for each feature', 'Define entry and exit criteria', 'Allocate resources and timeline', 'Identify testing tools and environments', 'Plan risk mitigation for test gaps', 'Get stakeholder approval on plan'],
+    whyImportant: 'Testing without a plan is like building without a blueprint. You miss critical scenarios and waste time on low-value tests.'
+  },
+  {
+    id: 'e2e-test', name: 'E2E Test', icon: '\u{1F3AF}', category: 'End-to-End',
+    pack: 'qa', color: '#10b981',
+    desc: 'Write end-to-end user flow tests that validate complete journeys from login to task completion.',
+    tags: ['e2e', 'user flows', 'integration', 'journey'],
+    useCases: ['Critical user paths', 'Checkout flows', 'Registration flows', 'Multi-step wizards'],
+    flow: [
+      { step: 'Step 1', name: 'Flows', detail: 'Map user journeys' },
+      { step: 'Step 2', name: 'Data', detail: 'Setup test data' },
+      { step: 'Step 3', name: 'Write', detail: 'Test scripts' },
+      { step: 'Step 4', name: 'Run', detail: 'Execute & report' },
+    ],
+    checklist: ['Map critical user journeys end-to-end', 'Create test data setup and teardown', 'Write tests for happy path first', 'Add error and edge case scenarios', 'Handle async operations and waits properly', 'Test across different user roles', 'Include visual verification steps', 'Run in CI pipeline with reporting'],
+    whyImportant: 'Unit tests pass but the app is broken? E2E tests catch integration issues that unit tests miss by testing real user workflows.'
+  },
+  {
+    id: 'api-test', name: 'API Test', icon: '\u{1F50C}', category: 'API',
+    pack: 'qa', color: '#10b981',
+    desc: 'Test API endpoints thoroughly for correct responses, error handling, validation, and edge cases.',
+    tags: ['API testing', 'endpoints', 'validation', 'status codes'],
+    useCases: ['New endpoint verification', 'Regression testing', 'Integration testing', 'Security testing'],
+    flow: [
+      { step: 'Step 1', name: 'Map', detail: 'Endpoints & contracts' },
+      { step: 'Step 2', name: 'Cases', detail: 'Success + error' },
+      { step: 'Step 3', name: 'Execute', detail: 'Run test suite' },
+      { step: 'Step 4', name: 'Report', detail: 'Coverage & gaps' },
+    ],
+    checklist: ['Test all HTTP methods per endpoint', 'Verify correct status codes (200, 201, 400, 401, 404, 500)', 'Validate response body shapes', 'Test input validation (missing, invalid, boundary)', 'Verify authentication and authorization', 'Test rate limiting behavior', 'Check pagination and filtering', 'Test concurrent request handling'],
+    whyImportant: 'APIs are the backbone of modern apps. Untested APIs lead to broken integrations and data corruption.'
+  },
+  {
+    id: 'regression-check', name: 'Regression Check', icon: '\u{1F504}', category: 'Regression',
+    pack: 'qa', color: '#10b981',
+    desc: 'Identify what could break from code changes by analyzing dependencies and running targeted regression tests.',
+    tags: ['regression', 'impact analysis', 'change management', 'risk'],
+    useCases: ['Before release', 'After major refactor', 'Dependency update', 'Database migration'],
+    flow: [
+      { step: 'Step 1', name: 'Analyze', detail: 'Changed code impact' },
+      { step: 'Step 2', name: 'Map', detail: 'Affected features' },
+      { step: 'Step 3', name: 'Test', detail: 'Targeted regression' },
+      { step: 'Step 4', name: 'Report', detail: 'Pass/fail summary' },
+    ],
+    checklist: ['List all files changed in the release', 'Map changed files to features', 'Identify downstream dependencies', 'Run targeted regression test suite', 'Test critical user paths manually', 'Verify data integrity after changes', 'Check for visual regressions', 'Sign off on regression results'],
+    whyImportant: 'Changes in one area often break another. Regression checks catch cascading failures before users do.'
+  },
+  {
+    id: 'bug-report', name: 'Bug Report', icon: '\u{1F41B}', category: 'Reporting',
+    pack: 'qa', color: '#10b981',
+    desc: 'Write structured bug reports with reproduction steps, expected vs actual behavior, and environment details.',
+    tags: ['bug report', 'reproduction', 'severity', 'triage'],
+    useCases: ['Bug found during testing', 'User-reported issue', 'Production incident', 'Automated test failure'],
+    flow: [
+      { step: 'Step 1', name: 'Reproduce', detail: 'Confirm the bug' },
+      { step: 'Step 2', name: 'Document', detail: 'Steps & evidence' },
+      { step: 'Step 3', name: 'Classify', detail: 'Severity & priority' },
+      { step: 'Step 4', name: 'Submit', detail: 'Assign & track' },
+    ],
+    checklist: ['Reproduce the bug consistently', 'Write step-by-step reproduction instructions', 'Document expected vs actual behavior', 'Include screenshots or screen recordings', 'Note browser, OS, and environment', 'Classify severity (blocker, critical, major, minor)', 'Check if already reported', 'Assign to appropriate team'],
+    whyImportant: 'A vague bug report wastes hours of developer time. A clear report gets fixed in minutes.'
+  },
+  {
+    id: 'load-test', name: 'Load Test', icon: '\u{1F4A5}', category: 'Performance',
+    pack: 'qa', color: '#10b981',
+    desc: 'Design and execute load test scenarios to find breaking points and performance thresholds.',
+    tags: ['load testing', 'stress test', 'performance', 'capacity'],
+    useCases: ['Before launch', 'Before scaling event', 'After architecture change', 'Capacity planning'],
+    flow: [
+      { step: 'Step 1', name: 'Scenarios', detail: 'Define load patterns' },
+      { step: 'Step 2', name: 'Setup', detail: 'Tools & environment' },
+      { step: 'Step 3', name: 'Execute', detail: 'Ramp & observe' },
+      { step: 'Step 4', name: 'Analyze', detail: 'Bottlenecks & limits' },
+    ],
+    checklist: ['Define target load (concurrent users, requests/sec)', 'Create realistic user scenarios', 'Set up isolated test environment', 'Configure monitoring dashboards', 'Run baseline test at normal load', 'Ramp to 2x, 5x, 10x expected load', 'Identify breaking point and bottleneck', 'Document findings and recommendations'],
+    whyImportant: 'Systems that work in development often fail under real-world load. Load testing finds breaking points before your users do.'
+  },
+  {
+    id: 'accessibility-audit', name: 'Accessibility Audit', icon: '\u{267F}', category: 'Accessibility',
+    pack: 'qa', color: '#10b981',
+    desc: 'Audit UI for WCAG compliance including keyboard navigation, screen readers, color contrast, and ARIA labels.',
+    tags: ['a11y', 'WCAG', 'screen reader', 'keyboard'],
+    useCases: ['New feature launch', 'Compliance requirement', 'Quarterly audit', 'Component library review'],
+    flow: [
+      { step: 'Step 1', name: 'Automated', detail: 'Run a11y scanners' },
+      { step: 'Step 2', name: 'Manual', detail: 'Keyboard & screen reader' },
+      { step: 'Step 3', name: 'Report', detail: 'Issues & severity' },
+      { step: 'Step 4', name: 'Fix', detail: 'Remediation plan' },
+    ],
+    checklist: ['Run automated accessibility scanner (axe, Lighthouse)', 'Test full keyboard navigation (Tab, Enter, Escape)', 'Verify screen reader announces content correctly', 'Check color contrast ratios (4.5:1 minimum)', 'Verify all images have alt text', 'Check form labels and error messages', 'Test focus management in modals and dynamic content', 'Document WCAG compliance level achieved'],
+    whyImportant: 'Accessibility is not optional. It affects real users and is legally required in many jurisdictions. Build it in, not bolted on.'
+  },
+  {
+    id: 'test-data-gen', name: 'Test Data Gen', icon: '\u{1F3B2}', category: 'Data',
+    pack: 'qa', color: '#10b981',
+    desc: 'Generate realistic test data sets with proper relationships, edge cases, and seed scripts.',
+    tags: ['test data', 'fixtures', 'seed', 'faker'],
+    useCases: ['Test environment setup', 'Demo preparation', 'Load testing data', 'Development seeding'],
+    flow: [
+      { step: 'Step 1', name: 'Model', detail: 'Entity relationships' },
+      { step: 'Step 2', name: 'Generate', detail: 'Realistic data' },
+      { step: 'Step 3', name: 'Edge Cases', detail: 'Boundary data' },
+      { step: 'Step 4', name: 'Script', detail: 'Seed & reset' },
+    ],
+    checklist: ['Map entity relationships for test data', 'Generate realistic names, emails, dates', 'Include edge cases (empty, long, unicode, special chars)', 'Create data for all user roles and permissions', 'Build seed scripts for reproducible setup', 'Include cleanup/teardown scripts', 'Test with different data volumes', 'Document data generation approach'],
+    whyImportant: 'Tests with bad data give false confidence. Realistic test data catches the bugs that users hit with their real-world data.'
+  },
+
+  // ── Pack 5: Automation QA (6 skills) ──
+  {
+    id: 'cypress-test', name: 'Cypress Test', icon: '\u{1F916}', category: 'Automation',
+    pack: 'automation-qa', color: '#6366f1',
+    desc: 'Write reliable Cypress/Playwright tests with proper selectors, waits, and test isolation.',
+    tags: ['Cypress', 'Playwright', 'browser testing', 'selectors'],
+    useCases: ['E2E test automation', 'Regression suite', 'Smoke tests', 'Visual testing'],
+    flow: [
+      { step: 'Step 1', name: 'Setup', detail: 'Config & fixtures' },
+      { step: 'Step 2', name: 'Write', detail: 'Tests with Page Objects' },
+      { step: 'Step 3', name: 'Run', detail: 'Execute & debug' },
+      { step: 'Step 4', name: 'CI', detail: 'Pipeline integration' },
+    ],
+    checklist: ['Use data-testid selectors (not CSS classes)', 'Implement Page Object pattern', 'Handle async operations with proper waits', 'Isolate tests (no shared state)', 'Set up test data before each test', 'Clean up after tests', 'Run in headless mode for CI', 'Generate test reports and screenshots'],
+    whyImportant: 'Flaky tests erode trust in the test suite. Properly written automation tests are fast, reliable, and catch real bugs.'
+  },
+  {
+    id: 'ci-test-pipeline', name: 'CI Test Pipeline', icon: '\u{1F3ED}', category: 'CI/CD',
+    pack: 'automation-qa', color: '#6366f1',
+    desc: 'Set up test automation in CI pipelines with parallel execution, caching, and failure reporting.',
+    tags: ['CI/CD', 'pipeline', 'GitHub Actions', 'parallel'],
+    useCases: ['New project CI setup', 'Pipeline optimization', 'Adding test stages', 'Parallelizing tests'],
+    flow: [
+      { step: 'Step 1', name: 'Design', detail: 'Pipeline stages' },
+      { step: 'Step 2', name: 'Configure', detail: 'CI provider' },
+      { step: 'Step 3', name: 'Optimize', detail: 'Cache & parallel' },
+      { step: 'Step 4', name: 'Monitor', detail: 'Reports & alerts' },
+    ],
+    checklist: ['Design test stage ordering (lint, unit, integration, e2e)', 'Configure CI provider (GitHub Actions, etc.)', 'Set up dependency caching', 'Parallelize test suites', 'Configure test reporting and artifacts', 'Set up failure notifications', 'Define flaky test handling strategy', 'Monitor pipeline run times'],
+    whyImportant: 'Tests that do not run in CI are tests that get skipped. Automated pipelines ensure every PR is tested before merge.'
+  },
+  {
+    id: 'mock-service', name: 'Mock Service', icon: '\u{1F3AD}', category: 'Testing',
+    pack: 'automation-qa', color: '#6366f1',
+    desc: 'Create mock APIs and services for testing, including request/response matching, delays, and error simulation.',
+    tags: ['mocking', 'stub', 'test doubles', 'API mock'],
+    useCases: ['External service testing', 'Offline development', 'Error scenario testing', 'Performance testing'],
+    flow: [
+      { step: 'Step 1', name: 'Map', detail: 'APIs to mock' },
+      { step: 'Step 2', name: 'Build', detail: 'Mock handlers' },
+      { step: 'Step 3', name: 'Simulate', detail: 'Errors & delays' },
+      { step: 'Step 4', name: 'Integrate', detail: 'Wire into tests' },
+    ],
+    checklist: ['List external APIs to mock', 'Create request/response mappings', 'Add realistic response delays', 'Simulate error responses (timeout, 500, rate limit)', 'Support stateful interactions', 'Version mock data with test suite', 'Document mock API behavior', 'Keep mocks synchronized with real API changes'],
+    whyImportant: 'Depending on external services makes tests slow and unreliable. Mocks give you fast, deterministic tests you can run anywhere.'
+  },
+  {
+    id: 'visual-regression', name: 'Visual Regression', icon: '\u{1F441}', category: 'Visual',
+    pack: 'automation-qa', color: '#6366f1',
+    desc: 'Set up visual regression testing to catch unintended UI changes with screenshot comparison.',
+    tags: ['visual testing', 'screenshot', 'diff', 'UI regression'],
+    useCases: ['Component library changes', 'CSS refactoring', 'Theme updates', 'Responsive design verification'],
+    flow: [
+      { step: 'Step 1', name: 'Baseline', detail: 'Capture screenshots' },
+      { step: 'Step 2', name: 'Compare', detail: 'Diff on change' },
+      { step: 'Step 3', name: 'Review', detail: 'Accept or reject' },
+      { step: 'Step 4', name: 'Update', detail: 'New baseline' },
+    ],
+    checklist: ['Set up screenshot capture for key pages', 'Configure viewport sizes to test', 'Create baseline screenshots', 'Integrate diff comparison in CI', 'Set acceptable diff threshold', 'Handle dynamic content (dates, animations)', 'Review visual diffs in PR', 'Update baselines when changes are intentional'],
+    whyImportant: 'CSS changes can break layouts in unexpected places. Visual regression testing catches UI issues that functional tests miss.'
+  },
+  {
+    id: 'test-coverage', name: 'Test Coverage', icon: '\u{1F4CA}', category: 'Quality',
+    pack: 'automation-qa', color: '#6366f1',
+    desc: 'Analyze and improve test coverage by identifying untested code paths and writing targeted tests.',
+    tags: ['coverage', 'metrics', 'gaps', 'quality'],
+    useCases: ['Coverage improvement sprint', 'Pre-release quality check', 'Tech debt reduction', 'Compliance requirement'],
+    flow: [
+      { step: 'Step 1', name: 'Measure', detail: 'Current coverage' },
+      { step: 'Step 2', name: 'Analyze', detail: 'Identify gaps' },
+      { step: 'Step 3', name: 'Prioritize', detail: 'High-risk areas first' },
+      { step: 'Step 4', name: 'Write', detail: 'Targeted tests' },
+    ],
+    checklist: ['Run coverage tool and generate report', 'Identify files with lowest coverage', 'Prioritize by business criticality', 'Focus on branch coverage, not just line coverage', 'Write tests for error paths and edge cases', 'Set minimum coverage thresholds', 'Track coverage trends over time', 'Avoid gaming metrics with low-value tests'],
+    whyImportant: 'Code without tests is a liability. Coverage analysis shows where the risks are hiding so you can test what matters most.'
+  },
+  {
+    id: 'contract-test', name: 'Contract Test', icon: '\u{1F91D}', category: 'Integration',
+    pack: 'automation-qa', color: '#6366f1',
+    desc: 'Write contract tests between services to verify API compatibility and prevent breaking changes.',
+    tags: ['contract testing', 'Pact', 'consumer-driven', 'API compatibility'],
+    useCases: ['Microservice boundaries', 'API versioning', 'Third-party integration', 'Breaking change detection'],
+    flow: [
+      { step: 'Step 1', name: 'Define', detail: 'Consumer expectations' },
+      { step: 'Step 2', name: 'Write', detail: 'Contract tests' },
+      { step: 'Step 3', name: 'Verify', detail: 'Provider compliance' },
+      { step: 'Step 4', name: 'Publish', detail: 'Contract broker' },
+    ],
+    checklist: ['Define consumer expectations for each endpoint', 'Write consumer contract tests', 'Set up provider verification', 'Publish contracts to broker', 'Run contract tests in CI pipeline', 'Block deployments on contract failures', 'Version contracts alongside APIs', 'Monitor contract compatibility matrix'],
+    whyImportant: 'Services that evolve independently need contracts. Without them, one team\'s change becomes another team\'s outage.'
+  },
+
+  // ── Pack 6: AWS Cloud (10 skills) ──
+  {
+    id: 'vpc-design', name: 'VPC Design', icon: '\u{1F310}', category: 'Networking',
+    pack: 'cloud', color: '#f97316',
+    desc: 'Design VPC and networking architecture with proper subnets, security groups, and network ACLs.',
+    tags: ['VPC', 'subnets', 'security groups', 'networking'],
+    useCases: ['New AWS account setup', 'Multi-tier architecture', 'Hybrid cloud', 'Network security review'],
+    flow: [
+      { step: 'Step 1', name: 'CIDR', detail: 'IP range planning' },
+      { step: 'Step 2', name: 'Subnets', detail: 'Public/private tiers' },
+      { step: 'Step 3', name: 'Security', detail: 'SGs & NACLs' },
+      { step: 'Step 4', name: 'Connect', detail: 'NAT, VPN, peering' },
+    ],
+    checklist: ['Plan CIDR blocks with room for growth', 'Create public and private subnets across AZs', 'Configure route tables for each subnet tier', 'Set up NAT gateway for private subnet internet access', 'Define security groups with least-privilege rules', 'Configure network ACLs as additional layer', 'Set up VPC flow logs for monitoring', 'Document network architecture diagram'],
+    whyImportant: 'Network architecture is the foundation of cloud security. A misconfigured VPC exposes your entire infrastructure.'
+  },
+  {
+    id: 'ecs-deploy', name: 'ECS Deploy', icon: '\u{1F433}', category: 'Containers',
+    pack: 'cloud', color: '#f97316',
+    desc: 'Deploy containerized applications to ECS with task definitions, services, and blue-green deployments.',
+    tags: ['ECS', 'Docker', 'Fargate', 'deployment'],
+    useCases: ['New service deployment', 'Container migration', 'Auto-scaling setup', 'Blue-green deployment'],
+    flow: [
+      { step: 'Step 1', name: 'Build', detail: 'Docker image' },
+      { step: 'Step 2', name: 'Define', detail: 'Task definition' },
+      { step: 'Step 3', name: 'Deploy', detail: 'Service & scaling' },
+      { step: 'Step 4', name: 'Monitor', detail: 'Health & logs' },
+    ],
+    checklist: ['Create optimized Dockerfile', 'Push image to ECR', 'Define ECS task definition with resource limits', 'Configure service with desired count', 'Set up Application Load Balancer', 'Configure auto-scaling policies', 'Set up blue-green or rolling deployment', 'Configure health checks and alarms'],
+    whyImportant: 'Container orchestration done right means zero-downtime deployments. Done wrong, it means service outages and resource waste.'
+  },
+  {
+    id: 'rds-setup', name: 'RDS Setup', icon: '\u{1F5C4}', category: 'Database',
+    pack: 'cloud', color: '#f97316',
+    desc: 'Set up and tune RDS databases with proper instance sizing, backups, and read replicas.',
+    tags: ['RDS', 'PostgreSQL', 'MySQL', 'database'],
+    useCases: ['New database setup', 'Performance tuning', 'High availability', 'Disaster recovery'],
+    flow: [
+      { step: 'Step 1', name: 'Size', detail: 'Instance & storage' },
+      { step: 'Step 2', name: 'Configure', detail: 'Parameters & security' },
+      { step: 'Step 3', name: 'Backup', detail: 'Automated & manual' },
+      { step: 'Step 4', name: 'Tune', detail: 'Performance optimization' },
+    ],
+    checklist: ['Choose appropriate instance size', 'Configure Multi-AZ for high availability', 'Set up automated backups with retention period', 'Configure parameter groups for optimization', 'Enable encryption at rest and in transit', 'Set up monitoring and alerts', 'Configure read replicas if needed', 'Test backup restoration process'],
+    whyImportant: 'Your database is the most critical infrastructure component. Proper setup prevents data loss and performance disasters.'
+  },
+  {
+    id: 'iam-policy', name: 'IAM Policy', icon: '\u{1F512}', category: 'Security',
+    pack: 'cloud', color: '#f97316',
+    desc: 'Write least-privilege IAM policies with proper resource scoping and condition keys.',
+    tags: ['IAM', 'policies', 'least privilege', 'security'],
+    useCases: ['Service role creation', 'User permission setup', 'Cross-account access', 'Security audit fix'],
+    flow: [
+      { step: 'Step 1', name: 'Identify', detail: 'Required actions' },
+      { step: 'Step 2', name: 'Scope', detail: 'Resource ARNs' },
+      { step: 'Step 3', name: 'Restrict', detail: 'Conditions & limits' },
+      { step: 'Step 4', name: 'Test', detail: 'Verify & audit' },
+    ],
+    checklist: ['List exact actions needed (no wildcards)', 'Scope to specific resource ARNs', 'Add condition keys for extra security', 'Use AWS managed policies where appropriate', 'Create custom policies for unique requirements', 'Test with IAM Access Analyzer', 'Document policy purpose and scope', 'Review policies quarterly'],
+    whyImportant: 'Overly permissive IAM policies are the #1 cloud security risk. Least privilege prevents blast radius when things go wrong.'
+  },
+  {
+    id: 'terraform-module', name: 'Terraform Module', icon: '\u{1F4E6}', category: 'IaC',
+    pack: 'cloud', color: '#f97316',
+    desc: 'Write reusable Terraform modules with proper inputs, outputs, state management, and testing.',
+    tags: ['Terraform', 'IaC', 'modules', 'state'],
+    useCases: ['New infrastructure component', 'Multi-environment setup', 'Infrastructure standardization', 'Team shared modules'],
+    flow: [
+      { step: 'Step 1', name: 'Design', detail: 'Module interface' },
+      { step: 'Step 2', name: 'Write', detail: 'Resources & data' },
+      { step: 'Step 3', name: 'Test', detail: 'Plan & validate' },
+      { step: 'Step 4', name: 'Publish', detail: 'Version & document' },
+    ],
+    checklist: ['Define clear input variables with descriptions', 'Use sensible defaults for optional variables', 'Output useful values for consumers', 'Use data sources instead of hardcoded values', 'Implement remote state backend', 'Add lifecycle rules for critical resources', 'Test with terraform plan before apply', 'Version and document the module'],
+    whyImportant: 'Infrastructure without code is infrastructure that drifts. Terraform modules ensure repeatable, reviewable infrastructure changes.'
+  },
+  {
+    id: 'ci-cd-pipeline', name: 'CI/CD Pipeline', icon: '\u{1F504}', category: 'Automation',
+    pack: 'cloud', color: '#f97316',
+    desc: 'Build CI/CD pipelines with automated testing, building, and deployment across environments.',
+    tags: ['CI/CD', 'GitHub Actions', 'CodePipeline', 'automation'],
+    useCases: ['New project setup', 'Pipeline optimization', 'Multi-environment deployment', 'Security scanning'],
+    flow: [
+      { step: 'Step 1', name: 'Design', detail: 'Pipeline stages' },
+      { step: 'Step 2', name: 'Build', detail: 'Test & package' },
+      { step: 'Step 3', name: 'Deploy', detail: 'Stage & prod' },
+      { step: 'Step 4', name: 'Monitor', detail: 'Alerts & rollback' },
+    ],
+    checklist: ['Design pipeline stages (lint, test, build, deploy)', 'Configure source code triggers', 'Set up dependency caching', 'Add security scanning stage', 'Configure environment-specific deployments', 'Implement deployment approval gates', 'Set up rollback automation', 'Monitor pipeline success rates'],
+    whyImportant: 'Manual deployments are error-prone and slow. Automated pipelines ship faster with fewer mistakes.'
+  },
+  {
+    id: 'monitoring-setup', name: 'Monitoring Setup', icon: '\u{1F4CA}', category: 'Observability',
+    pack: 'cloud', color: '#f97316',
+    desc: 'Set up CloudWatch monitoring with dashboards, alarms, log insights, and metric filters.',
+    tags: ['CloudWatch', 'monitoring', 'alerts', 'dashboards'],
+    useCases: ['New service launch', 'Incident prevention', 'SLA monitoring', 'Cost tracking'],
+    flow: [
+      { step: 'Step 1', name: 'Metrics', detail: 'Key indicators' },
+      { step: 'Step 2', name: 'Alarms', detail: 'Thresholds & actions' },
+      { step: 'Step 3', name: 'Dashboards', detail: 'Visual overview' },
+      { step: 'Step 4', name: 'Logs', detail: 'Insights & alerts' },
+    ],
+    checklist: ['Define key metrics (latency, errors, throughput, saturation)', 'Create CloudWatch alarms with appropriate thresholds', 'Set up SNS topics for alarm notifications', 'Build operational dashboard', 'Configure log groups with retention policies', 'Create metric filters from log patterns', 'Set up anomaly detection for key metrics', 'Document runbook for each alarm'],
+    whyImportant: 'You cannot fix what you cannot see. Proper monitoring detects issues before users report them.'
+  },
+  {
+    id: 'cost-optimize', name: 'Cost Optimize', icon: '\u{1F4B5}', category: 'FinOps',
+    pack: 'cloud', color: '#f97316',
+    desc: 'Audit and reduce AWS costs by identifying waste, rightsizing resources, and using savings plans.',
+    tags: ['cost', 'optimization', 'rightsizing', 'savings plans'],
+    useCases: ['Monthly cost review', 'Budget overage', 'New account optimization', 'Resource cleanup'],
+    flow: [
+      { step: 'Step 1', name: 'Audit', detail: 'Current spending' },
+      { step: 'Step 2', name: 'Identify', detail: 'Waste & oversizing' },
+      { step: 'Step 3', name: 'Optimize', detail: 'Rightsize & reserve' },
+      { step: 'Step 4', name: 'Track', detail: 'Budget alerts' },
+    ],
+    checklist: ['Review AWS Cost Explorer for trends', 'Identify unused resources (idle EC2, unattached EBS)', 'Rightsize over-provisioned instances', 'Evaluate Reserved Instances vs Savings Plans', 'Clean up old snapshots and AMIs', 'Set up budget alerts', 'Use spot instances for non-critical workloads', 'Tag all resources for cost allocation'],
+    whyImportant: 'Cloud costs grow silently. Monthly optimization prevents the shock of a surprise bill and keeps budgets on track.'
+  },
+  {
+    id: 'disaster-recovery', name: 'Disaster Recovery', icon: '\u{1F6E1}', category: 'Resilience',
+    pack: 'cloud', color: '#f97316',
+    desc: 'Plan disaster recovery strategy with RTO/RPO targets, backup verification, and failover procedures.',
+    tags: ['DR', 'backup', 'failover', 'RTO/RPO'],
+    useCases: ['New service launch', 'Compliance requirement', 'Annual DR review', 'Post-incident improvement'],
+    flow: [
+      { step: 'Step 1', name: 'Assess', detail: 'RTO & RPO targets' },
+      { step: 'Step 2', name: 'Design', detail: 'DR architecture' },
+      { step: 'Step 3', name: 'Implement', detail: 'Backup & replication' },
+      { step: 'Step 4', name: 'Test', detail: 'DR drill' },
+    ],
+    checklist: ['Define RTO and RPO for each service', 'Choose DR strategy (backup/restore, pilot light, warm standby, active-active)', 'Configure cross-region backups', 'Set up database replication', 'Create failover runbook', 'Test DR procedure quarterly', 'Verify backup restoration works', 'Document communication plan'],
+    whyImportant: 'Disasters happen. The question is not if, but when. A tested DR plan is the difference between hours and weeks of downtime.'
+  },
+  {
+    id: 'secrets-manage', name: 'Secrets Manage', icon: '\u{1F511}', category: 'Security',
+    pack: 'cloud', color: '#f97316',
+    desc: 'Manage secrets securely using AWS Secrets Manager or Parameter Store with rotation and access controls.',
+    tags: ['secrets', 'encryption', 'rotation', 'SSM'],
+    useCases: ['Application secrets setup', 'Secret rotation implementation', 'Environment configuration', 'Security audit remediation'],
+    flow: [
+      { step: 'Step 1', name: 'Audit', detail: 'Find all secrets' },
+      { step: 'Step 2', name: 'Store', detail: 'Secrets Manager / SSM' },
+      { step: 'Step 3', name: 'Rotate', detail: 'Automatic rotation' },
+      { step: 'Step 4', name: 'Access', detail: 'IAM policies' },
+    ],
+    checklist: ['Audit all hardcoded secrets in codebase', 'Choose Secrets Manager vs Parameter Store', 'Migrate secrets to chosen service', 'Configure encryption with KMS', 'Set up automatic rotation for database credentials', 'Create IAM policies for secret access', 'Update application to read secrets at runtime', 'Remove secrets from code and config files'],
+    whyImportant: 'Hardcoded secrets in code are ticking time bombs. Proper secret management prevents breaches and simplifies rotation.'
+  },
+
+  // ── Pack 7: UI/UX Designer (8 skills) ──
+  {
+    id: 'wireframe', name: 'Wireframe', icon: '\u{1F5BC}', category: 'Design',
+    pack: 'designer', color: '#ec4899',
+    desc: 'Create wireframes and page layouts that define content hierarchy, navigation, and user interaction patterns.',
+    tags: ['wireframe', 'layout', 'hierarchy', 'UI structure'],
+    useCases: ['New page design', 'Feature redesign', 'Stakeholder alignment', 'Developer handoff'],
+    flow: [
+      { step: 'Step 1', name: 'Requirements', detail: 'Content & goals' },
+      { step: 'Step 2', name: 'Layout', detail: 'Structure & grid' },
+      { step: 'Step 3', name: 'Interactions', detail: 'States & flows' },
+      { step: 'Step 4', name: 'Review', detail: 'Feedback & iterate' },
+    ],
+    checklist: ['Define page purpose and user goals', 'Create content hierarchy', 'Design layout grid and structure', 'Show all interactive element states', 'Include empty, loading, and error states', 'Add annotations for developer clarity', 'Review with stakeholders', 'Iterate based on feedback'],
+    whyImportant: 'Building UI without wireframes leads to constant redesigns. Wireframes align everyone before expensive development begins.'
+  },
+  {
+    id: 'user-flow', name: 'User Flow', icon: '\u{1F6B6}', category: 'UX',
+    pack: 'designer', color: '#ec4899',
+    desc: 'Map complete user journeys from entry point to goal completion, including decision points and error paths.',
+    tags: ['user flow', 'journey map', 'decision tree', 'UX'],
+    useCases: ['New feature design', 'Onboarding optimization', 'Checkout flow', 'Error path design'],
+    flow: [
+      { step: 'Step 1', name: 'Entry', detail: 'User starting points' },
+      { step: 'Step 2', name: 'Steps', detail: 'Actions & decisions' },
+      { step: 'Step 3', name: 'Branches', detail: 'Error & alt paths' },
+      { step: 'Step 4', name: 'Goal', detail: 'Success criteria' },
+    ],
+    checklist: ['Identify all user entry points', 'Map happy path from start to goal', 'Add decision points and branches', 'Design error and recovery paths', 'Include system actions (emails, notifications)', 'Mark points where users commonly drop off', 'Validate flow with real user feedback', 'Create flow diagram for team reference'],
+    whyImportant: 'Users do not follow linear paths. Mapping all possible flows prevents dead ends and frustrating experiences.'
+  },
+  {
+    id: 'design-system', name: 'Design System', icon: '\u{1F3A8}', category: 'System',
+    pack: 'designer', color: '#ec4899',
+    desc: 'Define design system tokens including colors, typography, spacing, and component specifications.',
+    tags: ['design tokens', 'typography', 'colors', 'spacing'],
+    useCases: ['New project setup', 'Brand refresh', 'Multi-platform consistency', 'Component library creation'],
+    flow: [
+      { step: 'Step 1', name: 'Tokens', detail: 'Colors, type, space' },
+      { step: 'Step 2', name: 'Components', detail: 'Base primitives' },
+      { step: 'Step 3', name: 'Patterns', detail: 'Composed layouts' },
+      { step: 'Step 4', name: 'Document', detail: 'Usage guidelines' },
+    ],
+    checklist: ['Define color palette (primary, secondary, semantic, neutral)', 'Set up typography scale', 'Create spacing and sizing scale', 'Define border radius and shadow tokens', 'Build base component specifications', 'Create component usage guidelines', 'Document do\'s and don\'ts', 'Set up design token export for code'],
+    whyImportant: 'Without a design system, every page looks different. Tokens and specs create visual consistency and speed up development.'
+  },
+  {
+    id: 'ux-audit', name: 'UX Audit', icon: '\u{1F50D}', category: 'UX',
+    pack: 'designer', color: '#ec4899',
+    desc: 'Audit UI for usability issues including navigation confusion, cognitive load, and interaction friction.',
+    tags: ['UX audit', 'usability', 'heuristics', 'friction'],
+    useCases: ['Feature launch review', 'User complaint investigation', 'Conversion optimization', 'Quarterly UX review'],
+    flow: [
+      { step: 'Step 1', name: 'Heuristics', detail: '10 usability checks' },
+      { step: 'Step 2', name: 'Flows', detail: 'Task completion' },
+      { step: 'Step 3', name: 'Report', detail: 'Issues & severity' },
+      { step: 'Step 4', name: 'Recommend', detail: 'Prioritized fixes' },
+    ],
+    checklist: ['Apply Nielsen\'s 10 usability heuristics', 'Test key task completion paths', 'Measure cognitive load at each step', 'Identify unnecessary clicks and friction', 'Check consistency across pages', 'Verify error messages are helpful', 'Review information hierarchy', 'Prioritize findings by user impact'],
+    whyImportant: 'Small usability issues compound into frustrated users. Regular UX audits catch friction before it drives users away.'
+  },
+  {
+    id: 'responsive-design', name: 'Responsive Design', icon: '\u{1F4F1}', category: 'Responsive',
+    pack: 'designer', color: '#ec4899',
+    desc: 'Plan responsive layouts across mobile, tablet, and desktop with clear breakpoint strategies.',
+    tags: ['responsive', 'mobile', 'breakpoints', 'adaptive'],
+    useCases: ['New page layout', 'Mobile optimization', 'Tablet support', 'Component responsiveness'],
+    flow: [
+      { step: 'Step 1', name: 'Breakpoints', detail: 'Define sizes' },
+      { step: 'Step 2', name: 'Layout', detail: 'Grid strategy' },
+      { step: 'Step 3', name: 'Content', detail: 'Priority & reflow' },
+      { step: 'Step 4', name: 'Test', detail: 'Device testing' },
+    ],
+    checklist: ['Define breakpoint strategy', 'Design mobile-first layouts', 'Plan content priority for small screens', 'Handle navigation collapse pattern', 'Size touch targets (44px minimum)', 'Test with real devices', 'Handle images and media responsively', 'Verify text remains readable at all sizes'],
+    whyImportant: 'Over 50% of web traffic is mobile. A non-responsive design loses half your audience.'
+  },
+  {
+    id: 'micro-interaction', name: 'Micro-Interaction', icon: '\u{2728}', category: 'Polish',
+    pack: 'designer', color: '#ec4899',
+    desc: 'Design loading, empty, error, and success states that make the UI feel responsive and polished.',
+    tags: ['micro-interaction', 'loading states', 'empty states', 'feedback'],
+    useCases: ['Feature polish', 'User feedback improvement', 'Loading experience', 'Error handling UX'],
+    flow: [
+      { step: 'Step 1', name: 'States', detail: 'Map all UI states' },
+      { step: 'Step 2', name: 'Design', detail: 'Visual feedback' },
+      { step: 'Step 3', name: 'Animate', detail: 'Transitions' },
+      { step: 'Step 4', name: 'Implement', detail: 'Specs for devs' },
+    ],
+    checklist: ['Map all possible UI states (loading, empty, error, success, partial)', 'Design skeleton loading screens', 'Create meaningful empty state illustrations and CTAs', 'Design error states with clear recovery actions', 'Add success feedback (toast, animation, checkmark)', 'Define animation timing and easing', 'Handle optimistic UI updates', 'Spec out transitions for developer implementation'],
+    whyImportant: 'Users judge app quality by its polish. Micro-interactions turn a functional app into a delightful experience.'
+  },
+  {
+    id: 'a11y-design', name: 'A11y Design', icon: '\u{267F}', category: 'Accessibility',
+    pack: 'designer', color: '#ec4899',
+    desc: 'Design for accessibility from the start with proper contrast, focus indicators, and semantic structure.',
+    tags: ['accessibility', 'a11y', 'WCAG', 'inclusive design'],
+    useCases: ['New component design', 'Accessibility remediation', 'Design system update', 'Compliance requirement'],
+    flow: [
+      { step: 'Step 1', name: 'Contrast', detail: 'Color accessibility' },
+      { step: 'Step 2', name: 'Structure', detail: 'Semantic HTML' },
+      { step: 'Step 3', name: 'Interaction', detail: 'Keyboard & screen reader' },
+      { step: 'Step 4', name: 'Test', detail: 'Assistive tech' },
+    ],
+    checklist: ['Ensure 4.5:1 contrast ratio for text', 'Design visible focus indicators', 'Use semantic heading hierarchy', 'Provide text alternatives for images', 'Design keyboard-accessible interactions', 'Avoid relying solely on color for meaning', 'Test with screen reader', 'Document accessibility specs in handoff'],
+    whyImportant: 'Accessibility is a design responsibility, not a developer afterthought. Designing inclusively from the start is cheaper than retrofitting.'
+  },
+  {
+    id: 'design-handoff', name: 'Design Handoff', icon: '\u{1F4E4}', category: 'Handoff',
+    pack: 'designer', color: '#ec4899',
+    desc: 'Create comprehensive developer handoff specs with measurements, interactions, and implementation notes.',
+    tags: ['handoff', 'specs', 'developer', 'implementation'],
+    useCases: ['Feature ready for development', 'Component specification', 'Design update communication', 'Remote team collaboration'],
+    flow: [
+      { step: 'Step 1', name: 'Specs', detail: 'Measurements & tokens' },
+      { step: 'Step 2', name: 'States', detail: 'All variations' },
+      { step: 'Step 3', name: 'Notes', detail: 'Behavior & edge cases' },
+      { step: 'Step 4', name: 'Review', detail: 'Developer Q&A' },
+    ],
+    checklist: ['Include exact measurements and spacing', 'Specify design token usage (colors, fonts, sizes)', 'Show all component states and variations', 'Document interaction behavior', 'Note responsive behavior at each breakpoint', 'Include animation specs (duration, easing)', 'List accessibility requirements', 'Schedule handoff review with developer'],
+    whyImportant: 'Poor handoffs create a gap between design and implementation. Clear specs ensure what gets built matches what was designed.'
+  },
+
+  // ── Pack 8: Business / Product (8 skills) ──
+  {
+    id: 'prd-write', name: 'PRD Write', icon: '\u{1F4C4}', category: 'Product',
+    pack: 'business', color: '#14b8a6',
+    desc: 'Write Product Requirements Documents with clear problem statements, user stories, and success metrics.',
+    tags: ['PRD', 'requirements', 'product', 'specification'],
+    useCases: ['New feature definition', 'Product pivot', 'Investor documentation', 'Team alignment'],
+    flow: [
+      { step: 'Step 1', name: 'Problem', detail: 'Define the problem' },
+      { step: 'Step 2', name: 'Solution', detail: 'Proposed approach' },
+      { step: 'Step 3', name: 'Requirements', detail: 'Detailed specs' },
+      { step: 'Step 4', name: 'Metrics', detail: 'Success criteria' },
+    ],
+    checklist: ['Define the problem clearly', 'State the target user and persona', 'Write user stories with acceptance criteria', 'Define functional requirements', 'Define non-functional requirements', 'List assumptions and constraints', 'Set success metrics and KPIs', 'Get stakeholder sign-off'],
+    whyImportant: 'Building without clear requirements leads to scope creep and misalignment. A good PRD is the single source of truth for what to build.'
+  },
+  {
+    id: 'user-story', name: 'User Story', icon: '\u{1F4DD}', category: 'Agile',
+    pack: 'business', color: '#14b8a6',
+    desc: 'Write user stories with clear acceptance criteria, edge cases, and testable outcomes.',
+    tags: ['user stories', 'acceptance criteria', 'agile', 'INVEST'],
+    useCases: ['Sprint backlog grooming', 'Feature breakdown', 'Stakeholder communication', 'QA test basis'],
+    flow: [
+      { step: 'Step 1', name: 'Persona', detail: 'Who is the user' },
+      { step: 'Step 2', name: 'Story', detail: 'As a... I want... So that...' },
+      { step: 'Step 3', name: 'Criteria', detail: 'Given/When/Then' },
+      { step: 'Step 4', name: 'Validate', detail: 'INVEST check' },
+    ],
+    checklist: ['Identify the user persona', 'Write in "As a [role], I want [goal], so that [benefit]" format', 'Add acceptance criteria in Given/When/Then format', 'Include edge cases and error scenarios', 'Verify story is Independent, Negotiable, Valuable, Estimable, Small, Testable (INVEST)', 'Add any technical notes for developers', 'Include UI mockups where relevant', 'Get product owner approval'],
+    whyImportant: 'Vague user stories lead to misbuilt features. Clear stories with acceptance criteria prevent costly rework.'
+  },
+  {
+    id: 'competitor-analysis', name: 'Competitor Analysis', icon: '\u{1F52D}', category: 'Research',
+    pack: 'business', color: '#14b8a6',
+    desc: 'Analyze competitor features, pricing, and positioning to inform product strategy and differentiation.',
+    tags: ['competitive analysis', 'market research', 'positioning', 'benchmarking'],
+    useCases: ['Product strategy', 'Feature prioritization', 'Pricing decisions', 'Investor deck preparation'],
+    flow: [
+      { step: 'Step 1', name: 'Identify', detail: 'Key competitors' },
+      { step: 'Step 2', name: 'Map', detail: 'Feature comparison' },
+      { step: 'Step 3', name: 'Analyze', detail: 'Strengths & gaps' },
+      { step: 'Step 4', name: 'Recommend', detail: 'Strategic positioning' },
+    ],
+    checklist: ['Identify direct and indirect competitors', 'Create feature comparison matrix', 'Analyze pricing models and tiers', 'Review competitor UX and user feedback', 'Identify market gaps and opportunities', 'Map competitive positioning', 'Document competitor strengths and weaknesses', 'Recommend differentiation strategy'],
+    whyImportant: 'Building in a vacuum leads to products nobody wants. Understanding the competitive landscape informs what to build and how to position it.'
+  },
+  {
+    id: 'feature-prioritize', name: 'Feature Prioritize', icon: '\u{1F4CA}', category: 'Strategy',
+    pack: 'business', color: '#14b8a6',
+    desc: 'Prioritize features using RICE, MoSCoW, or weighted scoring to make data-driven product decisions.',
+    tags: ['RICE', 'MoSCoW', 'prioritization', 'scoring'],
+    useCases: ['Quarterly planning', 'Feature backlog triage', 'Resource allocation', 'Stakeholder alignment'],
+    flow: [
+      { step: 'Step 1', name: 'List', detail: 'All candidates' },
+      { step: 'Step 2', name: 'Score', detail: 'Apply framework' },
+      { step: 'Step 3', name: 'Rank', detail: 'Order by priority' },
+      { step: 'Step 4', name: 'Decide', detail: 'Commit to roadmap' },
+    ],
+    checklist: ['List all feature candidates', 'Choose prioritization framework (RICE, MoSCoW, weighted)', 'Score each feature on chosen criteria', 'Factor in development effort estimates', 'Consider strategic alignment', 'Account for dependencies between features', 'Present ranked list to stakeholders', 'Commit to top priorities for next cycle'],
+    whyImportant: 'Without structured prioritization, the loudest voice wins. Frameworks ensure you build what matters most for users and business.'
+  },
+  {
+    id: 'client-proposal', name: 'Client Proposal', icon: '\u{1F4E7}', category: 'Communication',
+    pack: 'business', color: '#14b8a6',
+    desc: 'Write clear client feature proposals with scope, timeline, effort estimates, and tradeoff options.',
+    tags: ['proposal', 'client', 'scope', 'estimates'],
+    useCases: ['Client feature request', 'Change request', 'New project proposal', 'Scope negotiation'],
+    flow: [
+      { step: 'Step 1', name: 'Scope', detail: 'Define deliverables' },
+      { step: 'Step 2', name: 'Estimate', detail: 'Effort & timeline' },
+      { step: 'Step 3', name: 'Options', detail: 'Build vs buy vs defer' },
+      { step: 'Step 4', name: 'Present', detail: 'Client-friendly doc' },
+    ],
+    checklist: ['Restate the client request in clear terms', 'Define scope boundaries (in scope / out of scope)', 'Estimate development effort', 'Provide timeline with milestones', 'Offer options (MVP, full, phased)', 'List assumptions and dependencies', 'Highlight risks and mitigation', 'Write in non-technical, client-friendly language'],
+    whyImportant: 'Unclear proposals lead to mismatched expectations. A structured proposal sets the right scope and builds client confidence.'
+  },
+  {
+    id: 'metrics-define', name: 'Metrics Define', icon: '\u{1F4C8}', category: 'Analytics',
+    pack: 'business', color: '#14b8a6',
+    desc: 'Define KPIs and success metrics for features with clear measurement plans and tracking implementation.',
+    tags: ['KPIs', 'metrics', 'analytics', 'measurement'],
+    useCases: ['Feature launch', 'Product health monitoring', 'OKR setting', 'A/B test design'],
+    flow: [
+      { step: 'Step 1', name: 'Goals', detail: 'Business objectives' },
+      { step: 'Step 2', name: 'Metrics', detail: 'Leading & lagging' },
+      { step: 'Step 3', name: 'Track', detail: 'Implementation plan' },
+      { step: 'Step 4', name: 'Review', detail: 'Dashboard & cadence' },
+    ],
+    checklist: ['Align metrics to business objectives', 'Define leading indicators (predict success)', 'Define lagging indicators (measure outcomes)', 'Set specific, measurable targets', 'Plan tracking implementation (events, properties)', 'Create monitoring dashboard', 'Set review cadence (daily, weekly, monthly)', 'Define action triggers for metric changes'],
+    whyImportant: 'Without metrics, you are guessing. Defined KPIs let you prove feature value and make data-driven decisions.'
+  },
+  {
+    id: 'scope-negotiate', name: 'Scope Negotiate', icon: '\u{1F91D}', category: 'Management',
+    pack: 'business', color: '#14b8a6',
+    desc: 'Negotiate scope and define MVP boundaries when requirements exceed available time or resources.',
+    tags: ['scope', 'MVP', 'negotiation', 'tradeoffs'],
+    useCases: ['Over-scoped project', 'Tight deadline', 'Budget constraint', 'Feature creep prevention'],
+    flow: [
+      { step: 'Step 1', name: 'Assess', detail: 'Full scope vs capacity' },
+      { step: 'Step 2', name: 'Categorize', detail: 'Must / Should / Could / Won\'t' },
+      { step: 'Step 3', name: 'Propose', detail: 'Phased approach' },
+      { step: 'Step 4', name: 'Agree', detail: 'Document decisions' },
+    ],
+    checklist: ['List all requested features', 'Estimate effort for each', 'Compare total effort vs available capacity', 'Categorize using MoSCoW method', 'Define MVP (minimum lovable product)', 'Propose phased delivery plan', 'Document what is out of scope and why', 'Get written agreement from stakeholders'],
+    whyImportant: 'Saying yes to everything means delivering nothing well. Scope negotiation ensures you build the most valuable thing first.'
+  },
+  {
+    id: 'stakeholder-update', name: 'Stakeholder Update', icon: '\u{1F4E3}', category: 'Communication',
+    pack: 'business', color: '#14b8a6',
+    desc: 'Write clear status updates for stakeholders with progress, blockers, risks, and next steps.',
+    tags: ['status update', 'communication', 'stakeholder', 'reporting'],
+    useCases: ['Weekly status email', 'Sprint review', 'Executive briefing', 'Client check-in'],
+    flow: [
+      { step: 'Step 1', name: 'Progress', detail: 'What was done' },
+      { step: 'Step 2', name: 'Blockers', detail: 'What is stuck' },
+      { step: 'Step 3', name: 'Risks', detail: 'What might go wrong' },
+      { step: 'Step 4', name: 'Next', detail: 'What is coming' },
+    ],
+    checklist: ['Summarize accomplishments this period', 'Quantify progress (% complete, metrics)', 'List active blockers with owners', 'Identify risks and mitigation plans', 'State next period goals and deliverables', 'Highlight decisions needed from stakeholders', 'Keep language clear and non-technical', 'Include timeline and milestone updates'],
+    whyImportant: 'Stakeholders who feel uninformed become anxious and micromanage. Regular, clear updates build trust and prevent surprises.'
+  },
+];
+
+/* ═══ RENDER PACK FILTERS ═══ */
+function renderPackFilters() {
+  const container = document.getElementById('packFilters');
+  const allCount = skills.length;
+  let html = `<button class="pack-filter-btn active" data-pack="all" onclick="filterPack('all', this)" style="border-color:#06b6d4;background:rgba(6,182,212,0.15);color:#06b6d4">All <span class="pack-filter-count">${allCount}</span></button>`;
+
+  packs.forEach(p => {
+    const count = skills.filter(s => s.pack === p.id).length;
+    html += `<button class="pack-filter-btn" data-pack="${p.id}" onclick="filterPack('${p.id}', this)" style="--pack-color:${p.color}">${p.icon} ${p.name} <span class="pack-filter-count">${count}</span></button>`;
+  });
+
+  container.innerHTML = html;
+}
+
+/* ═══ FILTER BY PACK ═══ */
+function filterPack(packId, btn) {
+  // Update active button
+  document.querySelectorAll('.pack-filter-btn').forEach(b => {
+    b.classList.remove('active');
+    b.style.borderColor = '';
+    b.style.background = '';
+    b.style.color = '';
+  });
+  btn.classList.add('active');
+
+  if (packId === 'all') {
+    btn.style.borderColor = '#06b6d4';
+    btn.style.background = 'rgba(6,182,212,0.15)';
+    btn.style.color = '#06b6d4';
+  } else {
+    const pack = packs.find(p => p.id === packId);
+    if (pack) {
+      btn.style.borderColor = pack.color;
+      btn.style.background = pack.color + '22';
+      btn.style.color = pack.color;
+    }
+  }
+
+  // Filter cards
+  document.querySelectorAll('.skill-card').forEach(card => {
+    if (packId === 'all' || card.dataset.pack === packId) {
+      card.classList.remove('hidden');
+    } else {
+      card.classList.add('hidden');
+    }
+  });
+}
+
+/* ═══ RENDER SKILLS GRID ═══ */
+function renderGrid() {
+  const grid = document.getElementById('skillsGrid');
+  grid.innerHTML = skills.map(s => {
+    const pack = packs.find(p => p.id === s.pack);
+    const packName = pack ? pack.name : '';
+    const packColor = pack ? pack.color : s.color;
+    return `
+    <div class="skill-card" data-pack="${s.pack}" onclick="openSkill('${s.id}')" style="--card-color:${s.color}">
+      <style>
+        .skill-card[data-pack="${s.pack}"] .skill-icon { background: ${packColor}22; color: ${packColor}; }
+        .skill-card[data-pack="${s.pack}"]::before { background: linear-gradient(90deg, ${packColor}, ${packColor}88); }
+        .skill-card[data-pack="${s.pack}"] .skill-card-category { color: ${packColor}; }
+      </style>
+      <div class="skill-card-header">
+        <div class="skill-icon">${s.icon}</div>
+        <div>
+          <div class="skill-card-title">${s.name}</div>
+          <div class="skill-card-category">${s.category}</div>
+          <div class="skill-card-pack" style="background:${packColor}18;color:${packColor};border:1px solid ${packColor}33">${packName}</div>
+        </div>
+      </div>
+      <div class="skill-card-desc">${s.desc}</div>
+      <div class="skill-card-tags">
+        ${s.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+      </div>
+    </div>
+  `}).join('');
+}
+
+/* ═══ OPEN SKILL MODAL ═══ */
+function openSkill(id) {
+  const s = skills.find(sk => sk.id === id);
+  if (!s) return;
+
+  const pack = packs.find(p => p.id === s.pack);
+  const packColor = pack ? pack.color : s.color;
+
+  document.getElementById('modalIcon').innerHTML = s.icon;
+  document.getElementById('modalIcon').style.background = `${packColor}22`;
+  document.getElementById('modalIcon').style.color = packColor;
+  document.getElementById('modalTitle').textContent = s.name;
+  document.getElementById('modalCategory').textContent = s.category + (pack ? ' \u2014 ' + pack.name : '');
+  document.getElementById('modalCategory').style.color = packColor;
+
+  const body = document.getElementById('modalBody');
+  body.innerHTML = `
+    <!-- Why Important -->
+    <div class="modal-section">
+      <h3><span class="section-dot" style="background:${packColor}"></span> Why This Matters</h3>
+      <p style="color:var(--text-secondary);font-size:0.95rem;line-height:1.8;padding:16px 20px;background:${packColor}11;border-left:3px solid ${packColor};border-radius:0 8px 8px 0">${s.whyImportant}</p>
+    </div>
+
+    <!-- When to Use -->
+    <div class="modal-section">
+      <h3><span class="section-dot" style="background:${packColor}"></span> When to Use</h3>
+      <div class="use-cases">
+        ${s.useCases.map(u => `<span class="use-case" style="background:${packColor}11;color:${packColor};border-color:${packColor}33">${u}</span>`).join('')}
+      </div>
+    </div>
+
+    <!-- Flow -->
+    <div class="modal-section">
+      <h3><span class="section-dot" style="background:${packColor}"></span> Process Flow</h3>
+      <div class="flow-diagram">
+        <div class="flow-steps">
+          ${s.flow.map((f, i) => `
+            ${i > 0 ? '<div class="flow-arrow" style="color:'+packColor+'">→</div>' : ''}
+            <div class="flow-step-box">
+              <div class="flow-step-num">${f.step}</div>
+              <div class="flow-step-name">${f.name}</div>
+              <div class="flow-step-detail">${f.detail}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- Checklist -->
+    <div class="modal-section">
+      <h3><span class="section-dot" style="background:${packColor}"></span> Checklist</h3>
+      <ul class="checklist">
+        ${s.checklist.map(c => `
+          <li>
+            <span class="check-icon">
+              <svg width="16" height="16" fill="none" stroke="${packColor}" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+            </span>
+            ${c}
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+
+    <!-- Skill File Reference -->
+    <div class="modal-section">
+      <h3><span class="section-dot" style="background:${packColor}"></span> Skill File</h3>
+      <div class="step-code" style="display:flex;align-items:center;justify-content:space-between">
+        <span>heaptrace-skills/${s.id}/SKILL.md</span>
+        <span style="color:var(--text-muted);font-size:0.75rem">Full guide with templates & examples</span>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('modalOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+/* ═══ CLOSE MODAL ═══ */
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modalOverlay') && e.target !== document.querySelector('.modal-close')) return;
+  document.getElementById('modalOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+/* ═══ DOWNLOAD MODAL ═══ */
+function openDownloadModal() {
+  const body = document.getElementById('downloadModalBody');
+  const dlIcon = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>';
+
+  let claudeHtml = '';
+  packs.forEach(p => {
+    const packSkills = skills.filter(s => s.pack === p.id);
+    claudeHtml += `<div class="download-pack-header"><span class="dot" style="background:${p.color}"></span> <span style="color:${p.color}">${p.name}</span> <span style="color:var(--text-muted);font-weight:400">(${packSkills.length} skills)</span></div>`;
+    claudeHtml += '<div class="download-skill-list">';
+    packSkills.forEach(s => {
+      claudeHtml += `<a href="/skills/claude-zips/${s.id}.zip" download class="download-skill-link">${dlIcon} ${s.id}.zip</a>`;
+    });
+    claudeHtml += '</div>';
+  });
+
+  body.innerHTML = `
+    <div class="download-section">
+      <h3 style="color:var(--purple)">&#9654; For Cursor</h3>
+      <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px">Download all 66 skills in a single ZIP. Extract into your project root and reference from <code class="mono" style="color:var(--purple);font-size:0.8rem">.cursorrules</code>.</p>
+      <a href="/skills/heaptrace-skills-cursor.zip" download class="btn-download" style="font-size:0.9rem">
+        ${dlIcon} heaptrace-skills-cursor.zip
+      </a>
+      <span style="color:var(--text-muted);font-size:0.8rem;margin-left:12px">All 8 packs &middot; 66 skills</span>
+    </div>
+
+    <div class="download-section">
+      <h3 style="color:var(--cyan)">&#9654; For Claude Code</h3>
+      <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px">Download individual skill ZIPs. Each contains a SKILL.md file ready for Claude Code's skills/ directory.</p>
+      ${claudeHtml}
+    </div>
+  `;
+
+  document.getElementById('downloadOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDownloadModal(e) {
+  if (e && e.target !== document.getElementById('downloadOverlay')) return;
+  document.getElementById('downloadOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeModal();
+    closeDownloadModal();
+  }
+});
+
+/* ═══ TAB SWITCHING ═══ */
+function switchTab(tabId) {
+  // Update tab buttons
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+
+  // Update tab content
+  document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+  document.getElementById('tab-' + tabId).classList.add('active');
+
+  // Update nav links visibility (only relevant on Skills tab)
+  const navLinks = document.querySelector('.nav-links');
+  if (navLinks) {
+    navLinks.style.display = tabId === 'skills' ? 'flex' : 'none';
+  }
+
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ═══ SMOOTH NAV HIGHLIGHTING (Skills tab only) ═══ */
+const sections = ['skills', 'workflow', 'rules', 'setup'];
+function updateNav() {
+  // Only run if Skills tab is active
+  if (!document.getElementById('tab-skills').classList.contains('active')) return;
+  const scrollPos = window.scrollY + 140;
+  let current = sections[0];
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.offsetTop <= scrollPos) current = id;
+  });
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+  });
+}
+window.addEventListener('scroll', updateNav);
+
+/* ═══ INIT ═══ */
+renderPackFilters();
+renderGrid();
+</script>
+</body>
+</html>

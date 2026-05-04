@@ -1,0 +1,878 @@
+<!--
+┌──────────────────────────────────────────────────────────────┐
+│  HEAPTRACE DEVELOPER SKILLS                                  │
+│  Copyright © 2026 Heaptrace Technology Private Limited        │
+│                                                              │
+│  CONFIDENTIAL — FOR AUTHORIZED CLIENTS ONLY                  │
+│                                                              │
+│  This skill file is the intellectual property of Heaptrace.  │
+│  It is provided exclusively to licensed clients and their    │
+│  development teams for internal use only.                    │
+│                                                              │
+│  You MAY:                                                    │
+│  ✅ Use within your development team                         │
+│  ✅ Customize and tune for your project                      │
+│  ✅ Use with Claude Code, Cursor, or any AI coding tool      │
+│                                                              │
+│  You MAY NOT:                                                │
+│  ❌ Redistribute, share, or publish publicly                 │
+│  ❌ Sell, sublicense, or transfer to third parties            │
+│  ❌ Remove or modify this copyright notice                   │
+│  ❌ Commit to any public or shared repository                │
+│                                                              │
+│  Unauthorized use or distribution is prohibited.             │
+│  Contact: support@heaptrace.com                              │
+└──────────────────────────────────────────────────────────────┘
+-->
+
+---
+name: cypress-test
+description: "Write robust Cypress or Playwright end-to-end tests with page object pattern, custom commands, auth handling, selector strategies, waiting patterns, and test isolation. Produces tests that are stable in CI and catch real regressions."
+---
+
+# Cypress / Playwright E2E Tests — Write Tests That Don't Flake
+
+Takes a user flow, page, or feature and generates production-grade end-to-end tests using Cypress or Playwright. Covers page object pattern, custom commands, authentication handling, selector strategies, waiting patterns, and test isolation — tests that run green in CI, not just locally.
+
+---
+
+## ⛔ Common Rules — Read Before Every Task
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│              MANDATORY RULES FOR EVERY TASK                  │
+│                                                              │
+│  You are a senior software engineer working on a product.    │
+│  You are expert in database design, APIs, and building       │
+│  full-stack applications. Follow these rules strictly.       │
+│                                                              │
+│  ────────────────────────────────────────────────────────    │
+│                                                              │
+│  1. UNDERSTAND BEFORE YOU BUILD                              │
+│     → Study the existing architecture first                  │
+│     → Read how similar features are already built            │
+│     → Identify existing patterns, services, and utilities    │
+│     → Never assume — look at the actual codebase             │
+│                                                              │
+│  2. REUSE — NEVER DUPLICATE                                  │
+│     → Search for existing components, functions, utilities   │
+│     → If something similar exists, extend it — don't copy it │
+│     → Shared logic goes in shared files, not repeated        │
+│     → Ask: "Does this already exist somewhere?"              │
+│                                                              │
+│  3. USE EXISTING TECHNOLOGY                                  │
+│     → Use the frameworks and libraries already in the project│
+│     → Don't introduce a new library if an existing one works │
+│     → Follow the project's established patterns              │
+│                                                              │
+│  4. ASK BEFORE ADDING ANYTHING NEW                           │
+│     → New npm package? → ASK first                           │
+│     → New framework or tool? → ASK first                     │
+│     → New database table pattern? → ASK first                │
+│     → New folder structure? → ASK first                      │
+│     → Never install or download without confirmation         │
+│                                                              │
+│  5. FOLLOW BEST PRACTICES                                    │
+│     → Clean, readable code over clever code                  │
+│     → Proper error handling on every path                    │
+│     → Input validation at every boundary                     │
+│     → Consistent naming conventions throughout               │
+│     → Small, focused functions over large ones               │
+│                                                              │
+│  6. NO AI TOOL REFERENCES — ANYWHERE                         │
+│     → No "Generated by..." in code comments                  │
+│     → No "Co-Authored-By: Claude/Cursor/Copilot" in commits │
+│     → No AI tool mentions in PR descriptions                 │
+│     → No AI watermarks in any output                         │
+│     → All output must look 100% human-written                │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## When to Use This Skill
+
+| Scenario | Use? |
+|----------|------|
+| New user-facing feature (login, dashboard, forms) | Yes |
+| Critical path flows (checkout, signup, onboarding) | Yes |
+| Regression suite for existing stable features | Yes |
+| Unit testing a pure utility function | No — use unit test skill |
+| API-only endpoint with no UI | No — use API test or contract test skill |
+| Rapidly prototyping a throwaway page | No — waste of time |
+| Third-party widget you don't control | No — mock it instead |
+
+---
+
+## Process Flow
+
+```
+┌───────────────┐     Identify       ┌───────────────┐     Choose        ┌───────────────┐
+│  User Request │ ──────────────────▶ │  Analyze the  │ ──────────────▶  │  Select Tool  │
+│  (feature/    │                     │  feature under │                  │  (Cypress or  │
+│   page/flow)  │                     │  test          │                  │   Playwright)  │
+└───────────────┘                     └───────────────┘                  └───────┬───────┘
+                                                                                │
+                              ┌─────────────────────────────────────────────────┘
+                              ▼
+                    ┌───────────────┐     Build         ┌───────────────┐
+                    │  Set up Page  │ ──────────────▶   │  Write Test   │
+                    │  Objects &    │                    │  Specs with   │
+                    │  Fixtures     │                    │  Assertions   │
+                    └───────────────┘                    └───────┬───────┘
+                                                                │
+                              ┌─────────────────────────────────┘
+                              ▼
+                    ┌───────────────┐     Validate      ┌───────────────┐
+                    │  Add Auth &   │ ──────────────▶   │  Run & Fix    │
+                    │  Setup/       │                    │  Flaky Tests  │
+                    │  Teardown     │                    │               │
+                    └───────────────┘                    └───────────────┘
+```
+
+---
+
+## Step 1 — Analyze the Feature Under Test
+
+Before writing a single line of test code, understand what you're testing.
+
+### Discovery Checklist
+
+1. **Read the feature code** — open the page component, identify all interactive elements
+2. **Map user flows** — list every path a user can take (happy path, error path, edge cases)
+3. **Identify API dependencies** — which endpoints does the page call? What data shapes?
+4. **Check auth requirements** — does the page need login? Specific roles? Tenant context?
+5. **Find dynamic content** — loading states, animations, conditional rendering, modals
+
+### Flow Mapping Template
+
+```
+Feature: Course Enrollment
+
+Flow 1 (Happy Path):
+  User lands on catalog → clicks course → clicks "Enroll" → sees success toast → redirected to my-courses
+
+Flow 2 (Already Enrolled):
+  User lands on catalog → clicks course → sees "Already Enrolled" badge → "Continue" button shown
+
+Flow 3 (Enrollment Closed):
+  User lands on catalog → clicks course → "Enroll" button disabled → tooltip says "Enrollment closed"
+
+Flow 4 (Auth Required):
+  Anonymous user → clicks course → clicks "Enroll" → redirected to login → after login → back to course → enroll succeeds
+
+Flow 5 (Network Error):
+  User clicks "Enroll" → API returns 500 → error toast shown → button re-enabled for retry
+```
+
+---
+
+## Step 2 — Choose Your Tool
+
+### Decision Tree
+
+```
+┌─────────────────────────────────────┐
+│  Does the project already use       │
+│  Cypress or Playwright?             │
+├──────────┬──────────────────────────┤
+│   Yes    │         No              │
+│   ▼      │         ▼              │
+│  Use     │  ┌──────────────────┐  │
+│  that    │  │ Need cross-      │  │
+│  one     │  │ browser testing? │  │
+│          │  ├────────┬─────────┤  │
+│          │  │  Yes   │   No    │  │
+│          │  │  ▼     │   ▼     │  │
+│          │  │ Play-  │ Either  │  │
+│          │  │ wright │ works   │  │
+│          │  └────────┴─────────┘  │
+└──────────┴──────────────────────────┘
+
+Cypress Strengths:            Playwright Strengths:
+ - Time-travel debugging       - Multi-browser (Chrome, FF, Safari)
+ - Interactive test runner      - Auto-wait built in
+ - Rich plugin ecosystem       - Multiple tabs/windows support
+ - Component testing built in   - API testing built in
+ - Excellent docs               - Faster execution
+```
+
+---
+
+## Step 3 — Set Up the Page Object Pattern
+
+Page objects encapsulate selectors and interactions for a single page or component. This is the **single most important pattern** for maintainable E2E tests.
+
+### Why Page Objects Matter
+
+```
+WITHOUT Page Objects:                   WITH Page Objects:
+
+// test-1.spec.ts                       // test-1.spec.ts
+cy.get('[data-testid="email"]')         loginPage.fillEmail('user@test.com')
+  .type('user@test.com')                loginPage.fillPassword('pass123')
+cy.get('[data-testid="password"]')      loginPage.submit()
+  .type('pass123')                      loginPage.expectRedirectToDashboard()
+cy.get('[data-testid="submit"]')
+  .click()                              // test-2.spec.ts
+                                        loginPage.fillEmail('bad@test.com')
+// test-2.spec.ts                       loginPage.fillPassword('wrong')
+cy.get('[data-testid="email"]')         loginPage.submit()
+  .type('bad@test.com')                 loginPage.expectErrorMessage('Invalid credentials')
+cy.get('[data-testid="password"]')
+  .type('wrong')                        // Selector changes? Update ONE file.
+cy.get('[data-testid="submit"]')        // 50 tests? Zero changes needed.
+  .click()
+
+// Selector changes? Update 50+ files.
+```
+
+### Cypress Page Object Template
+
+```typescript
+// cypress/pages/LoginPage.ts
+
+export class LoginPage {
+  // ─── Selectors ───────────────────────────────────────
+  private selectors = {
+    emailInput: '[data-testid="login-email"]',
+    passwordInput: '[data-testid="login-password"]',
+    submitButton: '[data-testid="login-submit"]',
+    errorMessage: '[data-testid="login-error"]',
+    forgotPasswordLink: '[data-testid="forgot-password-link"]',
+    googleOAuthButton: '[data-testid="google-oauth-btn"]',
+    loadingSpinner: '[data-testid="login-loading"]',
+  }
+
+  // ─── Navigation ──────────────────────────────────────
+  visit() {
+    cy.visit('/login')
+    cy.get(this.selectors.emailInput).should('be.visible')
+    return this
+  }
+
+  // ─── Actions ─────────────────────────────────────────
+  fillEmail(email: string) {
+    cy.get(this.selectors.emailInput).clear().type(email)
+    return this
+  }
+
+  fillPassword(password: string) {
+    cy.get(this.selectors.passwordInput).clear().type(password)
+    return this
+  }
+
+  submit() {
+    cy.get(this.selectors.submitButton).click()
+    return this
+  }
+
+  login(email: string, password: string) {
+    this.fillEmail(email)
+    this.fillPassword(password)
+    this.submit()
+    return this
+  }
+
+  // ─── Assertions ──────────────────────────────────────
+  expectRedirectToDashboard() {
+    cy.url().should('include', '/dashboard')
+    return this
+  }
+
+  expectErrorMessage(message: string) {
+    cy.get(this.selectors.errorMessage)
+      .should('be.visible')
+      .and('contain.text', message)
+    return this
+  }
+
+  expectSubmitDisabled() {
+    cy.get(this.selectors.submitButton).should('be.disabled')
+    return this
+  }
+
+  expectLoading() {
+    cy.get(this.selectors.loadingSpinner).should('be.visible')
+    return this
+  }
+
+  expectNotLoading() {
+    cy.get(this.selectors.loadingSpinner).should('not.exist')
+    return this
+  }
+}
+
+export const loginPage = new LoginPage()
+```
+
+### Playwright Page Object Template
+
+```typescript
+// tests/pages/LoginPage.ts
+import { Page, expect } from '@playwright/test'
+
+export class LoginPage {
+  constructor(private page: Page) {}
+
+  // ─── Selectors ───────────────────────────────────────
+  private emailInput = this.page.getByTestId('login-email')
+  private passwordInput = this.page.getByTestId('login-password')
+  private submitButton = this.page.getByTestId('login-submit')
+  private errorMessage = this.page.getByTestId('login-error')
+
+  // ─── Navigation ──────────────────────────────────────
+  async visit() {
+    await this.page.goto('/login')
+    await expect(this.emailInput).toBeVisible()
+  }
+
+  // ─── Actions ─────────────────────────────────────────
+  async fillEmail(email: string) {
+    await this.emailInput.clear()
+    await this.emailInput.fill(email)
+  }
+
+  async fillPassword(password: string) {
+    await this.passwordInput.clear()
+    await this.passwordInput.fill(password)
+  }
+
+  async submit() {
+    await this.submitButton.click()
+  }
+
+  async login(email: string, password: string) {
+    await this.fillEmail(email)
+    await this.fillPassword(password)
+    await this.submit()
+  }
+
+  // ─── Assertions ──────────────────────────────────────
+  async expectRedirectToDashboard() {
+    await expect(this.page).toHaveURL(/\/dashboard/)
+  }
+
+  async expectErrorMessage(message: string) {
+    await expect(this.errorMessage).toBeVisible()
+    await expect(this.errorMessage).toContainText(message)
+  }
+}
+```
+
+---
+
+## Step 4 — Selector Strategy
+
+### Selector Priority (Best to Worst)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  SELECTOR PRIORITY — USE THE HIGHEST AVAILABLE              │
+│                                                             │
+│  1. data-testid="login-submit"       ← BEST: explicit,     │
+│                                        won't break with     │
+│                                        CSS/text changes     │
+│                                                             │
+│  2. role + name                      ← GOOD: accessible,   │
+│     getByRole('button', {name: 'Submit'})  semantic         │
+│                                                             │
+│  3. label text                       ← GOOD for forms:     │
+│     getByLabelText('Email address')    ties to real UX      │
+│                                                             │
+│  4. placeholder text                 ← OK: less stable     │
+│     getByPlaceholder('Search...')      than labels          │
+│                                                             │
+│  5. CSS class                        ← BAD: breaks when    │
+│     .btn-primary                       styling changes      │
+│                                                             │
+│  6. XPath                            ← WORST: brittle,     │
+│     //div[3]/span/button               unreadable           │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Adding data-testid Attributes
+
+When the codebase lacks `data-testid` attributes, add them to the source component:
+
+```tsx
+// BEFORE — no test handles
+<button className="btn-primary" onClick={handleSubmit}>
+  {isLoading ? <Spinner /> : 'Create Course'}
+</button>
+
+// AFTER — testable
+<button
+  className="btn-primary"
+  onClick={handleSubmit}
+  data-testid="create-course-submit"
+>
+  {isLoading ? <Spinner /> : 'Create Course'}
+</button>
+```
+
+### Naming Convention for data-testid
+
+```
+{page/component}-{element-type}[-{qualifier}]
+
+Examples:
+  login-email-input
+  login-submit-button
+  course-card-enroll-btn
+  user-table-row-0
+  modal-confirm-delete
+  toast-success-message
+  nav-sidebar-courses-link
+```
+
+---
+
+## Step 5 — Handle Authentication
+
+Most E2E tests need a logged-in user. Logging in via the UI for every test is slow and flaky. Use programmatic auth.
+
+### Cypress — Custom Login Command
+
+```typescript
+// cypress/support/commands.ts
+
+Cypress.Commands.add('loginByApi', (email: string, password: string) => {
+  cy.request({
+    method: 'POST',
+    url: `${Cypress.env('API_URL')}/api/auth/login`,
+    body: { email, password },
+  }).then((response) => {
+    const { accessToken, refreshToken } = response.body
+    // Store tokens the same way your app does
+    window.localStorage.setItem('accessToken', accessToken)
+    window.localStorage.setItem('refreshToken', refreshToken)
+  })
+})
+
+Cypress.Commands.add('loginAsAdmin', () => {
+  cy.loginByApi(
+    Cypress.env('ADMIN_EMAIL'),
+    Cypress.env('ADMIN_PASSWORD')
+  )
+})
+
+Cypress.Commands.add('loginAsLearner', () => {
+  cy.loginByApi(
+    Cypress.env('LEARNER_EMAIL'),
+    Cypress.env('LEARNER_PASSWORD')
+  )
+})
+
+// Usage in tests:
+beforeEach(() => {
+  cy.loginAsAdmin()
+  cy.visit('/dashboard')
+})
+```
+
+### Playwright — Auth State Reuse
+
+```typescript
+// tests/auth.setup.ts
+import { test as setup, expect } from '@playwright/test'
+import path from 'path'
+
+const adminAuthFile = path.join(__dirname, '../.auth/admin.json')
+const learnerAuthFile = path.join(__dirname, '../.auth/learner.json')
+
+setup('authenticate as admin', async ({ request }) => {
+  const response = await request.post('/api/auth/login', {
+    data: {
+      email: process.env.ADMIN_EMAIL,
+      password: process.env.ADMIN_PASSWORD,
+    },
+  })
+  const { accessToken } = await response.json()
+
+  // Save auth state — all tests tagged "admin" reuse this
+  await request.storageState({ path: adminAuthFile })
+})
+
+// playwright.config.ts
+export default defineConfig({
+  projects: [
+    { name: 'setup', testMatch: /.*\.setup\.ts/ },
+    {
+      name: 'admin-tests',
+      use: { storageState: adminAuthFile },
+      dependencies: ['setup'],
+    },
+    {
+      name: 'learner-tests',
+      use: { storageState: learnerAuthFile },
+      dependencies: ['setup'],
+    },
+  ],
+})
+```
+
+---
+
+## Step 6 — Write Test Specs
+
+### Test Structure Template
+
+```typescript
+// cypress/e2e/courses/course-enrollment.cy.ts
+import { catalogPage } from '../../pages/CatalogPage'
+import { courseDetailPage } from '../../pages/CourseDetailPage'
+import { myCoursesPage } from '../../pages/MyCoursesPage'
+
+describe('Course Enrollment', () => {
+  beforeEach(() => {
+    // Fresh state for each test
+    cy.loginAsLearner()
+    // Seed test data via API if needed
+    cy.task('db:seed', { fixture: 'published-course' })
+  })
+
+  afterEach(() => {
+    // Clean up test data
+    cy.task('db:cleanup', { fixture: 'published-course' })
+  })
+
+  context('Happy Path', () => {
+    it('should enroll in a published course from the catalog', () => {
+      catalogPage.visit()
+      catalogPage.searchCourse('Cypress Testing 101')
+      catalogPage.clickCourseCard('Cypress Testing 101')
+
+      courseDetailPage.expectTitle('Cypress Testing 101')
+      courseDetailPage.clickEnroll()
+
+      // Wait for API response, not arbitrary timeout
+      cy.intercept('POST', '/api/enrollments').as('enrollRequest')
+      cy.wait('@enrollRequest').its('response.statusCode').should('eq', 201)
+
+      courseDetailPage.expectSuccessToast('Successfully enrolled')
+      courseDetailPage.expectEnrolledBadge()
+    })
+
+    it('should show the enrolled course in My Courses', () => {
+      // Pre-enroll via API to isolate this test
+      cy.task('db:enrollUser', { courseSlug: 'cypress-testing-101' })
+
+      myCoursesPage.visit()
+      myCoursesPage.expectCourseVisible('Cypress Testing 101')
+      myCoursesPage.expectProgress('Cypress Testing 101', 0)
+    })
+  })
+
+  context('Edge Cases', () => {
+    it('should show "Already Enrolled" for duplicate enrollment', () => {
+      cy.task('db:enrollUser', { courseSlug: 'cypress-testing-101' })
+
+      catalogPage.visit()
+      catalogPage.clickCourseCard('Cypress Testing 101')
+
+      courseDetailPage.expectEnrolledBadge()
+      courseDetailPage.expectEnrollButtonNotVisible()
+    })
+
+    it('should handle enrollment API failure gracefully', () => {
+      cy.intercept('POST', '/api/enrollments', {
+        statusCode: 500,
+        body: { error: 'Internal server error' },
+      }).as('enrollFail')
+
+      catalogPage.visit()
+      catalogPage.clickCourseCard('Cypress Testing 101')
+      courseDetailPage.clickEnroll()
+
+      cy.wait('@enrollFail')
+      courseDetailPage.expectErrorToast('Failed to enroll')
+      courseDetailPage.expectEnrollButtonEnabled()  // Can retry
+    })
+  })
+
+  context('Authorization', () => {
+    it('should redirect to login when unauthenticated user tries to enroll', () => {
+      cy.clearLocalStorage()
+      cy.visit('/courses/cypress-testing-101')
+
+      courseDetailPage.clickEnroll()
+      cy.url().should('include', '/login')
+    })
+  })
+})
+```
+
+---
+
+## Step 7 — Waiting Strategies (Kill Flakiness)
+
+### The Cardinal Rule
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                                                              │
+│   NEVER use cy.wait(3000) or page.waitForTimeout(3000)       │
+│                                                              │
+│   ALWAYS wait for a specific condition:                      │
+│     - Network request to complete                            │
+│     - Element to appear/disappear                            │
+│     - URL to change                                          │
+│     - Text content to update                                 │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Waiting Patterns
+
+```typescript
+// ─── PATTERN 1: Wait for API response ──────────────────
+cy.intercept('GET', '/api/courses*').as('getCourses')
+cy.visit('/courses')
+cy.wait('@getCourses')
+cy.get('[data-testid="course-card"]').should('have.length.at.least', 1)
+
+// ─── PATTERN 2: Wait for element state ─────────────────
+// Wait for loading to finish
+cy.get('[data-testid="skeleton"]').should('not.exist')
+cy.get('[data-testid="course-list"]').should('be.visible')
+
+// ─── PATTERN 3: Wait for URL change ───────────────────
+cy.get('[data-testid="submit"]').click()
+cy.url().should('include', '/dashboard')
+
+// ─── PATTERN 4: Wait for text content ─────────────────
+cy.get('[data-testid="status"]')
+  .should('contain.text', 'Published')  // retries until true
+
+// ─── PATTERN 5: Wait for network idle (Playwright) ────
+await page.goto('/courses', { waitUntil: 'networkidle' })
+
+// ─── PATTERN 6: Custom retry logic ────────────────────
+cy.get('[data-testid="progress"]', { timeout: 10000 })
+  .should('contain.text', '100%')
+```
+
+---
+
+## Step 8 — Test Isolation
+
+Every test must be independent. Test A must not depend on test B running first.
+
+### Isolation Checklist
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  TEST ISOLATION RULES                                        │
+│                                                              │
+│  1. Each test sets up its own data (beforeEach / test setup) │
+│  2. Each test cleans up after itself (afterEach / teardown)  │
+│  3. Tests can run in any order and still pass                │
+│  4. Tests can run in parallel without conflicts              │
+│  5. No shared mutable state between tests                    │
+│  6. Use unique identifiers (timestamps, UUIDs) for test data │
+│  7. Never depend on database auto-increment IDs              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Data Seeding via API
+
+```typescript
+// cypress/support/tasks.ts — run in Node context
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
+
+export async function seedPublishedCourse() {
+  const tenant = await prisma.tenants.findFirst()
+  const course = await prisma.courses.create({
+    data: {
+      title: `Test Course ${Date.now()}`,
+      status: 'published',
+      tenant_id: tenant!.id,
+      created_by: tenant!.owner_id,
+    },
+  })
+  return { courseId: course.id, tenantId: tenant!.id }
+}
+
+export async function cleanupTestCourses() {
+  await prisma.courses.deleteMany({
+    where: { title: { startsWith: 'Test Course' } },
+  })
+}
+
+// cypress.config.ts
+export default defineConfig({
+  e2e: {
+    setupNodeEvents(on) {
+      on('task', {
+        'db:seed': seedPublishedCourse,
+        'db:cleanup': cleanupTestCourses,
+      })
+    },
+  },
+})
+```
+
+---
+
+## Step 9 — Custom Commands Library
+
+Build a library of reusable commands for common operations.
+
+```typescript
+// cypress/support/commands.ts
+
+// ─── Toast assertions ──────────────────────────────────
+Cypress.Commands.add('expectToast', (type: 'success' | 'error', message: string) => {
+  cy.get(`[data-testid="toast-${type}"]`, { timeout: 5000 })
+    .should('be.visible')
+    .and('contain.text', message)
+})
+
+// ─── Table operations ──────────────────────────────────
+Cypress.Commands.add('getTableRow', (rowIndex: number) => {
+  cy.get('tbody tr').eq(rowIndex)
+})
+
+Cypress.Commands.add('expectTableRowCount', (count: number) => {
+  cy.get('tbody tr').should('have.length', count)
+})
+
+// ─── File upload ───────────────────────────────────────
+Cypress.Commands.add('uploadFile', (selector: string, fileName: string, mimeType: string) => {
+  cy.fixture(fileName, 'binary').then((content) => {
+    const blob = Cypress.Blob.binaryStringToBlob(content, mimeType)
+    const file = new File([blob], fileName, { type: mimeType })
+    const dataTransfer = new DataTransfer()
+    dataTransfer.items.add(file)
+
+    cy.get(selector).then((el) => {
+      ;(el[0] as HTMLInputElement).files = dataTransfer.files
+      cy.wrap(el).trigger('change', { force: true })
+    })
+  })
+})
+
+// ─── Intercept + wait shorthand ────────────────────────
+Cypress.Commands.add(
+  'interceptAndWait',
+  (method: string, url: string, alias: string, action: () => void) => {
+    cy.intercept(method, url).as(alias)
+    action()
+    cy.wait(`@${alias}`)
+  }
+)
+```
+
+---
+
+## Step 10 — Fixtures and Test Data
+
+```
+cypress/
+├── fixtures/
+│   ├── users/
+│   │   ├── admin.json            → { "email": "admin@test.com", ... }
+│   │   ├── learner.json          → { "email": "learner@test.com", ... }
+│   │   └── unauthenticated.json  → { "token": null }
+│   ├── courses/
+│   │   ├── published-course.json → Full course with sections
+│   │   ├── draft-course.json     → Draft course
+│   │   └── empty-course.json     → Course with no content
+│   └── api-responses/
+│       ├── enrollment-success.json
+│       ├── enrollment-error.json
+│       └── courses-list.json
+├── pages/
+│   ├── LoginPage.ts
+│   ├── DashboardPage.ts
+│   ├── CatalogPage.ts
+│   └── CourseDetailPage.ts
+├── support/
+│   ├── commands.ts
+│   ├── e2e.ts
+│   └── index.d.ts               → TypeScript declarations for custom commands
+└── e2e/
+    ├── auth/
+    │   ├── login.cy.ts
+    │   └── signup.cy.ts
+    ├── courses/
+    │   ├── course-enrollment.cy.ts
+    │   └── course-creation.cy.ts
+    └── admin/
+        └── user-management.cy.ts
+```
+
+---
+
+## Common Mistakes / Anti-Patterns
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  ANTI-PATTERN                    │  DO THIS INSTEAD          │
+├──────────────────────────────────┼───────────────────────────┤
+│  cy.wait(5000)                   │  cy.wait('@apiAlias')     │
+│  cy.get('.btn-class')            │  cy.get('[data-testid]')  │
+│  Test depends on previous test   │  Each test is independent │
+│  Login via UI in every test      │  Programmatic auth        │
+│  Hardcoded IDs in selectors      │  Dynamic data-testid      │
+│  Asserting on array length === 5 │  length.at.least(1)       │
+│  Testing implementation details  │  Test user-visible behavior│
+│  One giant test file             │  Split by feature/page    │
+│  No cleanup after test           │  afterEach cleanup        │
+│  Skipping .should() retries      │  Always use assertions    │
+│  cy.get(sel).then(el => ...)     │  cy.get(sel).should(...)  │
+│  Testing third-party components  │  Mock external boundaries │
+└──────────────────────────────────┴───────────────────────────┘
+```
+
+---
+
+## Tips for Best Results
+
+1. **Start with the happy path** — get the basic flow working before edge cases
+2. **Use `cy.intercept()` liberally** — intercept every API call your test triggers so you control timing
+3. **Name your test files by feature**, not by page — `course-enrollment.cy.ts` not `catalog-page.cy.ts`
+4. **Keep tests under 30 seconds each** — if a test is longer, split it
+5. **Run tests headless in CI**, headed locally for debugging
+6. **Use `cy.screenshot()` on failure** — configured in `cypress.config.ts` for automatic screenshots
+7. **Tag tests with `@smoke`, `@regression`** — run smoke tests on every PR, full suite nightly
+8. **Never test CSS styling** — that's visual regression testing, not E2E
+9. **Write the test FIRST when fixing a bug** — prove the bug exists, then fix it, then the test passes
+10. **Review test failures before blaming flakiness** — most "flaky" tests have a real timing bug
+
+---
+
+## Cypress Config Reference
+
+```typescript
+// cypress.config.ts
+import { defineConfig } from 'cypress'
+
+export default defineConfig({
+  e2e: {
+    baseUrl: 'http://localhost:3000',
+    viewportWidth: 1280,
+    viewportHeight: 720,
+    defaultCommandTimeout: 8000,
+    requestTimeout: 10000,
+    responseTimeout: 30000,
+    video: false,                    // Disable video in CI to save time
+    screenshotOnRunFailure: true,
+    retries: {
+      runMode: 2,                    // Retry failed tests in CI
+      openMode: 0,                   // No retry when developing locally
+    },
+    env: {
+      API_URL: 'http://localhost:3001',
+      ADMIN_EMAIL: 'admin@test.com',
+      ADMIN_PASSWORD: 'TestPass123!',
+    },
+    setupNodeEvents(on, config) {
+      // Register tasks, plugins
+    },
+  },
+})
+```

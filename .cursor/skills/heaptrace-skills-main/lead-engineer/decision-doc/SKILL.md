@@ -1,0 +1,515 @@
+<!--
+┌──────────────────────────────────────────────────────────────┐
+│  HEAPTRACE DEVELOPER SKILLS                                  │
+│  Copyright © 2026 Heaptrace Technology Private Limited        │
+│                                                              │
+│  CONFIDENTIAL — FOR AUTHORIZED CLIENTS ONLY                  │
+│                                                              │
+│  This skill file is the intellectual property of Heaptrace.  │
+│  It is provided exclusively to licensed clients and their    │
+│  development teams for internal use only.                    │
+│                                                              │
+│  You MAY:                                                    │
+│  ✅ Use within your development team                         │
+│  ✅ Customize and tune for your project                      │
+│  ✅ Use with Claude Code, Cursor, or any AI coding tool      │
+│                                                              │
+│  You MAY NOT:                                                │
+│  ❌ Redistribute, share, or publish publicly                 │
+│  ❌ Sell, sublicense, or transfer to third parties            │
+│  ❌ Remove or modify this copyright notice                   │
+│  ❌ Commit to any public or shared repository                │
+│                                                              │
+│  Unauthorized use or distribution is prohibited.             │
+│  Contact: support@heaptrace.com                              │
+└──────────────────────────────────────────────────────────────┘
+-->
+
+---
+name: decision-doc
+description: "Write an ADR (Architecture Decision Record) — document context, options considered, decision made, trade-offs, and consequences. Use when making significant technical choices that the team needs to understand now and in the future."
+---
+
+# Decision Doc — Write Architecture Decision Records That Last
+
+Creates a structured ADR (Architecture Decision Record) that captures the context, constraints, options evaluated, decision made, trade-offs accepted, and consequences expected — so future developers understand not just WHAT was decided, but WHY, and what alternatives were considered.
+
+---
+
+## ⛔ Common Rules — Read Before Every Task
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│              MANDATORY RULES FOR EVERY TASK                  │
+│                                                              │
+│  You are a senior software engineer working on a product.    │
+│  You are expert in database design, APIs, and building       │
+│  full-stack applications. Follow these rules strictly.       │
+│                                                              │
+│  ────────────────────────────────────────────────────────    │
+│                                                              │
+│  1. UNDERSTAND BEFORE YOU BUILD                              │
+│     → Study the existing architecture first                  │
+│     → Read how similar features are already built            │
+│     → Identify existing patterns, services, and utilities    │
+│     → Never assume — look at the actual codebase             │
+│                                                              │
+│  2. REUSE — NEVER DUPLICATE                                  │
+│     → Search for existing components, functions, utilities   │
+│     → If something similar exists, extend it — don't copy it │
+│     → Shared logic goes in shared files, not repeated        │
+│     → Ask: "Does this already exist somewhere?"              │
+│                                                              │
+│  3. USE EXISTING TECHNOLOGY                                  │
+│     → Use the frameworks and libraries already in the project│
+│     → Don't introduce a new library if an existing one works │
+│     → Follow the project's established patterns              │
+│                                                              │
+│  4. ASK BEFORE ADDING ANYTHING NEW                           │
+│     → New npm package? → ASK first                           │
+│     → New framework or tool? → ASK first                     │
+│     → New database table pattern? → ASK first                │
+│     → New folder structure? → ASK first                      │
+│     → Never install or download without confirmation         │
+│                                                              │
+│  5. FOLLOW BEST PRACTICES                                    │
+│     → Clean, readable code over clever code                  │
+│     → Proper error handling on every path                    │
+│     → Input validation at every boundary                     │
+│     → Consistent naming conventions throughout               │
+│     → Small, focused functions over large ones               │
+│                                                              │
+│  6. NO AI TOOL REFERENCES — ANYWHERE                         │
+│     → No "Generated by..." in code comments                  │
+│     → No "Co-Authored-By: Claude/Cursor/Copilot" in commits │
+│     → No AI tool mentions in PR descriptions                 │
+│     → No AI watermarks in any output                         │
+│     → All output must look 100% human-written                │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## When to Use This Skill
+
+- Choosing between two or more technical approaches
+- Adopting a new library, framework, or service
+- Changing a fundamental pattern (auth, data model, deployment)
+- Making a trade-off that future developers need to understand
+- Deciding NOT to do something (documenting rejected options is valuable)
+- Any decision that would prompt "Why did we do it this way?" in 6 months
+
+---
+
+## How It Works
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                    ADR CREATION FLOW                                  │
+│                                                                      │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐            │
+│  │  DEFINE  │  │ EVALUATE │  │  DECIDE  │  │ DOCUMENT │            │
+│  │ CONTEXT  │─▶│ OPTIONS  │─▶│  & RANK  │─▶│  & FILE  │            │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘            │
+│       │              │              │              │                  │
+│       ▼              ▼              ▼              ▼                  │
+│  Problem,       Pros/cons,     Selection +    ADR file with          │
+│  constraints,   feasibility,   reasoning      full context           │
+│  stakeholders   risk analysis                 for the future         │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## When an ADR is Needed vs. Not Needed
+
+```
+ADR NEEDED:
+├─ Choosing a database (Postgres vs MySQL vs Mongo)
+├─ Choosing an auth strategy (JWT vs sessions vs OAuth)
+├─ Deciding on a deployment target (AWS vs Vercel vs Fly)
+├─ Changing the API versioning strategy
+├─ Adopting a new major dependency
+├─ Choosing between monolith and microservices
+├─ Changing the testing strategy
+└─ Deciding on a caching approach
+
+ADR NOT NEEDED:
+├─ Picking a variable name
+├─ Choosing between two equivalent npm packages for the same thing
+├─ Minor refactoring within a single file
+├─ Bug fixes
+└─ Updating a dependency to a patch version
+```
+
+**Rule of thumb**: If the decision is reversible in under an hour with no side effects, you do not need an ADR. If reversing it would take days or affect other systems, write one.
+
+---
+
+## Step-by-Step Process
+
+### Step 1: Define the Context
+
+Answer these questions clearly:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  CONTEXT QUESTIONS                                          │
+│                                                             │
+│  1. What is the problem or need?                           │
+│     → Be specific. Not "we need auth" but "we need         │
+│       multi-tenant auth with SSO support and role-based     │
+│       access control"                                       │
+│                                                             │
+│  2. What are the constraints?                              │
+│     → Budget, timeline, team expertise, existing tech       │
+│     → Regulatory / compliance requirements                  │
+│     → Performance requirements (latency, throughput)        │
+│                                                             │
+│  3. Who are the stakeholders?                              │
+│     → Who uses this? Who maintains it? Who pays for it?    │
+│                                                             │
+│  4. What is the current state?                             │
+│     → Is this replacing something? Greenfield? Extension?  │
+│                                                             │
+│  5. What happens if we do nothing?                         │
+│     → Is this urgent or can we defer?                      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Step 2: List and Evaluate Options
+
+For each option, evaluate systematically:
+
+```
+OPTION EVALUATION FRAMEWORK:
+
+┌──────────────────────────────────────────────────────┐
+│  For each option, assess:                            │
+│                                                      │
+│  ✅ PROS                                             │
+│  ├─ What problems does this solve?                  │
+│  ├─ What are the strengths?                         │
+│  └─ Where does this excel?                          │
+│                                                      │
+│  ❌ CONS                                             │
+│  ├─ What are the risks?                             │
+│  ├─ What are the limitations?                       │
+│  └─ What could go wrong?                            │
+│                                                      │
+│  📊 CRITERIA SCORES (1-5)                            │
+│  ├─ Complexity — how hard to implement?             │
+│  ├─ Maintainability — how easy to operate long-term?│
+│  ├─ Scalability — handles 10x growth?               │
+│  ├─ Team fit — team has skills to build/maintain?   │
+│  ├─ Cost — infrastructure and licensing costs        │
+│  └─ Time to implement — days/weeks/months?          │
+└──────────────────────────────────────────────────────┘
+```
+
+Use a comparison matrix:
+
+```
+COMPARISON MATRIX:
+
+| Criterion     | Weight | Option A | Option B | Option C |
+|---------------|--------|----------|----------|----------|
+| Complexity    | 20%    | 4/5      | 3/5      | 2/5      |
+| Maintainability| 25%   | 3/5      | 4/5      | 5/5      |
+| Scalability   | 20%    | 5/5      | 3/5      | 4/5      |
+| Team fit      | 15%    | 2/5      | 4/5      | 4/5      |
+| Cost          | 10%    | 3/5      | 5/5      | 4/5      |
+| Time          | 10%    | 2/5      | 4/5      | 3/5      |
+| WEIGHTED TOTAL|        | 3.35     | 3.75     | 3.75     |
+```
+
+### Step 3: Make and Document the Decision
+
+State the decision clearly and explain the reasoning:
+
+```
+DECISION STRUCTURE:
+
+1. THE DECISION (one sentence)
+   "We will use [Option B] for [problem]."
+
+2. THE REASONING (2-3 sentences)
+   "Option B scored highest on maintainability and team fit,
+   which are our top priorities for this project. While Option A
+   has better scalability, our current scale does not require it,
+   and Option B can be migrated later if needed."
+
+3. THE TRADE-OFFS ACCEPTED
+   "We accept that Option B has lower scalability ceiling.
+   We mitigate this by [specific mitigation strategy]."
+
+4. THE REJECTED OPTIONS
+   "We rejected Option A because [reason].
+   We rejected Option C because [reason]."
+```
+
+### Step 4: Document Consequences
+
+```
+CONSEQUENCES TO DOCUMENT:
+
+POSITIVE:
+├─ What becomes easier?
+├─ What new capabilities do we gain?
+└─ What costs do we avoid?
+
+NEGATIVE:
+├─ What becomes harder?
+├─ What limitations do we accept?
+└─ What future options are closed off?
+
+NEUTRAL:
+├─ What needs to change as a result?
+├─ What team training is needed?
+└─ What documentation is needed?
+
+REVERSIBILITY:
+├─ How hard is it to reverse this decision?
+├─ What is the migration path if we need to change?
+└─ What is the trigger to re-evaluate?
+```
+
+---
+
+## ADR Template
+
+```markdown
+# ADR-NNN: [Title — Short Decision Statement]
+
+## Status
+[Proposed | Accepted | Deprecated | Superseded by ADR-NNN]
+
+## Date
+YYYY-MM-DD
+
+## Authors
+[Name(s)]
+
+## Context
+
+### Problem
+[What problem are we solving? Be specific.]
+
+### Constraints
+- [Constraint 1 — e.g., must deploy within 2 weeks]
+- [Constraint 2 — e.g., team has no Go experience]
+- [Constraint 3 — e.g., budget limit of $X/month]
+
+### Current State
+[What exists today? What is the starting point?]
+
+## Options Considered
+
+### Option A: [Name]
+[2-3 sentence description of the approach]
+
+**Pros:**
+- [Pro 1]
+- [Pro 2]
+
+**Cons:**
+- [Con 1]
+- [Con 2]
+
+**Estimated effort:** [X days/weeks]
+**Estimated cost:** [$X/month]
+
+### Option B: [Name]
+[2-3 sentence description]
+
+**Pros:**
+- [Pro 1]
+- [Pro 2]
+
+**Cons:**
+- [Con 1]
+- [Con 2]
+
+**Estimated effort:** [X days/weeks]
+**Estimated cost:** [$X/month]
+
+### Option C: [Name]
+[2-3 sentence description]
+
+**Pros:**
+- [Pro 1]
+
+**Cons:**
+- [Con 1]
+- [Con 2]
+
+**Estimated effort:** [X days/weeks]
+**Estimated cost:** [$X/month]
+
+## Comparison Matrix
+
+| Criterion | Weight | Option A | Option B | Option C |
+|-----------|--------|----------|----------|----------|
+| [Criterion 1] | 25% | X/5 | X/5 | X/5 |
+| [Criterion 2] | 25% | X/5 | X/5 | X/5 |
+| [Criterion 3] | 20% | X/5 | X/5 | X/5 |
+| [Criterion 4] | 15% | X/5 | X/5 | X/5 |
+| [Criterion 5] | 15% | X/5 | X/5 | X/5 |
+| **Weighted Total** | | **X.XX** | **X.XX** | **X.XX** |
+
+## Decision
+
+**We will use Option [X].**
+
+[2-3 sentences explaining WHY this option was chosen. Reference the
+criteria that mattered most and how this option performed on them.]
+
+## Trade-offs Accepted
+
+- [Trade-off 1 — what we give up and why it is acceptable]
+- [Trade-off 2 — what risk we accept and how we mitigate it]
+
+## Consequences
+
+### Positive
+- [What becomes easier or better]
+
+### Negative
+- [What becomes harder or limited]
+
+### Actions Required
+- [ ] [Action 1 — with owner and deadline]
+- [ ] [Action 2]
+- [ ] [Action 3]
+
+## Reversibility
+
+**Difficulty to reverse:** [Easy | Medium | Hard]
+
+**Migration path if we need to change:**
+[Describe how we would migrate away from this decision]
+
+**Re-evaluation trigger:**
+[What conditions would cause us to revisit this decision?
+e.g., "If we exceed 10K concurrent users" or "If cost exceeds $X/month"]
+```
+
+---
+
+## Real-World Example — Choosing a Cache Strategy
+
+```markdown
+# ADR-007: Use Redis for Session Cache
+
+## Status
+Accepted
+
+## Date
+2026-03-15
+
+## Context
+
+### Problem
+API response times are 500ms+ on authenticated endpoints because
+session validation hits the database on every request. Need a
+caching layer for session data.
+
+### Constraints
+- Must be horizontally scalable (multiple API instances)
+- Must handle 1000 concurrent sessions
+- Team has limited Redis experience but strong SQL skills
+- Budget: < $50/month for cache infrastructure
+
+## Options Considered
+
+### Option A: In-Memory Cache (node-cache)
+Store sessions in Node.js process memory.
+
+**Pros:** Zero infrastructure, sub-ms latency, simple API
+**Cons:** Not shared across instances, lost on restart, memory pressure
+
+### Option B: Redis
+Dedicated Redis instance for session cache.
+
+**Pros:** Shared across instances, persistent, TTL support, proven
+**Cons:** New infrastructure to manage, network hop latency, learning curve
+
+### Option C: Database Cache Table
+Dedicated Postgres table with TTL cleanup.
+
+**Pros:** No new infrastructure, team knows SQL, transactional
+**Cons:** Still hitting DB, adds write load, cleanup job needed
+
+## Decision
+**We will use Redis (Option B).**
+
+Redis is the industry standard for session caching. While it adds
+infrastructure complexity, it is the only option that supports
+horizontal scaling, which we need for our multi-instance deployment.
+
+## Trade-offs Accepted
+- Added infrastructure (Redis instance to manage)
+  Mitigated by: Using managed Redis (AWS ElastiCache)
+- Learning curve for the team
+  Mitigated by: Simple key-value usage, no advanced Redis features
+
+## Reversibility
+**Easy** — Sessions are ephemeral. Switching cache backends
+requires changing the cache adapter, not migrating data.
+```
+
+---
+
+## Common ADR Mistakes
+
+| Mistake | Why It Fails | Fix |
+|---------|-------------|-----|
+| No context section | Future readers do not understand why | Always explain the problem first |
+| Only listing the chosen option | Looks like no alternatives were considered | Document at least 2-3 options |
+| Vague pros/cons | "It is good" is not useful | Be specific and measurable |
+| No trade-offs section | Pretends the decision has no downsides | Every decision has trade-offs |
+| No reversibility assessment | Team is afraid to revisit | State how hard it is to change |
+| Too long (> 2 pages) | Nobody reads it | Keep concise — depth in comparison table |
+| Writing ADR after the fact | Loses the reasoning context | Write during or immediately after decision |
+| No status field | Cannot tell if it is still current | Always include and update status |
+
+---
+
+## ADR Lifecycle
+
+```
+┌──────────┐     Review      ┌──────────┐     Implement    ┌──────────┐
+│ Proposed │ ──────────────▶ │ Accepted │ ──────────────▶  │  Active  │
+└──────────┘                 └──────────┘                   └──────────┘
+     │                            │                              │
+     │ Rejected                   │ Better option found          │ Replaced
+     ▼                            ▼                              ▼
+┌──────────┐               ┌──────────────┐              ┌──────────────┐
+│ Rejected │               │ Deprecated   │              │ Superseded   │
+│ (keep as │               │ (keep as     │              │ by ADR-NNN   │
+│  record) │               │  record)     │              │ (link to new)│
+└──────────┘               └──────────────┘              └──────────────┘
+
+RULE: Never delete an ADR. Mark it as Deprecated or Superseded.
+      The history of decisions is as valuable as the current one.
+```
+
+---
+
+## Checklist Before Submitting ADR
+
+```
+□ Problem statement is specific and measurable
+□ Constraints are listed and realistic
+□ At least 2 options evaluated (ideally 3)
+□ Each option has concrete pros and cons
+□ Comparison matrix uses weighted criteria
+□ Decision is stated in one clear sentence
+□ Reasoning explains WHY, not just WHAT
+□ Trade-offs are explicitly acknowledged
+□ Consequences (positive and negative) are listed
+□ Reversibility is assessed
+□ Re-evaluation trigger is defined
+□ Status field is set correctly
+□ ADR is stored in the agreed-upon location
+```
