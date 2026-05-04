@@ -98,7 +98,15 @@ export async function handleJiraWebhook({
       JSON.stringify(issue?.fields?.description || "")
     ].join("\n");
 
-    const snippets = await githubClient.searchRelevantCode(ticketText);
+    let snippets = [];
+    try {
+      snippets = await githubClient.searchRelevantCode(ticketText);
+    } catch (error) {
+      logger.warn("GitHub retrieval failed, continuing with empty evidence", {
+        issueKey,
+        message: error?.message || String(error)
+      });
+    }
     const prompt = buildFeasibilityPrompt({ issue, snippets });
     const report = await llmClient.createFeasibilityReport(prompt);
     const adf = renderFeasibilityAdf(report);

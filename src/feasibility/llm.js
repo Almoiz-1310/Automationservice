@@ -32,7 +32,7 @@ export class LlmClient {
     if (!jsonText) {
       throw new Error("LLM request failed: empty model output");
     }
-    const parsed = JSON.parse(jsonText);
+    const parsed = JSON.parse(sanitizeJsonText(jsonText));
     return validateFeasibilityReport(parsed);
   }
 }
@@ -57,4 +57,24 @@ async function safeJson(response) {
   } catch {
     return null;
   }
+}
+
+function sanitizeJsonText(text) {
+  const trimmed = text.trim();
+  if (!trimmed) return trimmed;
+
+  // Models may wrap JSON in markdown fences; strip those first.
+  const withoutFences = trimmed
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/i, "")
+    .trim();
+
+  // If there is extra prose around JSON, extract the first JSON object block.
+  const firstBrace = withoutFences.indexOf("{");
+  const lastBrace = withoutFences.lastIndexOf("}");
+  if (firstBrace >= 0 && lastBrace > firstBrace) {
+    return withoutFences.slice(firstBrace, lastBrace + 1);
+  }
+
+  return withoutFences;
 }

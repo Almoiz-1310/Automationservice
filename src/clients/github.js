@@ -39,7 +39,10 @@ export class GithubClient {
       headers: this.headers()
     });
     if (!response.ok) {
-      throw new Error(`GitHub code search failed (${response.status})`);
+      const errorBody = await safeJson(response);
+      const message =
+        errorBody?.message || errorBody?.error || "unknown GitHub search error";
+      throw new Error(`GitHub code search failed (${response.status}): ${message}`);
     }
     const body = await response.json();
     return body.items || [];
@@ -64,6 +67,14 @@ export class GithubClient {
       Authorization: `Bearer ${this.token}`,
       "X-GitHub-Api-Version": "2022-11-28"
     };
+  }
+}
+
+async function safeJson(response) {
+  try {
+    return await response.json();
+  } catch {
+    return null;
   }
 }
 
