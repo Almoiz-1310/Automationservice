@@ -1,9 +1,38 @@
 import { buildIdempotencyKey } from "../idempotency/store.js";
 import { buildFeasibilityPrompt, renderFeasibilityAdf } from "../feasibility/prompt.js";
+import crypto from "node:crypto";
 
-function verifySecret(headerValue, expectedSecret) {
+function verifySecret(headers, expectedSecret, rawBody = "") {
   if (!expectedSecret) return false;
-  return headerValue === expectedSecret;
+
+  const directHeader = headers["x-webhook-secret"] || headers["X-Webhook-Secret"];
+  if (directHeader === expectedSecret) {
+    return true;
+  }
+
+  // Jira secret mode sends an HMAC signature in X-Hub-Signature.
+  const signatureHeader = headers["x-hub-signature"] || headers["X-Hub-Signature"];
+  if (!signatureHeader || typeof signatureHeader !== "string") {
+    return false;
+  }
+
+  const [algorithm, signature] = signatureHeader.split("=");
+  if (algorithm !== "sha256" || !signature) {
+    return false;
+  }
+
+  const digest = crypto
+    .createHmac("sha256", expectedSecret)
+    .update(rawBody, "utf8")
+    .digest("hex");
+
+  const expectedBuffer = Buffer.from(digest, "hex");
+  const actualBuffer = Buffer.from(signature, "hex");
+  if (expectedBuffer.length !== actualBuffer.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(expectedBuffer, actualBuffer);
 }
 
 function issueMatchesFilters(issue, config) {
@@ -32,6 +61,7 @@ function issueMatchesFilters(issue, config) {
 export async function handleJiraWebhook({
   body,
   headers,
+  rawBody = "",
   config,
   jiraClient,
   githubClient,
@@ -39,8 +69,7 @@ export async function handleJiraWebhook({
   idempotencyStore,
   logger = console
 }) {
-  const incomingSecret = headers["x-webhook-secret"] || headers["X-Webhook-Secret"];
-  if (!verifySecret(incomingSecret, config.jiraWebhookSecret)) {
+  if (!verifySecret(headers, config.jiraWebhookSecret, rawBody)) {
     return { status: 401, body: { error: "Unauthorized webhook" } };
   }
 

@@ -17,7 +17,7 @@ const server = http.createServer((req, res) => {
     try {
       const rawBody = Buffer.concat(chunks).toString("utf8");
       const body = JSON.parse(rawBody || "{}");
-      const result = await app.process(body, req.headers);
+      const result = await app.process(body, req.headers, rawBody);
       res.writeHead(result.status, { "Content-Type": "application/json" });
       res.end(JSON.stringify(result.body));
     } catch (error) {

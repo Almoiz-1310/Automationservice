@@ -33,10 +33,11 @@ export function createApp(env = process.env, fetchImpl = fetch, logger = console
 
   return {
     config,
-    async process(body, headers) {
+    async process(body, headers, rawBody = "") {
       return handleJiraWebhook({
         body,
         headers,
+        rawBody,
         config,
         jiraClient,
         githubClient,
