@@ -1,0 +1,677 @@
+name: AI Feasibility Assessment
+
+on:
+  repository_dispatch:
+    types: [jira_feature_request]
+  workflow_dispatch:
+    inputs:
+      jira_issue_key:
+        description: Jira issue key (for manual testing)
+        required: true
+      jira_summary:
+        description: Jira issue summary
+        required: true
+      jira_description:
+        description: Jira issue description
+        required: true
+      jira_priority:
+        description: Jira priority
+        required: false
+        default: Medium
+
+permissions:
+  contents: read
+  pull-requests: read
+  actions: read
+
+env:
+  # Provider options: gemini | openai
+  AI_PROVIDER: gemini
+  # Context provider options: local | sourcegraph
+  CONTEXT_PROVIDER: local
+  USE_SIMULATED_OUTPUT: "true"
+  GEMINI_MODEL: gemini-1.5-flash
+  OPENAI_MODEL: gpt-4o-mini
+  TOP_FILE_LIMIT: "25"
+  MAX_FILE_CHARS: "12000"
+  CONFIDENCE_THRESHOLD: "75"
+  JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+  JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+  JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+  SOURCEGRAPH_URL: ${{ secrets.SOURCEGRAPH_URL }}
+  SOURCEGRAPH_TOKEN: ${{ secrets.SOURCEGRAPH_TOKEN }}
+
+jobs:
+  assess:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve Jira payload
+        id: payload
+        run: |
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            echo "jira_issue_key=${{ github.event.client_payload.jira_issue_key }}" >> "$GITHUB_OUTPUT"
+            echo "jira_summary<<EOF" >> "$GITHUB_OUTPUT"
+            echo "${{ github.event.client_payload.jira_summary }}" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+            echo "jira_description<<EOF" >> "$GITHUB_OUTPUT"
+            echo "${{ github.event.client_payload.jira_description }}" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+            echo "jira_priority=${{ github.event.client_payload.jira_priority }}" >> "$GITHUB_OUTPUT"
+            echo "jira_labels=${{ github.event.client_payload.jira_labels }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "jira_issue_key=${{ inputs.jira_issue_key }}" >> "$GITHUB_OUTPUT"
+            echo "jira_summary<<EOF" >> "$GITHUB_OUTPUT"
+            echo "${{ inputs.jira_summary }}" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+            echo "jira_description<<EOF" >> "$GITHUB_OUTPUT"
+            echo "${{ inputs.jira_description }}" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+            echo "jira_priority=${{ inputs.jira_priority }}" >> "$GITHUB_OUTPUT"
+            echo "jira_labels=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Validate required payload
+        run: |
+          test -n "${{ steps.payload.outputs.jira_issue_key }}"
+          test -n "${{ steps.payload.outputs.jira_summary }}"
+          test -n "${{ steps.payload.outputs.jira_description }}"
+
+      - name: Build repository context with relevant snippets
+        env:
+          JIRA_KEY: ${{ steps.payload.outputs.jira_issue_key }}
+          JIRA_SUMMARY: ${{ steps.payload.outputs.jira_summary }}
+          JIRA_DESCRIPTION: ${{ steps.payload.outputs.jira_description }}
+          JIRA_PRIORITY: ${{ steps.payload.outputs.jira_priority }}
+          JIRA_LABELS: ${{ steps.payload.outputs.jira_labels }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+          import subprocess
+          import urllib.error
+          import urllib.request
+          from pathlib import Path
+
+          context_provider = os.environ.get("CONTEXT_PROVIDER", "local").strip().lower()
+          top_limit = int(os.environ.get("TOP_FILE_LIMIT", "25"))
+          max_chars = int(os.environ.get("MAX_FILE_CHARS", "12000"))
+          chunk_lines = 180
+          chunk_overlap = 40
+          chunks_per_file = 2
+          repo_name = os.environ.get("GITHUB_REPOSITORY", "")
+          default_branch = os.environ.get("GITHUB_REF_NAME", "main")
+          issue_key = os.environ.get("JIRA_KEY", "")
+          summary = os.environ.get("JIRA_SUMMARY", "")
+          description = os.environ.get("JIRA_DESCRIPTION", "")
+          priority = os.environ.get("JIRA_PRIORITY", "")
+          labels = os.environ.get("JIRA_LABELS", "")
+          sourcegraph_url = os.environ.get("SOURCEGRAPH_URL", "").strip().rstrip("/")
+          sourcegraph_token = os.environ.get("SOURCEGRAPH_TOKEN", "").strip()
+
+          excluded_parts = {
+              ".git", "node_modules", "vendor", "dist", "build",
+              "__pycache__", ".next", ".cache", "coverage", "secrets"
+          }
+          excluded_suffixes = {
+              ".png", ".jpg", ".jpeg", ".gif", ".webp", ".pdf", ".zip",
+              ".gz", ".jar", ".exe", ".dll", ".so", ".lock", ".min.js"
+          }
+
+          query_text = f"{summary} {description} {labels}".lower()
+          keywords = set(re.findall(r"[a-zA-Z_][a-zA-Z0-9_]{3,}", query_text))
+          stop = {"with", "from", "that", "this", "have", "will", "should", "into", "about", "feature", "request"}
+          keywords = [k for k in keywords if k not in stop]
+
+          def build_local_candidates():
+              files_out = subprocess.run(
+                  ["git", "ls-files"],
+                  check=True,
+                  capture_output=True,
+                  text=True,
+              ).stdout.splitlines()
+
+              file_candidates = []
+              for rel in files_out:
+                  p = Path(rel)
+                  if any(part in excluded_parts for part in p.parts):
+                      continue
+                  if p.suffix.lower() in excluded_suffixes:
+                      continue
+                  try:
+                      content = p.read_text(encoding="utf-8", errors="ignore")
+                  except Exception:
+                      continue
+                  if not content.strip():
+                      continue
+                  text_l = (rel + "\n" + content[:max_chars]).lower()
+                  score = sum(text_l.count(k) for k in keywords) if keywords else 0
+                  if score > 0:
+                      file_candidates.append((score, rel, content))
+
+              if not file_candidates:
+                  for rel in files_out[:top_limit]:
+                      p = Path(rel)
+                      if any(part in excluded_parts for part in p.parts):
+                          continue
+                      if p.suffix.lower() in excluded_suffixes:
+                          continue
+                      try:
+                          content = p.read_text(encoding="utf-8", errors="ignore")
+                      except Exception:
+                          continue
+                      if content.strip():
+                          file_candidates.append((0, rel, content))
+                      if len(file_candidates) >= top_limit:
+                          break
+
+              file_candidates.sort(key=lambda x: x[0], reverse=True)
+              return file_candidates[:top_limit]
+
+          def fetch_sourcegraph_snippets():
+              if not sourcegraph_url or not sourcegraph_token:
+                  print("Sourcegraph not configured. Falling back to local retrieval.")
+                  return []
+
+              query_bits = [summary, description, labels]
+              if keywords:
+                  query_bits.extend(keywords[:12])
+              base_query = " ".join([b for b in query_bits if b]).strip()
+              if not base_query:
+                  return []
+              repo_filter = f"repo:{repo_name}" if repo_name else ""
+              query = f"{repo_filter} {base_query}".strip()
+              gql = {
+                  "query": (
+                      "query Search($query: String!) {"
+                      "  search(query: $query, version: V3, patternType: keyword) {"
+                      "    results {"
+                      "      results {"
+                      "        __typename "
+                      "        ... on FileMatch {"
+                      "          file { path }"
+                      "          lineMatches {"
+                      "            lineNumber"
+                      "            preview"
+                      "            offsetAndLengths"
+                      "          }"
+                      "        }"
+                      "      }"
+                      "    }"
+                      "  }"
+                      "}"
+                  ),
+                  "variables": {"query": query}
+              }
+              req = urllib.request.Request(
+                  f"{sourcegraph_url}/.api/graphql",
+                  data=json.dumps(gql).encode("utf-8"),
+                  headers={
+                      "Authorization": f"token {sourcegraph_token}",
+                      "Content-Type": "application/json"
+                  },
+                  method="POST",
+              )
+              try:
+                  with urllib.request.urlopen(req) as resp:
+                      body = json.loads(resp.read().decode("utf-8"))
+              except urllib.error.HTTPError as e:
+                  error_body = e.read().decode("utf-8", errors="ignore")
+                  print(f"Sourcegraph HTTP {e.code}. Falling back to local retrieval. Body: {error_body[:500]}")
+                  return []
+              except Exception as e:
+                  print(f"Sourcegraph request error. Falling back to local retrieval: {e}")
+                  return []
+
+              if body.get("errors"):
+                  print(f"Sourcegraph GraphQL errors. Falling back to local retrieval: {body['errors'][:2]}")
+                  return []
+
+              sg_results = (
+                  body.get("data", {})
+                  .get("search", {})
+                  .get("results", {})
+                  .get("results", [])
+              )
+              snippets = []
+              for item in sg_results:
+                  if item.get("__typename") != "FileMatch":
+                      continue
+                  rel = item.get("file", {}).get("path", "")
+                  if not rel:
+                      continue
+                  p = Path(rel)
+                  if any(part in excluded_parts for part in p.parts):
+                      continue
+                  if p.suffix.lower() in excluded_suffixes:
+                      continue
+                  for lm in item.get("lineMatches", [])[:4]:
+                      line_no = int(lm.get("lineNumber", 1) or 1)
+                      preview = (lm.get("preview") or "").rstrip()
+                      if not preview:
+                          continue
+                      snippet_score = sum(preview.lower().count(k) for k in keywords) if keywords else 1
+                      snippets.append({
+                          "path": rel,
+                          "file_score": snippet_score,
+                          "chunk_score": snippet_score,
+                          "start_line": line_no,
+                          "end_line": line_no,
+                          "snippet": preview
+                      })
+                      if len(snippets) >= top_limit * chunks_per_file:
+                          break
+                  if len(snippets) >= top_limit * chunks_per_file:
+                      break
+
+              return snippets
+
+          out_dir = Path("out")
+          out_dir.mkdir(parents=True, exist_ok=True)
+
+          context_lines = [
+              f"Repository: {repo_name}",
+              f"Default Branch: {default_branch}",
+              f"Context Provider: {context_provider}",
+              f"Issue Key: {issue_key}",
+              f"Summary: {summary}",
+              f"Priority: {priority}",
+              f"Labels: {labels}",
+              "",
+              "Relevant snippets:"
+          ]
+          snippets = []
+          sourcegraph_snippets = []
+
+          if context_provider == "sourcegraph":
+              sourcegraph_snippets = fetch_sourcegraph_snippets()
+              if sourcegraph_snippets:
+                  snippets = sourcegraph_snippets[:top_limit * chunks_per_file]
+                  for item in snippets:
+                      context_lines.append(
+                          f"\n--- FILE: {item['path']} (score={item['chunk_score']}, lines={item['start_line']}-{item['end_line']}) ---\n{item['snippet']}"
+                      )
+
+          if not snippets:
+              selected_files = build_local_candidates()
+              for file_score, rel, content in selected_files:
+                  lines = content.splitlines()
+                  if not lines:
+                      continue
+
+                  step = max(1, chunk_lines - chunk_overlap)
+                  chunk_candidates = []
+                  for start in range(0, len(lines), step):
+                      end = min(len(lines), start + chunk_lines)
+                      chunk_text = "\n".join(lines[start:end])
+                      if not chunk_text.strip():
+                          continue
+                      chunk_lower = (rel + "\n" + chunk_text).lower()
+                      chunk_score = sum(chunk_lower.count(k) for k in keywords) if keywords else 0
+                      total_score = file_score + chunk_score
+                      chunk_candidates.append((total_score, start + 1, end, chunk_text))
+                      if end >= len(lines):
+                          break
+
+                  chunk_candidates.sort(key=lambda x: x[0], reverse=True)
+                  best_chunks = chunk_candidates[:chunks_per_file] if chunk_candidates else []
+
+                  for total_score, start_line, end_line, chunk_text in best_chunks:
+                      if len(chunk_text) > max_chars:
+                          chunk_text = chunk_text[:max_chars]
+                      snippets.append({
+                          "path": rel,
+                          "file_score": file_score,
+                          "chunk_score": total_score,
+                          "start_line": start_line,
+                          "end_line": end_line,
+                          "snippet": chunk_text
+                      })
+                      context_lines.append(
+                          f"\n--- FILE: {rel} (score={total_score}, lines={start_line}-{end_line}) ---\n{chunk_text}"
+                      )
+
+          (out_dir / "context.txt").write_text("\n".join(context_lines), encoding="utf-8")
+
+          assessment_input = {
+              "jira_issue": {
+                  "key": issue_key,
+                  "summary": summary,
+                  "description": description,
+                  "priority": priority,
+                  "labels": labels
+              },
+              "repository": {
+                  "name": repo_name,
+                  "default_branch": default_branch
+              },
+              "context_provider": context_provider,
+              "selected_snippets": snippets,
+              "output_schema_path": "templates/assessment-schema.json",
+              "prompt_path": "templates/system-prompt.md"
+          }
+          (out_dir / "assessment-input.json").write_text(
+              json.dumps(assessment_input, ensure_ascii=True, indent=2),
+              encoding="utf-8"
+          )
+          PY
+
+      - name: Generate assessment using Gemini
+        if: ${{ env.USE_SIMULATED_OUTPUT != 'true' && env.AI_PROVIDER == 'gemini' }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+
+          api_key = os.environ.get("GEMINI_API_KEY", "").strip()
+          if not api_key:
+              raise RuntimeError("GEMINI_API_KEY is not set")
+
+          primary_model = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
+          model_candidates = []
+          for m in [
+              primary_model,
+              "gemini-2.0-flash",
+              "gemini-1.5-flash-latest",
+              "gemini-1.5-flash",
+          ]:
+              if m and m not in model_candidates:
+                  model_candidates.append(m)
+          system_prompt = open("templates/system-prompt.md", "r", encoding="utf-8").read()
+          schema = json.load(open("templates/assessment-schema.json", "r", encoding="utf-8"))
+          assessment_input = json.load(open("out/assessment-input.json", "r", encoding="utf-8"))
+
+          prompt = (
+              f"{system_prompt}\n\n"
+              "Return JSON only and ensure it conforms exactly to this JSON schema:\n"
+              f"{json.dumps(schema, ensure_ascii=True)}\n\n"
+              "Assessment input:\n"
+              f"{json.dumps(assessment_input, ensure_ascii=True)}"
+          )
+
+          payload = {
+              "contents": [
+                  {
+                      "parts": [
+                          {"text": prompt}
+                      ]
+                  }
+              ],
+              "generationConfig": {
+                  "temperature": 0.1,
+                  "responseMimeType": "application/json"
+              }
+          }
+
+          response = None
+          last_error = None
+          selected_model = None
+
+          for model in model_candidates:
+              print(f"Trying Gemini model: {model}")
+              url = (
+                  "https://generativelanguage.googleapis.com/v1beta/models/"
+                  f"{model}:generateContent?key={urllib.parse.quote(api_key)}"
+              )
+              req = urllib.request.Request(
+                  url,
+                  data=json.dumps(payload).encode("utf-8"),
+                  headers={"Content-Type": "application/json"},
+                  method="POST",
+              )
+              try:
+                  with urllib.request.urlopen(req) as resp:
+                      response = json.loads(resp.read().decode("utf-8"))
+                  selected_model = model
+                  break
+              except urllib.error.HTTPError as e:
+                  body = ""
+                  try:
+                      body = e.read().decode("utf-8", errors="ignore")
+                  except Exception:
+                      pass
+                  print(f"Model {model} failed with HTTP {e.code}: {body[:500]}")
+                  last_error = RuntimeError(f"Gemini model {model} failed with HTTP {e.code}")
+                  if e.code == 404:
+                      continue
+                  raise
+
+          if response is None:
+              raise last_error or RuntimeError("No Gemini response from any model candidate")
+          print(f"Using Gemini model: {selected_model}")
+
+          candidates = response.get("candidates", [])
+          if not candidates:
+              raise RuntimeError(f"Gemini returned no candidates: {response}")
+
+          parts = candidates[0].get("content", {}).get("parts", [])
+          if not parts:
+              raise RuntimeError(f"Gemini returned no content parts: {response}")
+
+          raw = parts[0].get("text", "").strip()
+          if not raw:
+              raise RuntimeError(f"Gemini returned empty content: {response}")
+
+          parsed = json.loads(raw)
+          open("out/assessment-output.json", "w", encoding="utf-8").write(
+              json.dumps(parsed, ensure_ascii=True, indent=2)
+          )
+          PY
+
+      - name: Generate assessment using OpenAI
+        if: ${{ env.USE_SIMULATED_OUTPUT != 'true' && env.AI_PROVIDER == 'openai' }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+          if not api_key:
+              raise RuntimeError("OPENAI_API_KEY is not set")
+
+          model = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+          system_prompt = open("templates/system-prompt.md", "r", encoding="utf-8").read()
+          schema = json.load(open("templates/assessment-schema.json", "r", encoding="utf-8"))
+          assessment_input = json.load(open("out/assessment-input.json", "r", encoding="utf-8"))
+
+          user_prompt = (
+              "Assess feasibility for this Jira request using repository snippets. "
+              "Return JSON only.\n\n"
+              + json.dumps(assessment_input, ensure_ascii=True)
+          )
+
+          url = "https://api.openai.com/v1/chat/completions"
+          base_payload = {
+              "model": model,
+              "temperature": 0.1,
+              "messages": [
+                  {"role": "system", "content": system_prompt},
+                  {"role": "user", "content": user_prompt}
+              ]
+          }
+
+          def do_request(payload):
+              req = urllib.request.Request(
+                  url,
+                  data=json.dumps(payload).encode("utf-8"),
+                  headers={
+                      "Authorization": f"Bearer {api_key}",
+                      "Content-Type": "application/json"
+                  },
+                  method="POST",
+              )
+              with urllib.request.urlopen(req) as resp:
+                  return json.loads(resp.read().decode("utf-8"))
+
+          try:
+              strict_payload = dict(base_payload)
+              strict_payload["response_format"] = {
+                  "type": "json_schema",
+                  "json_schema": {
+                      "name": "feasibility_assessment",
+                      "schema": schema,
+                      "strict": True
+                  }
+              }
+              response = do_request(strict_payload)
+          except Exception:
+              response = do_request(base_payload)
+
+          raw = response["choices"][0]["message"]["content"]
+          parsed = json.loads(raw)
+          open("out/assessment-output.json", "w", encoding="utf-8").write(
+              json.dumps(parsed, ensure_ascii=True, indent=2)
+          )
+          PY
+
+      - name: Generate simulated assessment output
+        if: ${{ env.USE_SIMULATED_OUTPUT == 'true' }}
+        run: |
+          cat > out/assessment-output.json <<'EOF'
+          {
+            "verdict": "partially_feasible",
+            "affected_components": ["api", "content-pipeline", "admin-ui"],
+            "effort_estimate": {
+              "size": "L",
+              "rationale": "Requires integration updates, schema mapping, and rollout controls."
+            },
+            "risks": [
+              {
+                "severity": "high",
+                "type": "architecture",
+                "detail": "Cross-module coupling may require refactoring in multiple services."
+              },
+              {
+                "severity": "medium",
+                "type": "security",
+                "detail": "Context filtering must prevent accidental exposure of sensitive snippets."
+              }
+            ],
+            "open_questions": [
+              "Should low-confidence results auto-route to engineering triage?",
+              "Which Jira custom fields should be updated automatically in phase 1?"
+            ],
+            "confidence_score": 82
+          }
+          EOF
+
+      - name: Validate assessment output contract
+        run: |
+          python3 - <<'PY'
+          import json
+          data = json.load(open("out/assessment-output.json", "r", encoding="utf-8"))
+          required = {"verdict", "affected_components", "effort_estimate", "risks", "open_questions", "confidence_score"}
+          missing = required - data.keys()
+          if missing:
+              raise RuntimeError(f"Missing required keys in assessment output: {sorted(missing)}")
+          if not isinstance(data["confidence_score"], int):
+              raise RuntimeError("confidence_score must be an integer")
+          if data["confidence_score"] < 0 or data["confidence_score"] > 100:
+              raise RuntimeError("confidence_score must be between 0 and 100")
+          PY
+
+      - name: Enforce confidence threshold
+        id: quality
+        run: |
+          score=$(python3 -c 'import json;print(json.load(open("out/assessment-output.json"))["confidence_score"])')
+          echo "confidence_score=$score" >> "$GITHUB_OUTPUT"
+          if [ "$score" -lt "${CONFIDENCE_THRESHOLD}" ]; then
+            echo "needs_human_review=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "needs_human_review=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Prepare Jira comment body
+        env:
+          WORKFLOW_REPOSITORY: ${{ github.repository }}
+          WORKFLOW_RUN_ID: ${{ github.run_id }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          data = json.loads(Path("out/assessment-output.json").read_text())
+          tmpl = Path("templates/jira-comment-template.md").read_text()
+          risks = "\n".join([f"- [{r['severity']}] {r['type']}: {r['detail']}" for r in data["risks"]]) or "- None"
+          questions = "\n".join([f"- {q}" for q in data["open_questions"]]) or "- None"
+          workflow_url = f"https://github.com/{os.environ['WORKFLOW_REPOSITORY']}/actions/runs/{os.environ['WORKFLOW_RUN_ID']}"
+          body = (
+              tmpl.replace("{{VERDICT}}", data["verdict"])
+              .replace("{{AFFECTED_COMPONENTS}}", ", ".join(data["affected_components"]))
+              .replace("{{EFFORT_SIZE}}", data["effort_estimate"]["size"])
+              .replace("{{EFFORT_RATIONALE}}", data["effort_estimate"]["rationale"])
+              .replace("{{RISKS}}", risks)
+              .replace("{{OPEN_QUESTIONS}}", questions)
+              .replace("{{CONFIDENCE_SCORE}}", str(data["confidence_score"]))
+              .replace("{{WORKFLOW_URL}}", workflow_url)
+          )
+          Path("out/jira-comment.md").write_text(body)
+          PY
+
+      - name: Post comment to Jira
+        run: |
+          python3 - <<'PY'
+          import base64
+          import json
+          import os
+          import urllib.request
+
+          issue_key = "${{ steps.payload.outputs.jira_issue_key }}"
+          base_url = os.environ["JIRA_BASE_URL"].rstrip("/")
+          email = os.environ["JIRA_USER_EMAIL"]
+          token = os.environ["JIRA_API_TOKEN"]
+
+          comment_text = open("out/jira-comment.md", "r", encoding="utf-8").read()
+
+          body = json.dumps({
+              "body": {
+                  "type": "doc",
+                  "version": 1,
+                  "content": [
+                      {
+                          "type": "paragraph",
+                          "content": [
+                              {"type": "text", "text": comment_text}
+                          ]
+                      }
+                  ]
+              }
+          }).encode("utf-8")
+
+          auth = base64.b64encode(f"{email}:{token}".encode("utf-8")).decode("utf-8")
+          req = urllib.request.Request(
+              f"{base_url}/rest/api/3/issue/{issue_key}/comment",
+              data=body,
+              method="POST",
+              headers={
+                  "Authorization": f"Basic {auth}",
+                  "Accept": "application/json",
+                  "Content-Type": "application/json"
+              }
+          )
+
+          with urllib.request.urlopen(req) as resp:
+              print(f"Jira comment posted with status {resp.status}")
+          PY
+
+      - name: Write summary and artifacts
+        run: |
+          echo "Assessment complete for ${{ steps.payload.outputs.jira_issue_key }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Confidence score: ${{ steps.quality.outputs.confidence_score }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Needs human review: ${{ steps.quality.outputs.needs_human_review }}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-feasibility-artifacts
+          path: out/

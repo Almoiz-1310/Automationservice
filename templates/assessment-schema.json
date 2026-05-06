@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FeasibilityAssessment",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "verdict",
+    "affected_components",
+    "effort_estimate",
+    "risks",
+    "open_questions",
+    "confidence_score"
+  ],
+  "properties": {
+    "verdict": {
+      "type": "string",
+      "enum": ["feasible", "partially_feasible", "not_feasible"]
+    },
+    "affected_components": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "effort_estimate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["size", "rationale"],
+      "properties": {
+        "size": {
+          "type": "string",
+          "enum": ["S", "M", "L", "XL"]
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 10
+        }
+      }
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["severity", "type", "detail"],
+        "properties": {
+          "severity": {
+            "type": "string",
+            "enum": ["low", "medium", "high"]
+          },
+          "type": {
+            "type": "string",
+            "enum": ["technical", "dependency", "architecture", "security"]
+          },
+          "detail": {
+            "type": "string",
+            "minLength": 8
+          }
+        }
+      }
+    },
+    "open_questions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "confidence_score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    }
+  }
+}
